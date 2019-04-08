@@ -8,6 +8,8 @@ namespace SeaBattleClassLibrary.Game
 {
     public class Ship
     {
+        public readonly int Id;
+
         /// <summary>
         /// Позиция корабля (левая верхняя клетка).
         /// </summary>
@@ -16,12 +18,39 @@ namespace SeaBattleClassLibrary.Game
         /// <summary>
         /// Класс корабля.
         /// </summary>
-        public ShipClass ShipClass;
+        public readonly ShipClass ShipClass;
 
         /// <summary>
         /// Ориентация корабля на поле.
         /// </summary>
         public Orientation Orientation;
+
+        /// <summary>
+        /// Попадания по кораблю.
+        /// </summary>
+        public bool[] Hits;
+
+        /// <summary>
+        /// Потоплен ли корабль.
+        /// </summary>
+        public bool IsDead
+        {
+            get
+            {
+                if (Hits.Count(x => x) == (int)ShipClass)
+                    return true;
+                else
+                    return false;
+            }
+        }
+
+        public Ship(int id, ShipClass shipClass = ShipClass.OneDeck, Orientation orientation = Orientation.Vertical)
+        {
+            Id = id;
+            ShipClass = shipClass;
+            Orientation = orientation;
+            Hits = new bool[(int)ShipClass];
+        }
     }
 
     public enum ShipClass
@@ -72,7 +101,7 @@ namespace SeaBattleClassLibrary.Game
 
         public int Y
         {
-            get => x;
+            get => y;
             set
             {
                 if (value > Size || value < 0)
