@@ -45,6 +45,14 @@ namespace SeaBattleServer
                 listener.Bind(localEndPoint);
                 listener.Listen(100);
 
+                foreach (var ip in ipHostInfo.AddressList)
+                {
+                    if (ip.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        Console.WriteLine(ip.ToString());
+                    }
+                }
+
                 while (true)
                 {
                     // Set the event to nonsignaled state.  
