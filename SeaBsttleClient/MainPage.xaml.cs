@@ -28,12 +28,14 @@ namespace SeaBattleClient
         {
             this.InitializeComponent();
 
+            //сделать поле
             for(int i=0; i < 10; i++)
             {
                 FieldGrid.RowDefinitions.Add(new RowDefinition());
                 FieldGrid.ColumnDefinitions.Add(new ColumnDefinition());
             }
 
+            //заполнить поле квадратиками
             for(int i = 0; i < FieldGrid.RowDefinitions.Count(); i++)
             {
                 for(int j=0; j < FieldGrid.ColumnDefinitions.Count; j++)
@@ -45,8 +47,19 @@ namespace SeaBattleClient
                     Grid.SetColumn(rectangle, j);
                 }
             }
+
+            Rectangle rec = new Rectangle() { StrokeThickness = 1 };
+            rec.Stroke = new SolidColorBrush(Colors.Red);
+            rectangleGrid.Children.Add(rec);
+            Grid.SetRow(rec, 0);
+            Grid.SetColumn(rec, 0);
+
+            //Rectangle rec = new Rectangle() { StrokeThickness = 1 };
+            //rec.Stroke = new SolidColorBrush(Colors.Red);
+            //rec.Margin = new Thickness(960, 350, 510, 620);
+            //rec.Height = 30;
+            //rec.Width = 30;
         }
 
-        public Color Gray { get; }
     }
 }
