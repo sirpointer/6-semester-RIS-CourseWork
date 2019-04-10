@@ -9,18 +9,15 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     RequestedTheme="Light">
     <Grid>
-        <Grid x:Name="FieldGrid" Height="300" Width="300">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="auto" />
+        </Grid.ColumnDefinitions>
+        <Grid x:Name="FieldGrid" Height="300" Width="300" Visibility="Collapsed">
 
         </Grid >
-        
-        <Grid x:Name="rectangleGrid" Height="30" Width="30" Margin="960,350,510,620" >
-            <Rectangle CanDrag="True" Stroke="Red" StrokeThickness="1" Fill="Transparent" Grid.Row="0" Grid.Column="0"/>
-            
-            <Rectangle Fill="Transparent" StrokeThickness="1" Stroke="Gray" Grid.Row="0" Grid.Column="0" />
 
-        </Grid>
-        <Image Source="Source/1.jpg"  Height="30" Width="30" Margin="1250,325,220,645">
-
-        </Image>
+        <Image Source="/Assets/Ships/ship.jpg" Width="250" HorizontalAlignment="Right" Grid.Column="1" />
+        <Rectangle Width="250" Height="250" Fill="Red" VerticalAlignment="Bottom" />
     </Grid>
 </Page>

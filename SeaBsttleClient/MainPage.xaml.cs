@@ -48,11 +48,12 @@ namespace SeaBattleClient
                 }
             }
 
-            Rectangle rec = new Rectangle() { StrokeThickness = 1 };
+            /*Rectangle rec = new Rectangle() { StrokeThickness = 1 };
             rec.Stroke = new SolidColorBrush(Colors.Red);
+            rec.Fill = new SolidColorBrush(Colors.Azure);
             rectangleGrid.Children.Add(rec);
             Grid.SetRow(rec, 0);
-            Grid.SetColumn(rec, 0);
+            Grid.SetColumn(rec, 0);*/
 
             //Rectangle rec = new Rectangle() { StrokeThickness = 1 };
             //rec.Stroke = new SolidColorBrush(Colors.Red);
