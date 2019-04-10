@@ -1,33 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace SeaBattleClassLibrary.Game
 {
+    [DataContract(Name = "ship")]
     public class Ship
     {
+        [DataMember(Name = "id")]
         public readonly int Id;
 
         /// <summary>
         /// Позиция корабля (левая верхняя клетка).
         /// </summary>
+        [DataMember(Name = "location")]
         public Location Location = new Location();
 
         /// <summary>
         /// Класс корабля.
         /// </summary>
+        [DataMember(Name = "shipClass")]
         public readonly ShipClass ShipClass;
 
         /// <summary>
         /// Ориентация корабля на поле.
         /// </summary>
+        [DataMember(Name = "orientation")]
         public Orientation Orientation;
 
         /// <summary>
         /// Попадания по кораблю.
         /// </summary>
+        [DataMember(Name = "hits")]
         public bool[] Hits;
 
         /// <summary>
@@ -61,8 +68,13 @@ namespace SeaBattleClassLibrary.Game
         FourDeck = 4
     };
 
-    public enum Orientation { Horizontal, Vertical }
+    public enum Orientation
+    {
+        Horizontal,
+        Vertical
+    }
 
+    [DataContract(Name = "location")]
     public class Location
     {
         private int x;
@@ -71,6 +83,7 @@ namespace SeaBattleClassLibrary.Game
         /// <summary>
         /// Размер поля.
         /// </summary>
+        [DataMember(Name = "size")]
         public readonly int Size;
 
         public Location(int x = 0, int y = 0, int size = 10)
@@ -87,6 +100,7 @@ namespace SeaBattleClassLibrary.Game
             this.y = y;
         }
 
+        [DataMember(Name = "x")]
         public int X
         {
             get => x;
@@ -99,6 +113,7 @@ namespace SeaBattleClassLibrary.Game
             }
         }
 
+        [DataMember(Name = "y")]
         public int Y
         {
             get => y;
@@ -111,5 +126,4 @@ namespace SeaBattleClassLibrary.Game
             }
         }
     }
-
 }
