@@ -13,11 +13,12 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="auto" />
         </Grid.ColumnDefinitions>
-        <Grid x:Name="FieldGrid" Height="300" Width="300" Visibility="Collapsed">
+        <Grid x:Name="FieldGrid" AllowDrop="True" DragOver="Grid_DragOver" Drop="Grid_Drop" Height="300" Width="300" Grid.Column="0" DropCompleted="FieldGrid_DropCompleted">
+            <!--<Image Name="Image" Source="/Assets/Ships/ship.jpg" CanDrag="True" Width="100" />-->
 
         </Grid >
 
-        <Image Source="/Assets/Ships/ship.jpg" Width="250" HorizontalAlignment="Right" Grid.Column="1" />
-        <Rectangle Width="250" Height="250" Fill="Red" VerticalAlignment="Bottom" />
+        <Image Name="myImage" Source="/Assets/Ships/ship.jpg" CanDrag="True" Width="100" HorizontalAlignment="Left" Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Stretch" />
+        <!-- <Rectangle Width="250" Height="250" Fill="Red" VerticalAlignment="Bottom" /> -->
     </Grid>
 </Page>
