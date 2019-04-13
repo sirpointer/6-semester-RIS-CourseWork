@@ -8,6 +8,7 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Storage;
 using Windows.UI;
+using Windows.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -31,112 +32,49 @@ namespace SeaBattleClient
         {
             this.InitializeComponent();
 
-            //сделать поле
-            for(int i=0; i < 10; i++)
-            {
-                FieldGrid.RowDefinitions.Add(new RowDefinition());
-                FieldGrid.ColumnDefinitions.Add(new ColumnDefinition());
-            }
+            
+        }
 
-            //заполнить поле квадратиками
-            for(int i = 0; i < FieldGrid.RowDefinitions.Count(); i++)
+        private Point shiftPoint = new Point(double.NaN, double.NaN);
+
+        private void MyImage_PointerMoved(object sender, PointerRoutedEventArgs e)
+        {
+            Image image = sender as Image;
+            Pointer prt = e.Pointer;
+            
+            if (prt.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
-                for(int j=0; j < FieldGrid.ColumnDefinitions.Count; j++)
+                Windows.UI.Input.PointerPoint ptrPt = e.GetCurrentPoint(canvas);
+                
+                if (ptrPt.Properties.IsLeftButtonPressed)
                 {
-                    Rectangle rectangle = new Rectangle() { StrokeThickness = 1 };
-                    rectangle.Stroke = new SolidColorBrush(Colors.Black);
-                    rectangle.Fill = new SolidColorBrush(Colors.White);
-                    //rectangle.CanDrag = true;
-                    //rectangle.IsHitTestVisible = false;
-                    FieldGrid.Children.Add(rectangle);
-                    Grid.SetRow(rectangle, i);
-                    Grid.SetColumn(rectangle, j);
+                    if (!double.IsNaN(shiftPoint.X))
+                    {
+                        Point newPoint = new Point(ptrPt.Position.X - shiftPoint.X, ptrPt.Position.Y - shiftPoint.Y);
+
+                        Canvas.SetLeft(myImage, newPoint.X);
+                        Canvas.SetTop(myImage, newPoint.Y);
+                        
+                    }
+                    
                 }
             }
-
-            Image image = new Image();
-            BitmapImage bitmapImage = new BitmapImage();//new Uri("ms-appx:///SeaBsttleClient/Assets/Ships/ship.jpg"));
-            //var uri = new Uri("/Assets/hips/ship.jpg");
-            //var file = await StorageFile.GetFileFromApplicationUriAsync(uri);
-            //bitmapImage.BeginInit();
-            var uri = new Uri("ms-appx:///Assets/Ships/ship.jpg", UriKind.Absolute);
-            bitmapImage.UriSource = uri; // new Uri(@"/Assets/Ships/ship.jpg", UriKind.RelativeOrAbsolute);
-            image.Source = bitmapImage;
-            image.Width = 100;
-            FieldGrid.Children.Add(image);
-            Grid.SetRow(image, 0);
-            Grid.SetColumn(image, 0);
-
-            /*Rectangle rec = new Rectangle() { StrokeThickness = 1 };
-            rec.Stroke = new SolidColorBrush(Colors.Red);
-            rec.Fill = new SolidColorBrush(Colors.Azure);
-            rectangleGrid.Children.Add(rec);
-            Grid.SetRow(rec, 0);
-            Grid.SetColumn(rec, 0);*/
-
-            //Rectangle rec = new Rectangle() { StrokeThickness = 1 };
-            //rec.Stroke = new SolidColorBrush(Colors.Red);
-            //rec.Margin = new Thickness(960, 350, 510, 620);
-            //rec.Height = 30;
-            //rec.Width = 30;
         }
 
-        private void Grid_DragOver(object sender, DragEventArgs e)
+        private void MyImage_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-             Image image = (Image)sender;
-             /*Windows.ApplicationModel.DataTransfer.DragDrop.DoDragDrop(image, image.DataContext, DragDropEffects.Copy);
-             e.AcceptedOperation = DataPackageOperation.Copy;*/
-        
-        }
+            Windows.UI.Xaml.Input.Pointer ptr = e.Pointer;
+            Windows.UI.Input.PointerPoint ptrPt = e.GetCurrentPoint(canvas);
 
-        private async void Grid_Drop(object sender, DragEventArgs e)
-        {
-            
-            
-            if (e.DataView.Contains(StandardDataFormats.StorageItems))
+            if (ptrPt.Properties.IsLeftButtonPressed)
             {
-                var items = await e.DataView.GetStorageItemsAsync();
-                if (items.Count > 0)
-                {
-                    var storageFile = items[0] as StorageFile;
-                    var bitmapImage = new BitmapImage();
-                    bitmapImage.SetSource(await storageFile.OpenAsync(FileAccessMode.Read));
-                    // Set the image on the main page to the dropped image
-                    //Image.Source = bitmapImage;
-                }
+                shiftPoint = new Point(ptrPt.Position.X - Canvas.GetLeft(myImage), ptrPt.Position.Y - Canvas.GetTop(myImage));
             }
-            
-
-            /*Rectangle rectangle = new Rectangle() { StrokeThickness = 1 };
-            rectangle.Stroke = new SolidColorBrush(Colors.Red);
-            rectangle.Fill = new SolidColorBrush(Colors.Red);
-            rectangle.CanDrag = true;
-            //rectangle.IsHitTestVisible = false;
-            FieldGrid.Children.Add(rectangle);
-            Grid.SetRow(rectangle, 0);
-            Grid.SetColumn(rectangle, 0);*/
-
-
-            /*Image image = new Image();
-            BitmapImage bitmapImage = new BitmapImage(new Uri("ms-appx:///Assets/Ships/ship.jpg"));
-            //var uri = new Uri("/Assets/hips/ship.jpg");
-            //var file = await StorageFile.GetFileFromApplicationUriAsync(uri);
-            image.Source = bitmapImage;
-            image.Width = 100;
-            FieldGrid.Children.Add(image);
-            Grid.SetRow(image, 5);
-            Grid.SetColumn(image, 5);
-            Grid.SetColumnSpan(image, 2);*/
         }
 
-        private void MyImage_DragStarting(UIElement sender, DragStartingEventArgs args)
+        private void MyImage_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
-           
-        }
-
-        private void FieldGrid_DropCompleted(UIElement sender, DropCompletedEventArgs args)
-        {
-            
+            shiftPoint = new Point(double.NaN, double.NaN);
         }
     }
 }
