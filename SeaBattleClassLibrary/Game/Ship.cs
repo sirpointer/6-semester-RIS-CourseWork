@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace SeaBattleClassLibrary.Game
 {
     [DataContract(Name = "ship")]
-    public class Ship
+    public class Ship : NotifyPropertyChanged
     {
         [DataMember(Name = "id")]
         public readonly int Id;
@@ -17,7 +17,19 @@ namespace SeaBattleClassLibrary.Game
         /// Позиция корабля (левая верхняя клетка).
         /// </summary>
         [DataMember(Name = "location")]
-        public Location Location = new Location();
+        public Location Location
+        {
+            get
+            {
+                return _location;
+            }
+            set
+            {
+                _location = value;
+                OnPropertyChanged(nameof(Location));
+            }
+        }
+
 
         /// <summary>
         /// Класс корабля.
@@ -36,6 +48,7 @@ namespace SeaBattleClassLibrary.Game
         /// </summary>
         [DataMember(Name = "hits")]
         public bool[] Hits;
+        private Location _location = new Location();
 
         /// <summary>
         /// Потоплен ли корабль.
@@ -75,7 +88,7 @@ namespace SeaBattleClassLibrary.Game
     }
 
     [DataContract(Name = "location")]
-    public class Location
+    public class Location : NotifyPropertyChanged
     {
         private int x;
         private int y;
@@ -110,6 +123,7 @@ namespace SeaBattleClassLibrary.Game
                     throw new ArgumentOutOfRangeException(nameof(X));
 
                 x = value;
+                OnPropertyChanged(nameof(X));
             }
         }
 
@@ -123,6 +137,7 @@ namespace SeaBattleClassLibrary.Game
                     throw new ArgumentOutOfRangeException(nameof(Y));
 
                 y = value;
+                OnPropertyChanged(nameof(Y));
             }
         }
     }
