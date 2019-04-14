@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="DataProvider\QueryHandler.cs" />
     <Compile Include="Game\GameField.cs" />
+    <Compile Include="Game\GameSession.cs" />
     <Compile Include="Game\NotifyPropertyChanged.cs" />
     <Compile Include="Game\Ship.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

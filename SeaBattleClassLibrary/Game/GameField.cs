@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace SeaBattleClassLibrary.Game
 {
     [DataContract(Name = "gameField")]
-    class GameField
+    public class GameField
     {
         /// <summary>
         /// Попадания на поле (места куда уже нельзя бить). 

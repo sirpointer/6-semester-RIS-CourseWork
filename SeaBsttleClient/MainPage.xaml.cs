@@ -80,7 +80,7 @@ namespace SeaBattleClient
             }
         }
 
-        
+
         private void MyImage_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             Pointer ptr = e.Pointer;
@@ -98,20 +98,24 @@ namespace SeaBattleClient
             shiftPoint = new Point(double.NaN, double.NaN);
 
             PointerPoint ptrPt = e.GetCurrentPoint(canvas);
-            
+
+            // вынеси условия из if
+            // типа bool inside = !(ptrPt.Position.X > Canvas.GetLeft(FieldGrid) &&...
+            // if (inside) ...
+
             //можно расположить только внутри поля
-            if (!(ptrPt.Position.X>Canvas.GetLeft(FieldGrid) && ptrPt.Position.Y>Canvas.GetTop(FieldGrid)
-               && ptrPt.Position.X< Canvas.GetLeft(FieldGrid) + FieldGrid.Width && ptrPt.Position.Y< Canvas.GetTop(FieldGrid) + FieldGrid.Height))
+            if (!(ptrPt.Position.X > Canvas.GetLeft(FieldGrid) && ptrPt.Position.Y > Canvas.GetTop(FieldGrid)
+               && ptrPt.Position.X < Canvas.GetLeft(FieldGrid) + FieldGrid.Width && ptrPt.Position.Y < Canvas.GetTop(FieldGrid) + FieldGrid.Height))
             {
                 Canvas.SetLeft(myImage, 0);
                 Canvas.SetTop(myImage, 0);
             }
             else
             {
-                int column = Convert.ToInt32((ptrPt.Position.X - Canvas.GetLeft(FieldGrid)) / (FieldGrid.Width / 10))-1;
-                int row = Convert.ToInt32((ptrPt.Position.Y - Canvas.GetTop(FieldGrid)) / (FieldGrid.Height / 10))-1;
+                int column = Convert.ToInt32((ptrPt.Position.X - Canvas.GetLeft(FieldGrid)) / (FieldGrid.Width / 10)) - 1;
+                int row = Convert.ToInt32((ptrPt.Position.Y - Canvas.GetTop(FieldGrid)) / (FieldGrid.Height / 10)) - 1;
 
-                
+
             }
         }
     }
