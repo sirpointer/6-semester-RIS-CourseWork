@@ -7,8 +7,8 @@
     <ProjectGuid>{60C0B88E-3F55-4910-9A07-910530136FE9}</ProjectGuid>
     <OutputType>AppContainerExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SeaBsttleClient</RootNamespace>
-    <AssemblyName>SeaBsttleClient</AssemblyName>
+    <RootNamespace>SeaBattleClient</RootNamespace>
+    <AssemblyName>SeaBattleClient</AssemblyName>
     <DefaultLanguage>ru-RU</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.17134.0</TargetPlatformVersion>
