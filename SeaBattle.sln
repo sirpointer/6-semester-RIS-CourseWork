@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeaBattleClassLibrary", "Se
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeaBattleClient", "SeaBsttleClient\SeaBattleClient.csproj", "{60C0B88E-3F55-4910-9A07-910530136FE9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientTest", "ClientTest\ClientTest.csproj", "{D8EFDBF7-D57F-4AE1-A184-B46F566809FB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -91,6 +93,26 @@ Global
 		{60C0B88E-3F55-4910-9A07-910530136FE9}.Release|x86.ActiveCfg = Release|x86
 		{60C0B88E-3F55-4910-9A07-910530136FE9}.Release|x86.Build.0 = Release|x86
 		{60C0B88E-3F55-4910-9A07-910530136FE9}.Release|x86.Deploy.0 = Release|x86
+		{D8EFDBF7-D57F-4AE1-A184-B46F566809FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8EFDBF7-D57F-4AE1-A184-B46F566809FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8EFDBF7-D57F-4AE1-A184-B46F566809FB}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{D8EFDBF7-D57F-4AE1-A184-B46F566809FB}.Debug|ARM.Build.0 = Debug|Any CPU
+		{D8EFDBF7-D57F-4AE1-A184-B46F566809FB}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{D8EFDBF7-D57F-4AE1-A184-B46F566809FB}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{D8EFDBF7-D57F-4AE1-A184-B46F566809FB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D8EFDBF7-D57F-4AE1-A184-B46F566809FB}.Debug|x64.Build.0 = Debug|Any CPU
+		{D8EFDBF7-D57F-4AE1-A184-B46F566809FB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D8EFDBF7-D57F-4AE1-A184-B46F566809FB}.Debug|x86.Build.0 = Debug|Any CPU
+		{D8EFDBF7-D57F-4AE1-A184-B46F566809FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8EFDBF7-D57F-4AE1-A184-B46F566809FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8EFDBF7-D57F-4AE1-A184-B46F566809FB}.Release|ARM.ActiveCfg = Release|Any CPU
+		{D8EFDBF7-D57F-4AE1-A184-B46F566809FB}.Release|ARM.Build.0 = Release|Any CPU
+		{D8EFDBF7-D57F-4AE1-A184-B46F566809FB}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{D8EFDBF7-D57F-4AE1-A184-B46F566809FB}.Release|ARM64.Build.0 = Release|Any CPU
+		{D8EFDBF7-D57F-4AE1-A184-B46F566809FB}.Release|x64.ActiveCfg = Release|Any CPU
+		{D8EFDBF7-D57F-4AE1-A184-B46F566809FB}.Release|x64.Build.0 = Release|Any CPU
+		{D8EFDBF7-D57F-4AE1-A184-B46F566809FB}.Release|x86.ActiveCfg = Release|Any CPU
+		{D8EFDBF7-D57F-4AE1-A184-B46F566809FB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

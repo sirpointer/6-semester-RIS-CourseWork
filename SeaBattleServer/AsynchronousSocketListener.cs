@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using SeaBattleClassLibrary.DataProvider;
+using SeaBattleClassLibrary.Game;
 
 namespace SeaBattleServer
 {
-    class Program
+    class AsynchronousSocketListener
     {
+        private readonly List<GameSession> sessions = new List<GameSession>();
+
         // State object for reading client data asynchronously  
         private class StateObject
         {
@@ -38,7 +40,7 @@ namespace SeaBattleServer
 
             // Create a TCP/IP socket.  
             Socket listener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
+            
             // Bind the socket to the local endpoint and listen for incoming connections.  
             try
             {
@@ -61,7 +63,7 @@ namespace SeaBattleServer
                     // Start an asynchronous socket to listen for connections.  
                     Console.WriteLine("Waiting for a connection...");
                     listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
-
+                    
                     // Wait until a connection is made before continuing.  
                     allDone.WaitOne();
                 }
@@ -93,7 +95,7 @@ namespace SeaBattleServer
 
         private static void ReadCallback(IAsyncResult ar)
         {
-            String content = String.Empty;
+            string content = string.Empty;
 
             // Retrieve the state object and the handler socket  
             // from the asynchronous state object.  
@@ -116,6 +118,12 @@ namespace SeaBattleServer
                     // All the data has been read from the   
                     // client. Display it on the console.  
                     Console.WriteLine("Read {0} bytes from socket. \n Data : {1}", content.Length, content);
+
+                    content.Remove(content.LastIndexOf(JsonBaseStruct.EndOfMessage));
+
+
+
+
                     // Echo the data back to the client.  
                     Send(handler, content);
                 }
