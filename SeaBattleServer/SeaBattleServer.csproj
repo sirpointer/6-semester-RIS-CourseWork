@@ -58,7 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SeaBattleClassLibrary\SeaBattleClassLibrary.csproj">
-      <Project>{593b2e4a-60dd-4b2b-8ec8-d3586351927b}</Project>
+      <Project>{b7eb4f45-4079-4286-8e37-a3ea416cdb29}</Project>
       <Name>SeaBattleClassLibrary</Name>
     </ProjectReference>
   </ItemGroup>
