@@ -11,7 +11,7 @@ namespace SeaBattleServer
 {
     class AsynchronousSocketListener
     {
-        private readonly List<GameSession> sessions = new List<GameSession>();
+        private static readonly List<GameSession> sessions = new List<GameSession>();
 
         // State object for reading client data asynchronously  
         private class StateObject
@@ -26,6 +26,8 @@ namespace SeaBattleServer
             public StringBuilder sb = new StringBuilder();
         }
 
+        static IPEndPoint localep;
+
         // Thread signal.  
         private static ManualResetEvent allDone = new ManualResetEvent(false);
         
@@ -37,7 +39,7 @@ namespace SeaBattleServer
             IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
             IPAddress ipAddress = ipHostInfo.AddressList[0];
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
-
+            localep = localEndPoint;
             // Create a TCP/IP socket.  
             Socket listener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             
@@ -118,11 +120,22 @@ namespace SeaBattleServer
                     // All the data has been read from the   
                     // client. Display it on the console.  
                     Console.WriteLine("Read {0} bytes from socket. \n Data : {1}", content.Length, content);
+              
+                    content.Remove(content.LastIndexOf(JsonStructInfo.EndOfMessage));
+                    Request.RequestTypes dataType = RequestHandler.GetRequestType(content);
 
-                    content.Remove(content.LastIndexOf(JsonBaseStruct.EndOfMessage));
-
-
-
+                    switch (dataType)
+                    {
+                        case Request.RequestTypes.AddGame:
+                            break;
+                        case Request.RequestTypes.Shot:
+                            break;
+                        case Request.RequestTypes.SetField:
+                            break;
+                        case Request.RequestTypes.BadRequest:
+                            SendError(handler);
+                            break;
+                    }
 
                     // Echo the data back to the client.  
                     Send(handler, content);
@@ -133,6 +146,18 @@ namespace SeaBattleServer
                     handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
                 }
             }
+        }
+
+        /// <summary>
+        /// Отправить сообщение о неудачном запросе.
+        /// </summary>
+        private static void SendError(Socket handler)
+        {
+            string data = AnswerHandler.GetErrorMessage();
+
+            byte[] byteData = Encoding.UTF8.GetBytes(data);
+
+            handler.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), handler);
         }
 
         private static void Send(Socket handler, String data)

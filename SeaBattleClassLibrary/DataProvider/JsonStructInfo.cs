@@ -1,7 +1,7 @@
 ﻿
 namespace SeaBattleClassLibrary.DataProvider
 {
-    public class JsonBaseStruct
+    public class JsonStructInfo
     {
         public const string Type = "type";
         public const string Result = "result";

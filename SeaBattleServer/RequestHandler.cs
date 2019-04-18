@@ -25,9 +25,9 @@ namespace SeaBattleServer
                 return Request.RequestTypes.BadRequest;
             }
             
-            if (jObject.ContainsKey(JsonBaseStruct.Type))
+            if (jObject.ContainsKey(JsonStructInfo.Type))
             {
-                string requestType = (string)jObject[JsonBaseStruct.Type];
+                string requestType = (string)jObject[JsonStructInfo.Type];
                 return Request.JsonTypeToEnum(requestType);
             }
             else
@@ -50,9 +50,9 @@ namespace SeaBattleServer
                 return null;
             }
 
-            if (jObject.ContainsKey(JsonBaseStruct.Result))
+            if (jObject.ContainsKey(JsonStructInfo.Result))
             {
-                string result = (string)jObject[JsonBaseStruct.Result];
+                string result = (string)jObject[JsonStructInfo.Result];
                 return result;
             }
             else
