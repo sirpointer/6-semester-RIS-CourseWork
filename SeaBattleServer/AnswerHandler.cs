@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SeaBattleClassLibrary.DataProvider;
+using System.Runtime.Serialization.Json;
+using System.IO;
 
 namespace SeaBattleServer
 {
@@ -16,6 +18,41 @@ namespace SeaBattleServer
             JObject jObject = new JObject();
             jObject.Add(JsonStructInfo.Type, Answer.EnumTypeToString(Answer.AnswerTypes.Error));
             jObject.Add(JsonStructInfo.Result, "");
+
+            return jObject.ToString() + JsonStructInfo.EndOfMessage;
+        }
+
+        public static string GetOkMessage()
+        {
+            JObject jObject = new JObject();
+            jObject.Add(JsonStructInfo.Type, Answer.EnumTypeToString(Answer.AnswerTypes.Ok));
+            jObject.Add(JsonStructInfo.Result, "");
+
+            return jObject.ToString() + JsonStructInfo.EndOfMessage;
+        }
+
+        public static string GetShootMessage(SeaBattleClassLibrary.Game.Location shootLocation)
+        {
+            MemoryStream ms = new MemoryStream();
+            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(SeaBattleClassLibrary.Game.Location));
+
+            try
+            {
+                ser.WriteObject(ms, shootLocation);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return GetErrorMessage();
+            }
+
+            byte[] locationData = ms.ToArray();
+            ms.Close();
+            string location = Encoding.UTF8.GetString(locationData, 0, locationData.Length);
+
+            JObject jObject = new JObject();
+            jObject.Add(JsonStructInfo.Type, Answer.EnumTypeToString(Answer.AnswerTypes.Ok));
+            jObject.Add(JsonStructInfo.Result, location);
 
             return jObject.ToString() + JsonStructInfo.EndOfMessage;
         }

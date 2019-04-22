@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Net.Sockets;
 
 namespace SeaBattleClassLibrary.Game
 {
@@ -36,7 +37,16 @@ namespace SeaBattleClassLibrary.Game
 
     public class PlayerInfo : IEquatable<PlayerInfo>
     {
-        public IPEndPoint IP { get; set; } = null; // RemoteEndPoint
+        public EndPoint IP
+        {
+            get
+            {
+                return Socket?.RemoteEndPoint;
+            }
+        }// RemoteEndPoint
+
+
+        public Socket Socket { get; set; } = null;
 
         public string Name { get; set; } = null;
 
@@ -45,10 +55,10 @@ namespace SeaBattleClassLibrary.Game
             if (IP == null || Name == null)
                 return false;
 
-            bool ip = IP.Address == other.IP.Address && IP.Port == other.IP.Port;
+            //bool ip = IP.Address == other.IP.Address && IP.Port == other.IP.Port;
             bool name = Name.Equals(other.Name, StringComparison.Ordinal);
 
-            return ip && name;
+            return  name;
         }
     }
 }
