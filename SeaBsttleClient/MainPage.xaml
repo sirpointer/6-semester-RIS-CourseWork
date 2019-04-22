@@ -17,9 +17,9 @@
              <Image Name="Image" Source="/Assets/Ships/ship.jpg" CanDrag="True" Width="100" />
             
         </Grid >-->
-
+        
         <Canvas Name="canvas" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch" >
-            <Image Name="myImage" Canvas.ZIndex="2" Source="/Assets/Ships/ship.jpg" Width="90" Height="30" HorizontalAlignment="Left" Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Stretch" PointerMoved="MyImage_PointerMoved" PointerPressed="MyImage_PointerPressed" PointerReleased="MyImage_PointerReleased" />
+            <Image Name="myImage" Canvas.ZIndex="2" Source="/Assets/Ships/ship.jpg" Width="90" Height="30" HorizontalAlignment="Left" Grid.Column="1" Margin="0,0,0,0" VerticalAlignment="Stretch" PointerMoved="MyImage_PointerMoved" PointerPressed="MyImage_PointerPressed" PointerReleased="MyImage_PointerReleased" />
             <Grid x:Name="FieldGrid" Canvas.ZIndex="1" Height="300" Width="300" Canvas.Left="0" Canvas.Top="70" >
 
             </Grid>

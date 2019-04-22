@@ -40,13 +40,14 @@ namespace SeaBattleClient
             }
 
             //заполнить поле квадратиками
-            for (int i = 0; i < FieldGrid.RowDefinitions.Count(); i++)
+            for (int i = 0; i < FieldGrid.RowDefinitions.Count; i++)
             {
                 for (int j = 0; j < FieldGrid.ColumnDefinitions.Count; j++)
                 {
                     Rectangle rectangle = new Rectangle() { StrokeThickness = 1 };
                     rectangle.Stroke = new SolidColorBrush(Colors.Black);
                     rectangle.Fill = new SolidColorBrush(Colors.White);
+                    rectangle.Name = i.ToString() + j.ToString();
                     FieldGrid.Children.Add(rectangle);
                     Grid.SetRow(rectangle, i);
                     Grid.SetColumn(rectangle, j);
@@ -66,7 +67,11 @@ namespace SeaBattleClient
             if (prt.PointerDeviceType == Windows.Devices.Input.PointerDeviceType.Mouse)
             {
                 PointerPoint ptrPt = e.GetCurrentPoint(canvas);
-                
+
+                PointerPoint pntrPt = e.GetCurrentPoint(FieldGrid);
+                PointerPoint imagePtrPt = e.GetCurrentPoint(sender as Image);
+                Point imagePoint = new Point(pntrPt.Position.X - imagePtrPt.Position.X, pntrPt.Position.Y - imagePtrPt.Position.Y);
+
                 if (ptrPt.Properties.IsLeftButtonPressed)
                 {
                     if (!double.IsNaN(shiftPoint.X))
@@ -75,6 +80,39 @@ namespace SeaBattleClient
 
                         Canvas.SetLeft(myImage, newPoint.X);
                         Canvas.SetTop(myImage, newPoint.Y);
+
+                        bool inside = imagePoint.X > 0 && imagePoint.Y > 0 && imagePoint.X < FieldGrid.Width && imagePoint.Y < FieldGrid.Height;
+
+                        //можно расположить только внутри поля
+                        if (inside)
+                        {
+                            //жалкие попытки подсветки
+                            //подходит только для горизонтальных корабликов, для вертикальных не прокатит
+                            double columnDouble = imagePoint.X / (FieldGrid.Width / 10);
+                            int column = (int)columnDouble;
+
+                            double rowDouble = (imagePoint.Y + myImage.Height / 2) / (FieldGrid.Height / 10);
+                            int row = (int)rowDouble;
+
+                            int colEnd = (int)(column + myImage.Width / 30);
+                            if(colEnd<=10 && colEnd > 0)
+                            {
+                                int start = Convert.ToInt32(row.ToString() + column.ToString());
+                                int end = Convert.ToInt32(row.ToString() + colEnd.ToString());
+                                for(int i = 0; i < 100; i++)
+                                {
+                                   Rectangle rect = (Rectangle)FieldGrid.Children[i];
+                                    rect.Fill = new SolidColorBrush(Colors.White);
+                                }
+                                for (int i=start; i<end; i++)
+                                {
+                                    Rectangle rect = (Rectangle)FieldGrid.Children[i];
+                                    rect.Fill = new SolidColorBrush(Colors.Red);
+                                }
+                            }
+                            
+                            
+                        }
                     }
                 }
             }
@@ -109,16 +147,58 @@ namespace SeaBattleClient
                 double columnDouble = imagePoint.X / (FieldGrid.Width / 10);
                 int column = (int)columnDouble;
 
-                double rowDouble = imagePoint.Y / (FieldGrid.Height / 10);
+                double rowDouble = (imagePoint.Y+myImage.Height/2) / (FieldGrid.Height / 10);
                 int row = (int)rowDouble;
+
+                //int r = Convert.ToInt32(row.ToString() + column.ToString());
+                //var rect = FieldGrid.Children[r];
+
+                double X = Canvas.GetLeft(FieldGrid) + FieldGrid.Width/10 * column;
+                double Y = Canvas.GetTop(FieldGrid) + FieldGrid.Height/10 * row;
 
                 Row.Text = row.ToString();
                 Column.Text = column.ToString();
+
+                Canvas.SetLeft(myImage, X);
+                Canvas.SetTop(myImage, Y);
+
+                /*Rectangle w = new Rectangle
+                {
+                    Height = 30,
+                    Width = 30,
+                    Fill = new SolidColorBrush(Colors.Red)
+                };
+                canvas.Children.Add(w);
+                Canvas.SetZIndex(w, 2);
+                Canvas.SetLeft(w, X);
+                Canvas.SetTop(w, Y); */
+
+                //double b = Canvas.GetLeft(FieldGrid);
+
+                //добавление картинки на грид намертво
+                /*Image image = new Image();
+                BitmapImage bitmapImage = new BitmapImage();
+                var uri = new Uri("ms-appx:///Assets/Ships/ship.jpg", UriKind.Absolute);
+                bitmapImage.UriSource = uri;
+                image.Source = bitmapImage;
+                image.Width = 90;
+                image.Height = 30;
+                FieldGrid.Children.Add(image);
+
+
+                Grid.SetColumnSpan(image, 3);
+                Grid.SetRow(image, row);
+                Grid.SetColumn(image, column);*/
             }
             else
             {
                 Canvas.SetLeft(myImage, 0);
                 Canvas.SetTop(myImage, 0);
+            }
+            for (int i = 0; i < 100; i++)
+            {
+               Rectangle rect = (Rectangle)FieldGrid.Children[i];
+                rect.Fill = new SolidColorBrush(Colors.White);
             }
         }
     }
