@@ -81,37 +81,39 @@ namespace SeaBattleClient
                         Canvas.SetLeft(myImage, newPoint.X);
                         Canvas.SetTop(myImage, newPoint.Y);
 
-                        bool inside = imagePoint.X > 0 && imagePoint.Y > 0 && imagePoint.X < FieldGrid.Width && imagePoint.Y < FieldGrid.Height;
+                        bool inside = imagePoint.X >= 0 && imagePoint.Y >= 0 && imagePoint.X <= FieldGrid.Width && imagePoint.Y <= FieldGrid.Height;
 
                         //можно расположить только внутри поля
                         if (inside)
                         {
                             //жалкие попытки подсветки
                             //подходит только для горизонтальных корабликов, для вертикальных не прокатит
+                            //не закрашивается правая (9) клетка
                             double columnDouble = imagePoint.X / (FieldGrid.Width / 10);
                             int column = (int)columnDouble;
 
                             double rowDouble = (imagePoint.Y + myImage.Height / 2) / (FieldGrid.Height / 10);
                             int row = (int)rowDouble;
 
-                            int colEnd = (int)(column + myImage.Width / 30);
-                            if(colEnd<=10 && colEnd > 0)
+                            int colEnd = (int)(column + myImage.Width / 30 - 1);
+                            if(colEnd<10 && colEnd >= 0 && row >= 0 && row <10)
                             {
                                 int start = Convert.ToInt32(row.ToString() + column.ToString());
                                 int end = Convert.ToInt32(row.ToString() + colEnd.ToString());
-                                for(int i = 0; i < 100; i++)
+                                if(start>=0 && start<FieldGrid.Height && end>=0 && end < FieldGrid.Width)
                                 {
-                                   Rectangle rect = (Rectangle)FieldGrid.Children[i];
-                                    rect.Fill = new SolidColorBrush(Colors.White);
+                                    for(int i = 0; i < 100; i++)
+                                    {
+                                       Rectangle rect = (Rectangle)FieldGrid.Children[i];
+                                        rect.Fill = new SolidColorBrush(Colors.White);
+                                    }
+                                    for (int i=start; i<=end; i++)
+                                    {
+                                        Rectangle rect = (Rectangle)FieldGrid.Children[i];
+                                        rect.Fill = new SolidColorBrush(Colors.Red);
+                                    }
                                 }
-                                for (int i=start; i<end; i++)
-                                {
-                                    Rectangle rect = (Rectangle)FieldGrid.Children[i];
-                                    rect.Fill = new SolidColorBrush(Colors.Red);
-                                }
-                            }
-                            
-                            
+                            }   
                         }
                     }
                 }
@@ -156,11 +158,24 @@ namespace SeaBattleClient
                 double X = Canvas.GetLeft(FieldGrid) + FieldGrid.Width/10 * column;
                 double Y = Canvas.GetTop(FieldGrid) + FieldGrid.Height/10 * row;
 
-                Row.Text = row.ToString();
-                Column.Text = column.ToString();
+                //проверяет, не выходит ли картинка за края
+                bool x = X <= FieldGrid.Width - (myImage.Width/3*2+1) + Canvas.GetLeft(FieldGrid);
+                bool y = Y <= FieldGrid.Height - (myImage.Height/3*2+1) + Canvas.GetTop(FieldGrid);
+                if (x && y)
+                {
+                    Row.Text = row.ToString();
+                    Column.Text = column.ToString();
 
-                Canvas.SetLeft(myImage, X);
-                Canvas.SetTop(myImage, Y);
+                    Canvas.SetLeft(myImage, X);
+                    Canvas.SetTop(myImage, Y);
+                } 
+                else
+                {
+                    Canvas.SetLeft(myImage, 0);
+                    Canvas.SetTop(myImage, 0);
+                }
+
+                
 
                 /*Rectangle w = new Rectangle
                 {
@@ -195,6 +210,7 @@ namespace SeaBattleClient
                 Canvas.SetLeft(myImage, 0);
                 Canvas.SetTop(myImage, 0);
             }
+            //при отпускании снимает подсветку с поля
             for (int i = 0; i < 100; i++)
             {
                Rectangle rect = (Rectangle)FieldGrid.Children[i];
