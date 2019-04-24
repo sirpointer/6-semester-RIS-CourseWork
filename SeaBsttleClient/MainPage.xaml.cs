@@ -18,6 +18,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Shapes;
+using SeaBattleClient.ViewModels;
 
 // Документацию по шаблону элемента "Пустая страница" см. по адресу https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x419
 
@@ -31,6 +32,7 @@ namespace SeaBattleClient
         public MainPage()
         {
             this.InitializeComponent();
+            this.DataContext = new BeginGamePageViewModel();
 
             //сделать поле
             for (int i = 0; i < 10; i++)
