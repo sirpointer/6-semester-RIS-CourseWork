@@ -2,6 +2,9 @@
 
 namespace SeaBattleClassLibrary.DataProvider
 {
+    /// <summary>
+    /// Типы запросов к серверу.
+    /// </summary>
     public class Request
     {
         /// <summary>

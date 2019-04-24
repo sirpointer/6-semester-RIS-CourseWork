@@ -31,6 +31,11 @@ namespace SeaBattleServer
             return jObject.ToString() + JsonStructInfo.EndOfMessage;
         }
 
+        /// <summary>
+        /// Возвращает готовый JSON документ с информацией о позиции выстрела.
+        /// </summary>
+        /// <param name="shootLocation"></param>
+        /// <returns></returns>
         public static string GetShootMessage(SeaBattleClassLibrary.Game.Location shootLocation)
         {
             MemoryStream ms = new MemoryStream();
@@ -53,6 +58,15 @@ namespace SeaBattleServer
             JObject jObject = new JObject();
             jObject.Add(JsonStructInfo.Type, Answer.EnumTypeToString(Answer.AnswerTypes.Ok));
             jObject.Add(JsonStructInfo.Result, location);
+
+            return jObject.ToString() + JsonStructInfo.EndOfMessage;
+        }
+
+        public static string GetShootResult(ShootResult.ShootResultType shootResult)
+        {
+            JObject jObject = new JObject();
+            jObject.Add(JsonStructInfo.Type, Answer.EnumTypeToString(Answer.AnswerTypes.ShootResult));
+            jObject.Add(JsonStructInfo.Result, ShootResult.EnumTypeToString(shootResult));
 
             return jObject.ToString() + JsonStructInfo.EndOfMessage;
         }

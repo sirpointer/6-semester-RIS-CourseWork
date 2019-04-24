@@ -2,10 +2,13 @@
 
 namespace SeaBattleClassLibrary.DataProvider
 {
+    /// <summary>
+    /// Типы попаданий.
+    /// </summary>
     public class ShootResult
     {
         /// <summary>
-        /// Типы выстрелов.
+        /// Типы попаданий.
         /// </summary>
         public enum ShootResultType
         {
@@ -14,13 +17,16 @@ namespace SeaBattleClassLibrary.DataProvider
             Kill = 2
         }
 
+        /// <summary>
+        /// Типы попаданий для json.
+        /// </summary>
         public static class ShootResultJsonTypes
         {
             public const string Miss = "miss";
             public const string Damage = "damage";
             public const string Kill = "kill";
         }
-
+        
         public static ShootResultType JsonTypeToEnum(string type)
         {
             if (string.IsNullOrWhiteSpace(type))

@@ -2,6 +2,9 @@
 
 namespace SeaBattleClassLibrary.DataProvider
 {
+    /// <summary>
+    /// Типы ответов от сервера.
+    /// </summary>
     public class Answer
     {
         /// <summary>
@@ -12,7 +15,8 @@ namespace SeaBattleClassLibrary.DataProvider
             Ok = 0,
             Error = 1,
             ShotOfTheEnemy = 2,
-            GameReady = 4
+            GameReady = 4,
+            ShootResult = 8
         }
 
         /// <summary>
@@ -24,6 +28,7 @@ namespace SeaBattleClassLibrary.DataProvider
             public const string Error = "error";
             public const string ShotOfTheEnemy = "shotOfTheEnemy";
             public const string GameReady = "gameReady";
+            public const string ShootResult = "shootResult";
         }
 
         /// <summary>
@@ -44,6 +49,8 @@ namespace SeaBattleClassLibrary.DataProvider
                     return AnswerTypes.Ok;
                 case AnswerJsonTypes.ShotOfTheEnemy:
                     return AnswerTypes.ShotOfTheEnemy;
+                case AnswerJsonTypes.ShootResult:
+                    return AnswerTypes.ShootResult;
             }
 
             throw new ArgumentException($"Неопределенный тип {nameof(type)} = {type}", nameof(type));
@@ -64,6 +71,8 @@ namespace SeaBattleClassLibrary.DataProvider
                     return AnswerJsonTypes.ShotOfTheEnemy;
                 case AnswerTypes.GameReady:
                     return AnswerJsonTypes.GameReady;
+                case AnswerTypes.ShootResult:
+                    return AnswerJsonTypes.ShootResult;
             }
 
             throw new ArgumentException($"Тип не определён, тип - {type.ToString()}.", nameof(type));

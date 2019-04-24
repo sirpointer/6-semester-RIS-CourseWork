@@ -26,8 +26,6 @@ namespace SeaBattleServer
             public StringBuilder sb = new StringBuilder();
         }
 
-        static IPEndPoint localep;
-
         // Thread signal.  
         private static ManualResetEvent allDone = new ManualResetEvent(false);
         
@@ -39,7 +37,6 @@ namespace SeaBattleServer
             IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
             IPAddress ipAddress = ipHostInfo.AddressList[0];
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
-            localep = localEndPoint;
             // Create a TCP/IP socket.  
             Socket listener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             
