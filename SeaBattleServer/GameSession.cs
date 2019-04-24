@@ -16,14 +16,4 @@ namespace SeaBattleServer
 
         public Player Player2 { get; set; } = null;
     }
-
-    internal class Player
-    {
-        public string Name { get; set; } = null;
-
-        public Socket PlayerSocket { get; set; } = null;
-
-        public GameField Field { get; set; } = null;
-    }
-
 }

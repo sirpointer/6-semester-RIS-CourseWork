@@ -45,7 +45,7 @@ namespace SeaBattleClassLibrary.Game
         /// </summary>
         [DataMember(Name = "hits")]
         public bool[] Hits;
-        private Location _location = new Location();
+        private Location _location;
 
         /// <summary>
         /// Потоплен ли корабль.
@@ -61,12 +61,13 @@ namespace SeaBattleClassLibrary.Game
             }
         }
 
-        public Ship(int id, ShipClass shipClass = ShipClass.OneDeck, Orientation orientation = Orientation.Vertical)
+        public Ship(int id, ShipClass shipClass = ShipClass.OneDeck, Orientation orientation = Orientation.Vertical, Location location = null)
         {
             Id = id;
             ShipClass = shipClass;
             Orientation = orientation;
             Hits = new bool[(int)ShipClass];
+            _location = location ?? new Location();
         }
     }
 
@@ -96,13 +97,20 @@ namespace SeaBattleClassLibrary.Game
         [DataMember(Name = "size")]
         public readonly int Size;
 
-        public Location(int x = 0, int y = 0, int size = 10)
+        /// <summary>
+        /// Позиция корабля на поле.
+        /// Если X или Y равно -1, то корабль не на поле.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="size"></param>
+        public Location(int x = -1, int y = -1, int size = 10)
         {
             if (size < 0)
                 throw new ArgumentOutOfRangeException(nameof(size));
-            if (x > size || x < 0)
+            if (x > size || x < -1)
                 throw new ArgumentOutOfRangeException(nameof(x));
-            if (y > size || y < 0)
+            if (y > size || y < -1)
                 throw new ArgumentOutOfRangeException(nameof(y));
 
             Size = size;

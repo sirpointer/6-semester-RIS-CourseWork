@@ -13,6 +13,7 @@ namespace SeaBattleClient.ViewModels
         public BeginGamePageViewModel()
         {
         }
-        
+
+        public Player Model = new Player();
     }
 }
