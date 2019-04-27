@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace SeaBattleClassLibrary.Game
 {
     [DataContract(Name = "ship")]
-    public class Ship : NotifyPropertyChanged
+    public class Ship : NotifyPropertyChanged, ICloneable
     {
         [DataMember(Name = "id")]
         public readonly int Id;
@@ -69,6 +69,8 @@ namespace SeaBattleClassLibrary.Game
             Hits = new bool[(int)ShipClass];
             _location = location ?? new Location();
         }
+
+        public object Clone() => new Ship(Id, ShipClass, Orientation, Location.Clone() as Location);
     }
 
     public enum ShipClass
@@ -86,7 +88,7 @@ namespace SeaBattleClassLibrary.Game
     }
 
     [DataContract(Name = "location")]
-    public class Location : NotifyPropertyChanged, IEquatable<Location>
+    public class Location : NotifyPropertyChanged, IEquatable<Location>, ICloneable
     {
         private int x;
         private int y;
@@ -104,16 +106,15 @@ namespace SeaBattleClassLibrary.Game
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <param name="size"></param>
-        public Location(int x = -1, int y = -1, int size = 10)
+        public Location(int x = -1, int y = -1)
         {
-            if (size < 0)
-                throw new ArgumentOutOfRangeException(nameof(size));
-            if (x > size || x < -1)
-                throw new ArgumentOutOfRangeException(nameof(x));
-            if (y > size || y < -1)
-                throw new ArgumentOutOfRangeException(nameof(y));
+            Size = 10;
 
-            Size = size;
+            if (x > Size || x < -1)
+                throw new ArgumentOutOfRangeException(nameof(x));
+            if (y > Size || y < -1)
+                throw new ArgumentOutOfRangeException(nameof(y));
+            
             this.x = x;
             this.y = y;
         }
@@ -151,9 +152,8 @@ namespace SeaBattleClassLibrary.Game
         public bool IsSet => !IsUnset;
 
 
-        public bool Equals(Location other)
-        {
-            return (other.X == X && other.Y == Y) ? true : false;
-        }
+        public bool Equals(Location other) => (other.X == X && other.Y == Y) ? true : false;
+
+        public object Clone() => new Location(X, Y);
     }
 }

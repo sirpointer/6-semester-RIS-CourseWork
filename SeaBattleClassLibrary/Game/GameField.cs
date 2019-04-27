@@ -83,8 +83,6 @@ namespace SeaBattleClassLibrary.Game
                     return false;
             }
 
-            bool locationSet = false;
-
             List<Ship> anotherShips = Ships.Where(x => x.Id != ship.Id) as List<Ship>;
 
             // Проверить. Лежит ли корабль на другом корабле или радом с ним.
@@ -96,19 +94,56 @@ namespace SeaBattleClassLibrary.Game
 
                 Location pos = new Location(location.X, location.Y);
 
-                if (ship.Orientation == Orientation.Horizontal)
+                if (another.Orientation == Orientation.Horizontal)
                 {
-                    for (int x = location.X; x <= location.X + (int)ship.ShipClass; x++)
-                    {
-                        if (another.Location.Equals(new Location(x, location.Y)))
-                            break;
-                    }
+                    bool overlay = !CheckHorizontalOverlay(ship.Clone() as Ship, another.Clone() as Ship);
+                    if (overlay)
+                        return false;
                 }
             }
 
+            ship.Location = location;
+
             throw new NotImplementedException();
 
-            return locationSet;
+            return true;
+        }
+
+        /// <summary>
+        /// Проверяет наложение кораблей друг на друга, если <paramref name="anotherShip"/> расположен горизонтально.
+        /// Метод НЕ менят позицию кораблей.
+        /// </summary>
+        /// <param name="targetShip">Корабль, который необходимо разместить.</param>
+        /// <param name="anotherShip">Корабль который уже лежит на поле.</param>
+        /// <returns>True если не накладывается, false если накладываются.</returns>
+        private bool CheckHorizontalOverlay(Ship targetShip, Ship anotherShip)
+        {
+            bool targetShipIsValid = (targetShip.Location.X >= 0) && (targetShip.Location.Y >= 0)
+                && (targetShip.Location.X + (int)targetShip.ShipClass <= 10);
+
+            bool anotherShipIsValid = (anotherShip.Orientation == Orientation.Horizontal);
+
+            if (!targetShipIsValid)
+                return false;
+
+            Location targetLocation = targetShip.Location.Clone() as Location;
+            int endX = targetShip.Location.X + (int)targetShip.ShipClass;
+            
+            while (targetLocation.X <= endX)
+            {
+                for (int y = anotherShip.Location.Y - 1; y <= anotherShip.Location.Y + 2; y++)
+                {
+                    for (int x = anotherShip.Location.X - 1; x <= anotherShip.Location.X + (int)anotherShip.ShipClass + 1; x++)
+                    {
+                        if (targetLocation.Equals(new Location(x, y)))
+                            return false;
+                    }
+                }
+
+                targetLocation.X += 1;
+            }
+
+            return true;
         }
     }
 }
