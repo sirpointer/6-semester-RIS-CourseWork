@@ -27,7 +27,6 @@ namespace SeaBattleClassLibrary.Game
             }
         }
 
-
         /// <summary>
         /// Класс корабля.
         /// </summary>
@@ -38,13 +37,14 @@ namespace SeaBattleClassLibrary.Game
         /// Ориентация корабля на поле.
         /// </summary>
         [DataMember(Name = "orientation")]
-        public Orientation Orientation;
+        public Orientation Orientation { get; set; }
 
         /// <summary>
         /// Попадания по кораблю.
         /// </summary>
         [DataMember(Name = "hits")]
         public bool[] Hits;
+
         private Location _location;
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace SeaBattleClassLibrary.Game
     }
 
     [DataContract(Name = "location")]
-    public class Location : NotifyPropertyChanged
+    public class Location : NotifyPropertyChanged, IEquatable<Location>
     {
         private int x;
         private int y;
@@ -124,7 +124,7 @@ namespace SeaBattleClassLibrary.Game
             get => x;
             set
             {
-                if (value > Size || value < 0)
+                if (value > Size || value < -1)
                     throw new ArgumentOutOfRangeException(nameof(X));
 
                 x = value;
@@ -138,12 +138,22 @@ namespace SeaBattleClassLibrary.Game
             get => y;
             set
             {
-                if (value > Size || value < 0)
+                if (value > Size || value < -1)
                     throw new ArgumentOutOfRangeException(nameof(Y));
 
                 y = value;
                 OnPropertyChanged(nameof(Y));
             }
+        }
+
+        public bool IsUnset => (Y == -1 || X == -1) ? true : false;
+
+        public bool IsSet => !IsUnset;
+
+
+        public bool Equals(Location other)
+        {
+            return (other.X == X && other.Y == Y) ? true : false;
         }
     }
 }

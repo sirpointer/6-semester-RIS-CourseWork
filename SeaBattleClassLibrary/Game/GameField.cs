@@ -21,7 +21,7 @@ namespace SeaBattleClassLibrary.Game
         /// Корабли на поле.
         /// </summary>
         [DataMember(Name = "ships")]
-        public readonly ObservableCollection<Ship> Ships;
+        public readonly List<Ship> Ships;
 
 
         public GameField()
@@ -42,7 +42,7 @@ namespace SeaBattleClassLibrary.Game
             }
             ships.Add(new Ship(10, ShipClass.FourDeck));
 
-            Ships = new ObservableCollection<Ship>(ships);
+            Ships = ships;
         }
 
         public GameField(List<Ship> ships)
@@ -60,22 +60,50 @@ namespace SeaBattleClassLibrary.Game
             for (int i = 0; i < ships.Count; i++)
             {
                 if (ships.Where(x => x.Id != ships[i].Id).Any(x => x.Id == ships[i].Id))
-                    throw new ArgumentException();
+                    throw new ArgumentException("У кораблей есть одинаковые id");
             }
 
-            Ships = new ObservableCollection<Ship>(ships);
+            Ships = ships;
+            Ships.Capacity = 10;
         }
-
 
         public bool SetShipLocation(Ship ship, Location location)
         {
+            if (location.IsUnset)
+                return false;
+
+            if (ship.Orientation == Orientation.Horizontal)
+            {
+                if (location.X + (int)ship.ShipClass > 10)
+                    return false;
+            }
+            else
+            {
+                if (location.Y + (int)ship.ShipClass > 10)
+                    return false;
+            }
+
             bool locationSet = false;
 
             List<Ship> anotherShips = Ships.Where(x => x.Id != ship.Id) as List<Ship>;
 
+            // Проверить. Лежит ли корабль на другом корабле или радом с ним.
+
             foreach (Ship another in anotherShips)
             {
+                if (another.Location.X == -1 || another.Location.Y == -1)
+                    continue;
 
+                Location pos = new Location(location.X, location.Y);
+
+                if (ship.Orientation == Orientation.Horizontal)
+                {
+                    for (int x = location.X; x <= location.X + (int)ship.ShipClass; x++)
+                    {
+                        if (another.Location.Equals(new Location(x, location.Y)))
+                            break;
+                    }
+                }
             }
 
             throw new NotImplementedException();
