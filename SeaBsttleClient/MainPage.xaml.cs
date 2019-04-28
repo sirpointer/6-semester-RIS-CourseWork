@@ -103,9 +103,11 @@ namespace SeaBattleClient
                             double rowDouble = (imagePoint.Y + image.Height / 2) / (FieldGrid.Height / 10);
                             int row = (int)rowDouble;
 
+                            ship.Location.X = column;
+                            ship.Location.Y = row;
+
                             bool set = Model.SetShipLocation(ship, new Location(column, row));
                             
-
                             int colEnd = (int)(column + image.Width / 30 - 1);
                             if(colEnd<10 && colEnd >= 0 && row >= 0 && row <10)
                             {
@@ -134,18 +136,24 @@ namespace SeaBattleClient
 
         private void MyImage_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
+            Image image = sender as Image;
+            Ship ship = image.DataContext as Ship;
+
             Pointer ptr = e.Pointer;
             PointerPoint ptrPt = e.GetCurrentPoint(canvas);
 
             if (ptrPt.Properties.IsLeftButtonPressed)
             {
-                shiftPoint = new Point(ptrPt.Position.X - Canvas.GetLeft(myImage), ptrPt.Position.Y - Canvas.GetTop(myImage));
+                shiftPoint = new Point(ptrPt.Position.X - Canvas.GetLeft(image), ptrPt.Position.Y - Canvas.GetTop(image));
             }
         }
 
         //отпускание
         private void MyImage_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
+            Image image = sender as Image;
+            Ship ship = image.DataContext as Ship;
+
             shiftPoint = new Point(double.NaN, double.NaN);
             
             PointerPoint ptrPt = e.GetCurrentPoint(FieldGrid);
@@ -160,7 +168,7 @@ namespace SeaBattleClient
                 double columnDouble = imagePoint.X / (FieldGrid.Width / 10);
                 int column = (int)columnDouble;
 
-                double rowDouble = (imagePoint.Y+myImage.Height/2) / (FieldGrid.Height / 10);
+                double rowDouble = (imagePoint.Y+image.Height/2) / (FieldGrid.Height / 10);
                 int row = (int)rowDouble;
 
                 //int r = Convert.ToInt32(row.ToString() + column.ToString());
@@ -170,20 +178,24 @@ namespace SeaBattleClient
                 double Y = Canvas.GetTop(FieldGrid) + FieldGrid.Height/10 * row;
 
                 //проверяет, не выходит ли картинка за края
-                bool x = X <= FieldGrid.Width - (myImage.Width/3*2+1) + Canvas.GetLeft(FieldGrid);
-                bool y = Y <= FieldGrid.Height - (myImage.Height/3*2+1) + Canvas.GetTop(FieldGrid);
+                bool x = X <= FieldGrid.Width - (image.Width/3*2+1) + Canvas.GetLeft(FieldGrid);
+                bool y = Y <= FieldGrid.Height - (image.Height/3*2+1) + Canvas.GetTop(FieldGrid);
                 if (x && y)
                 {
                     Row.Text = row.ToString();
                     Column.Text = column.ToString();
 
-                    Canvas.SetLeft(myImage, X);
-                    Canvas.SetTop(myImage, Y);
+                    Canvas.SetLeft(image, X);
+                    Canvas.SetTop(image, Y);
+
+                    ship.Location.X = column;
+                    ship.Location.Y = row;
+
                 } 
                 else
                 {
-                    Canvas.SetLeft(myImage, 0);
-                    Canvas.SetTop(myImage, 0);
+                    Canvas.SetLeft(image, 0);
+                    Canvas.SetTop(image, 0);
                 }
 
                 
@@ -218,8 +230,8 @@ namespace SeaBattleClient
             }
             else
             {
-                Canvas.SetLeft(myImage, 0);
-                Canvas.SetTop(myImage, 0);
+                Canvas.SetLeft(image, 0);
+                Canvas.SetTop(image, 0);
             }
             //при отпускании снимает подсветку с поля
             for (int i = 0; i < 100; i++)
@@ -227,6 +239,41 @@ namespace SeaBattleClient
                Rectangle rect = (Rectangle)FieldGrid.Children[i];
                 rect.Fill = new SolidColorBrush(Colors.White);
             }
+        }
+
+        //при срывнии мыши
+        //изменить потом цифры на Size
+        private void MyImage_PointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            Image image = sender as Image;
+            Ship ship = image.DataContext as Ship;
+
+
+            if(ship.Location.X == -1 || ship.Location.Y == -1 || ship.Location.X+3 >= 10 || ship.Location.Y+1 >= 10)
+            {
+                Canvas.SetLeft(image, 0);
+                Canvas.SetTop(image, 0);
+
+                for (int i = 0; i < 100; i++)
+                {
+                    Rectangle rect = (Rectangle)FieldGrid.Children[i];
+                    rect.Fill = new SolidColorBrush(Colors.White);
+                }
+            }
+            else
+            {
+                double X = (ship.Location.X) * (FieldGrid.Width / 10) + Canvas.GetLeft(FieldGrid);
+                double Y = (ship.Location.Y) * (FieldGrid.Height / 10) + Canvas.GetTop(FieldGrid);
+
+                Canvas.SetLeft(image, X);
+                Canvas.SetTop(image, Y);
+                for (int i = 0; i < 100; i++)
+                {
+                    Rectangle rect = (Rectangle)FieldGrid.Children[i];
+                    rect.Fill = new SolidColorBrush(Colors.White);
+                }
+            }
+
         }
     }
 }
