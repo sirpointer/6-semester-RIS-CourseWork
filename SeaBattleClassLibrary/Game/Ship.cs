@@ -28,7 +28,7 @@ namespace SeaBattleClassLibrary.Game
         }
 
         /// <summary>
-        /// Класс корабля.
+        /// Класс (длина) корабля.
         /// </summary>
         [DataMember(Name = "shipClass")]
         public readonly ShipClass ShipClass;
@@ -73,6 +73,9 @@ namespace SeaBattleClassLibrary.Game
         public object Clone() => new Ship(Id, ShipClass, Orientation, Location.Clone() as Location);
     }
 
+    /// <summary>
+    /// Класс (длина) корабля.
+    /// </summary>
     public enum ShipClass
     {
         OneDeck = 1,
@@ -86,6 +89,7 @@ namespace SeaBattleClassLibrary.Game
         Horizontal = 0,
         Vertical = 1
     }
+
 
     [DataContract(Name = "location")]
     public class Location : NotifyPropertyChanged, IEquatable<Location>, ICloneable
@@ -111,9 +115,9 @@ namespace SeaBattleClassLibrary.Game
             Size = 10;
 
             if (x > Size || x < -1)
-                throw new ArgumentOutOfRangeException(nameof(x));
+                throw new ArgumentOutOfRangeException(nameof(x), $"Значение должно лежать в диапозоне от -1 до {Size}");
             if (y > Size || y < -1)
-                throw new ArgumentOutOfRangeException(nameof(y));
+                throw new ArgumentOutOfRangeException(nameof(y), $"Значение должно лежать в диапозоне от -1 до {Size}");
             
             this.x = x;
             this.y = y;
@@ -126,7 +130,7 @@ namespace SeaBattleClassLibrary.Game
             set
             {
                 if (value > Size || value < -1)
-                    throw new ArgumentOutOfRangeException(nameof(X));
+                    throw new ArgumentOutOfRangeException(nameof(X), $"Значение должно лежать в диапозоне от -1 до {Size}");
 
                 x = value;
                 OnPropertyChanged(nameof(X));
@@ -140,7 +144,7 @@ namespace SeaBattleClassLibrary.Game
             set
             {
                 if (value > Size || value < -1)
-                    throw new ArgumentOutOfRangeException(nameof(Y));
+                    throw new ArgumentOutOfRangeException(nameof(Y), $"Значение должно лежать в диапозоне от -1 до {Size}");
 
                 y = value;
                 OnPropertyChanged(nameof(Y));
@@ -151,6 +155,19 @@ namespace SeaBattleClassLibrary.Game
 
         public bool IsSet => !IsUnset;
 
+        public bool TrySet(int x, int y)
+        {
+            if (x >= -1 && x < Size && y >= -1 && y < Size)
+            {
+                X = x;
+                Y = y;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
         public bool Equals(Location other) => (other.X == X && other.Y == Y) ? true : false;
 

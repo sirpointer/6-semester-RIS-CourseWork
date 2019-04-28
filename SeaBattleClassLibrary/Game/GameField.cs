@@ -59,7 +59,7 @@ namespace SeaBattleClassLibrary.Game
                 throw new ArgumentException();
             for (int i = 0; i < ships.Count; i++)
             {
-                if (ships.Where(x => x.Id != ships[i].Id).Any(x => x.Id == ships[i].Id))
+                if (ships.Count(x => x.Id == ships[i].Id) != 1)
                     throw new ArgumentException("У кораблей есть одинаковые id");
             }
 

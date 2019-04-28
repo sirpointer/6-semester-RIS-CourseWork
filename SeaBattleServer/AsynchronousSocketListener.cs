@@ -62,7 +62,6 @@ namespace SeaBattleServer
                     // Start an asynchronous socket to listen for connections.  
                     Console.WriteLine("Waiting for a connection...");
                     listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
-                    
                     // Wait until a connection is made before continuing.  
                     allDone.WaitOne();
                 }
