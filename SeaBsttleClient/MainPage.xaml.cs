@@ -19,6 +19,7 @@ using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Shapes;
 using SeaBattleClient.ViewModels;
+using SeaBattleClassLibrary.Game;
 
 // Документацию по шаблону элемента "Пустая страница" см. по адресу https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x419
 
@@ -29,10 +30,14 @@ namespace SeaBattleClient
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        public GameField Model = new GameField();
+
         public MainPage()
         {
             this.InitializeComponent();
-            this.DataContext = new BeginGamePageViewModel();
+            this.DataContext = Model;
+            myImage.DataContext = Model.Ships[8];
+            MyFrame.Navigate(typeof(BeginPage), Model);
 
             //сделать поле
             for (int i = 0; i < 10; i++)
@@ -63,6 +68,7 @@ namespace SeaBattleClient
         private void MyImage_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
             Image image = sender as Image;
+            Ship ship = image.DataContext as Ship;
             Pointer prt = e.Pointer;
             
             //передвижение картинки
@@ -80,8 +86,8 @@ namespace SeaBattleClient
                     {
                         Point newPoint = new Point(ptrPt.Position.X - shiftPoint.X, ptrPt.Position.Y - shiftPoint.Y);
 
-                        Canvas.SetLeft(myImage, newPoint.X);
-                        Canvas.SetTop(myImage, newPoint.Y);
+                        Canvas.SetLeft(image, newPoint.X);
+                        Canvas.SetTop(image, newPoint.Y);
 
                         bool inside = imagePoint.X >= 0 && imagePoint.Y >= 0 && imagePoint.X <= FieldGrid.Width && imagePoint.Y <= FieldGrid.Height;
 
@@ -94,10 +100,13 @@ namespace SeaBattleClient
                             double columnDouble = imagePoint.X / (FieldGrid.Width / 10);
                             int column = (int)columnDouble;
 
-                            double rowDouble = (imagePoint.Y + myImage.Height / 2) / (FieldGrid.Height / 10);
+                            double rowDouble = (imagePoint.Y + image.Height / 2) / (FieldGrid.Height / 10);
                             int row = (int)rowDouble;
 
-                            int colEnd = (int)(column + myImage.Width / 30 - 1);
+                            bool set = Model.SetShipLocation(ship, new Location(column, row));
+                            
+
+                            int colEnd = (int)(column + image.Width / 30 - 1);
                             if(colEnd<10 && colEnd >= 0 && row >= 0 && row <10)
                             {
                                 int start = Convert.ToInt32(row.ToString() + column.ToString());

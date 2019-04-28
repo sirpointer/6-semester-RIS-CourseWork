@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace SeaBattleClassLibrary.Game
 {
     [DataContract(Name = "gameField")]
-    public class GameField
+    public class GameField : NotifyPropertyChanged
     {
         /// <summary>
         /// Попадания на поле (места куда уже нельзя бить). 
@@ -74,14 +74,16 @@ namespace SeaBattleClassLibrary.Game
 
             if (ship.Orientation == Orientation.Horizontal)
             {
-                if (location.X + (int)ship.ShipClass > 10)
+                if (location.X + (int)ship.ShipClass >= location.Size)
                     return false;
             }
             else
             {
-                if (location.Y + (int)ship.ShipClass > 10)
+                if (location.Y + (int)ship.ShipClass >= location.Size)
                     return false;
             }
+
+            return false;
 
             List<Ship> anotherShips = Ships.Where(x => x.Id != ship.Id) as List<Ship>;
 
@@ -89,7 +91,7 @@ namespace SeaBattleClassLibrary.Game
 
             foreach (Ship another in anotherShips)
             {
-                if (another.Location.X == -1 || another.Location.Y == -1)
+                if (another.Location.IsUnset)
                     continue;
 
                 Location pos = new Location(location.X, location.Y);
@@ -126,12 +128,14 @@ namespace SeaBattleClassLibrary.Game
             if (!targetShipIsValid)
                 return false;
 
+            bool overlay = false;
+
             Location targetLocation = targetShip.Location.Clone() as Location;
             int endX = targetShip.Location.X + (int)targetShip.ShipClass;
             
             while (targetLocation.X <= endX)
             {
-                for (int y = anotherShip.Location.Y - 1; y <= anotherShip.Location.Y + 2; y++)
+                for (int y = anotherShip.Location.Y - 1; y <= anotherShip.Location.Y + 1; y++)
                 {
                     for (int x = anotherShip.Location.X - 1; x <= anotherShip.Location.X + (int)anotherShip.ShipClass + 1; x++)
                     {

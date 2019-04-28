@@ -2,17 +2,21 @@
     x:Class="SeaBattleClient.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:SeaBattleClient"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    Background="{ThemeResource SystemControlAcrylicWindowBrush}"
     RequestedTheme="Light">
     <Grid Name="mainGrid" HorizontalAlignment="Stretch" Width="Auto" Height="Auto" Margin="0,0,0,0" VerticalAlignment="Stretch">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="auto" />
         </Grid.ColumnDefinitions>
+
+        <RelativePanel />
+        <Frame Name="MyFrame">
+            
+        </Frame>
         <!--<Grid x:Name="FieldGrid" Height="300" Width="300" >
              <Image Name="Image" Source="/Assets/Ships/ship.jpg" CanDrag="True" Width="100" />
             
@@ -20,6 +24,7 @@
         
         <Canvas Name="canvas" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch" >
             <Image Name="myImage" Canvas.ZIndex="2" Source="/Assets/Ships/ship.jpg" Width="90" Height="30" HorizontalAlignment="Left" Grid.Column="1" Margin="0,0,0,0" VerticalAlignment="Stretch" PointerMoved="MyImage_PointerMoved" PointerPressed="MyImage_PointerPressed" PointerReleased="MyImage_PointerReleased" />
+            
             <Grid x:Name="FieldGrid" Canvas.ZIndex="1" Height="300" Width="300" Canvas.Left="0" Canvas.Top="70" >
 
             </Grid>

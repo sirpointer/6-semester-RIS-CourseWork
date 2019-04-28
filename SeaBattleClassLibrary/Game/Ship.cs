@@ -79,7 +79,7 @@ namespace SeaBattleClassLibrary.Game
         TwoDeck = 2,
         ThreeDeck = 3,
         FourDeck = 4
-    };
+    }
 
     public enum Orientation
     {
