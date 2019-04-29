@@ -61,7 +61,7 @@ namespace SeaBattleClassLibrary.Game
             }
         }
 
-        public Ship(int id, ShipClass shipClass = ShipClass.OneDeck, Orientation orientation = Orientation.Vertical, Location location = null)
+        public Ship(int id, ShipClass shipClass = ShipClass.OneDeck, Orientation orientation = Orientation.Horizontal, Location location = null)
         {
             Id = id;
             ShipClass = shipClass;
@@ -176,14 +176,25 @@ namespace SeaBattleClassLibrary.Game
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <param name="size"></param>
-        public Location(int x = -1, int y = -1)
+        public Location(int x = -1, int y = -1, bool check = false)
         {
             Size = 10;
 
             if (x > Size || x < -1)
-                throw new ArgumentOutOfRangeException(nameof(x), $"Значение должно лежать в диапозоне от -1 до {Size}");
+            {
+                if (check)
+                    x = -1;
+                else
+                    throw new ArgumentOutOfRangeException(nameof(x), $"Значение должно лежать в диапозоне от -1 до {Size}");
+            }
+                
             if (y > Size || y < -1)
-                throw new ArgumentOutOfRangeException(nameof(y), $"Значение должно лежать в диапозоне от -1 до {Size}");
+            {
+                if (check)
+                    y = -1;
+                else
+                    throw new ArgumentOutOfRangeException(nameof(y), $"Значение должно лежать в диапозоне от -1 до {Size}");
+            }
             
             this.x = x;
             this.y = y;

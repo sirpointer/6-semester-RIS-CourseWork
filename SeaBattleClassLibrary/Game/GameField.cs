@@ -99,12 +99,12 @@ namespace SeaBattleClassLibrary.Game
         {
             Location leftUp = new Location(anotherShip.Location.X - 1, anotherShip.Location.Y - 1);
             int right = anotherShip.RightLocation.X + 1;
-            int down = anotherShip.DownLocation.Y + 1;
+            int down = anotherShip.DownLocation.Y + 1 > 9 ? anotherShip.DownLocation.Y : anotherShip.DownLocation.Y + 1;
             Location targetLocation = targetShip.Location.Clone() as Location;
 
             if (targetShip.Orientation == Orientation.Horizontal)
             {
-                int endX = targetShip.Location.X + targetShip.ShipWidth;
+                int endX = targetShip.RightLocation.X;
 
                 while (targetLocation.X <= endX)
                 {
@@ -118,7 +118,7 @@ namespace SeaBattleClassLibrary.Game
             }
             else
             {
-                int endY = targetShip.Location.Y + targetShip.ShipHeight;
+                int endY = targetShip.DownLocation.Y;
 
                 while (targetLocation.X <= endY)
                 {
