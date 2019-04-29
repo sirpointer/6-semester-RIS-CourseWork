@@ -1,0 +1,40 @@
+﻿<Page
+    x:Class="SeaBattleClient.BeginPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SeaBattleClient"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <!--<Grid x:Name="FieldGrid" Height="300" Width="300" >
+             <Image Name="Image" Source="/Assets/Ships/ship.jpg" CanDrag="True" Width="100" />
+            
+        </Grid >-->
+
+        <Canvas Name="canvas" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch" >
+            <Image Name="Image1" Canvas.ZIndex="3" Source="/Assets/Ships/1.jpg" Height="30" PointerMoved="MyImage_PointerMoved" PointerPressed="MyImage_PointerPressed" PointerReleased="MyImage_PointerReleased" PointerExited="MyImage_PointerExited" RightTapped="Image1_RightTapped"/>
+            <Image Name="Image2" Canvas.ZIndex="3" Source="/Assets/Ships/1.jpg" Height="30" PointerMoved="MyImage_PointerMoved" PointerPressed="MyImage_PointerPressed" PointerReleased="MyImage_PointerReleased" PointerExited="MyImage_PointerExited" VerticalAlignment="Stretch" RightTapped="Image1_RightTapped"/>
+            <Image Name="Image3" Canvas.ZIndex="3" Source="/Assets/Ships/1.jpg" Height="30" PointerMoved="MyImage_PointerMoved" PointerPressed="MyImage_PointerPressed" PointerReleased="MyImage_PointerReleased" PointerExited="MyImage_PointerExited" VerticalAlignment="Stretch" RightTapped="Image1_RightTapped"/>
+            <Image Name="Image4" Canvas.ZIndex="3" Source="/Assets/Ships/1.jpg" Height="30" PointerMoved="MyImage_PointerMoved" PointerPressed="MyImage_PointerPressed" PointerReleased="MyImage_PointerReleased" PointerExited="MyImage_PointerExited" VerticalAlignment="Stretch" RightTapped="Image1_RightTapped"/>
+            <Image Name="Image5" Canvas.ZIndex="3" Source="/Assets/Ships/2.jpg" Height="30" PointerMoved="MyImage_PointerMoved" PointerPressed="MyImage_PointerPressed" PointerReleased="MyImage_PointerReleased" PointerExited="MyImage_PointerExited" HorizontalAlignment="Stretch" Canvas.Left="70" RightTapped="Image1_RightTapped"/>
+            <Image Name="Image6" Canvas.ZIndex="3" Source="/Assets/Ships/2.jpg" Height="30" PointerMoved="MyImage_PointerMoved" PointerPressed="MyImage_PointerPressed" PointerReleased="MyImage_PointerReleased" PointerExited="MyImage_PointerExited" HorizontalAlignment="Stretch" Canvas.Left="70" RightTapped="Image1_RightTapped" />
+            <Image Name="Image7" Canvas.ZIndex="3" Source="/Assets/Ships/2.jpg" Height="30" PointerMoved="MyImage_PointerMoved" PointerPressed="MyImage_PointerPressed" PointerReleased="MyImage_PointerReleased" PointerExited="MyImage_PointerExited" HorizontalAlignment="Stretch" Canvas.Left="70" RightTapped="Image1_RightTapped"/>
+            <Image Name="Image8" Canvas.ZIndex="3" Source="/Assets/Ships/3.jpg" Height="30" PointerMoved="MyImage_PointerMoved" PointerPressed="MyImage_PointerPressed" PointerReleased="MyImage_PointerReleased" PointerExited="MyImage_PointerExited" Canvas.Left="155" VerticalAlignment="Stretch" RightTapped="Image1_RightTapped"/>
+            <Image Name="Image9" Canvas.ZIndex="3" Source="/Assets/Ships/3.jpg" Height="30" PointerMoved="MyImage_PointerMoved" PointerPressed="MyImage_PointerPressed" PointerReleased="MyImage_PointerReleased" PointerExited="MyImage_PointerExited" Canvas.Left="155" VerticalAlignment="Stretch" RightTapped="Image1_RightTapped"/>
+            <Image Name="Image10" Canvas.ZIndex="3" Source="/Assets/Ships/4.jpg" Height="30" PointerMoved="MyImage_PointerMoved" PointerPressed="MyImage_PointerPressed" PointerReleased="MyImage_PointerReleased" PointerExited="MyImage_PointerExited" Canvas.Left="275" HorizontalAlignment="Stretch" RightTapped="Image1_RightTapped"/>
+
+            <Grid x:Name="FieldGrid" Canvas.ZIndex="1" Height="300" Width="300" Canvas.Left="0" Canvas.Top="70" >
+
+            </Grid>
+
+            <Button HorizontalAlignment="Left" Canvas.Left="395" Canvas.Top="80" VerticalAlignment="Top">Start game</Button>
+            <!--<TextBlock Name="Row" Text="Row" HorizontalAlignment="Stretch" Canvas.Left="428" Canvas.Top="95" VerticalAlignment="Stretch" />
+            <TextBlock Margin="0,0,0,0" Name="Column" Text="Col" Canvas.Left="505" Canvas.Top="92" /> -->
+        </Canvas>
+
+        <!-- <Rectangle Width="250" Height="250" Fill="Red" VerticalAlignment="Bottom" /> -->
+    </Grid>
+</Page>

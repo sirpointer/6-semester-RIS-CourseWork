@@ -35,6 +35,7 @@ namespace SeaBattleClassLibrary.Game
 
         private Socket GetSocket()
         {
+            return null;
             // Establish the remote endpoint for the socket.  
             // The name of the   
             // remote device is "host.contoso.com".  
