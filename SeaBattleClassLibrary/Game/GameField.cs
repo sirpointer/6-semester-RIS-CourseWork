@@ -99,7 +99,7 @@ namespace SeaBattleClassLibrary.Game
         {
             Location leftUp = new Location(anotherShip.Location.X - 1, anotherShip.Location.Y - 1);
             int right = anotherShip.RightLocation.X + 1;
-            int down = anotherShip.DownLocation.Y + 1 > 9 ? anotherShip.DownLocation.Y : anotherShip.DownLocation.Y + 1;
+            int down = (anotherShip.DownLocation.Y + 1) > 9 ? anotherShip.DownLocation.Y : anotherShip.DownLocation.Y + 1;
             Location targetLocation = targetShip.Location.Clone() as Location;
 
             if (targetShip.Orientation == Orientation.Horizontal)
@@ -113,7 +113,8 @@ namespace SeaBattleClassLibrary.Game
                     if (overlay)
                         return false;
 
-                    targetLocation.X += 1;
+                    if (!targetLocation.TrySet(targetLocation.X + 1, targetLocation.Y))
+                        break;
                 }
             }
             else
@@ -127,7 +128,8 @@ namespace SeaBattleClassLibrary.Game
                     if (overlay)
                         return false;
 
-                    targetLocation.Y += 1;
+                    if (!targetLocation.TrySet(targetLocation.X, targetLocation.Y + 1))
+                        break;
                 }
             }
 
