@@ -142,7 +142,12 @@ namespace SeaBattleClassLibrary.Game
             {
                 for (int y = leftUp.Y; y <= leftUp.Y + down; y++)
                 {
-                    if (targetLocation.Equals(new Location(x, y)))
+                    Location location = new Location(x, y, true);
+
+                    if (location.IsUnset)
+                        continue;
+
+                    if (targetLocation.Equals(location))
                         return false;
                 }
             }
