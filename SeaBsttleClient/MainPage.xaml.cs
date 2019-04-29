@@ -39,6 +39,8 @@ namespace SeaBattleClient
             }
         }
 
+        public List<Image> ShipsImages = new List<Image>();
+
         public MainPage()
         {
             this.InitializeComponent();
@@ -47,7 +49,8 @@ namespace SeaBattleClient
             Model.Ships[9] = new Ship(23, ShipClass.ThreeDeck, Game.Orientation.Horizontal);
             myImage.DataContext = Model.Ships[8];
             Image2.DataContext = Model.Ships[9];
-            
+            ShipsImages.Add(Image2);
+            ShipsImages.Add(myImage);
 
             MyFrame.Navigate(typeof(BeginPage), Model);
 
@@ -74,6 +77,9 @@ namespace SeaBattleClient
             }
         }
 
+        /// <summary>
+        /// для определения координат
+        /// </summary>
         private Point shiftPoint = new Point(double.NaN, double.NaN);
 
         //изменение координаты мыши
@@ -115,8 +121,8 @@ namespace SeaBattleClient
                             double rowDouble = (imagePoint.Y + image.Height / 2) / (FieldGrid.Height / 10);
                             int row = (int)rowDouble;
 
-                            ship.Location.X = column;
-                            ship.Location.Y = row;
+                            //ship.Location.X = column;
+                            //ship.Location.Y = row;
 
                             bool set = Model.SetShipLocation(ship, new Location(column, row));
                             if (set)
@@ -147,11 +153,17 @@ namespace SeaBattleClient
             }
         }
 
-
+        //нажатие
         private void MyImage_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             Image image = sender as Image;
+
             Ship ship = image.DataContext as Ship;
+            for(int i=0; i<ShipsImages.Count; i++)
+            {
+                if(ShipsImages[i].Name!=image.Name)
+                    ShipsImages[i].IsHitTestVisible = false;
+            }            
 
             Pointer ptr = e.Pointer;
             PointerPoint ptrPt = e.GetCurrentPoint(canvas);
@@ -205,14 +217,19 @@ namespace SeaBattleClient
                         Canvas.SetLeft(image, X);
                         Canvas.SetTop(image, Y);
 
-                        ship.Location.X = column;
-                        ship.Location.Y = row;
+                        //ship.Location.X = column;
+                        //ship.Location.Y = row;
 
                     } else
                     {
                         Canvas.SetLeft(image, 0);
                         Canvas.SetTop(image, 0);
                     }
+                }
+
+                for (int i = 0; i < ShipsImages.Count; i++)
+                {
+                    ShipsImages[i].IsHitTestVisible = true;
                 }
 
 
@@ -267,7 +284,7 @@ namespace SeaBattleClient
             Ship ship = image.DataContext as Ship;
 
 
-            if(ship.Location.X == -1 || ship.Location.Y == -1 || ship.Location.X+3 >= 10 || ship.Location.Y+1 >= 10)
+            if(ship.Location.X == -1 || ship.Location.Y == -1 || ship.Location.X+ ship.ShipWidth>= 10 || ship.Location.Y+ship.ShipHeight >= 10)
             {
                 Canvas.SetLeft(image, 0);
                 Canvas.SetTop(image, 0);
