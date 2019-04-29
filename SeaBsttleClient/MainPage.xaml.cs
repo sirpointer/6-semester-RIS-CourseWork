@@ -20,6 +20,7 @@ using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Shapes;
 using SeaBattleClient.ViewModels;
 using SeaBattleClassLibrary.Game;
+using Game = SeaBattleClassLibrary.Game;
 
 // Документацию по шаблону элемента "Пустая страница" см. по адресу https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x419
 
@@ -30,13 +31,24 @@ namespace SeaBattleClient
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        public GameField Model = new GameField();
+        public GameField Model
+        {
+            get
+            {
+                return this.DataContext as GameField;
+            }
+        }
 
         public MainPage()
         {
             this.InitializeComponent();
-            this.DataContext = Model;
+            this.DataContext = new GameField();
+            Model.Ships[8] = new Ship(22, ShipClass.ThreeDeck, Game.Orientation.Horizontal);
+            Model.Ships[9] = new Ship(23, ShipClass.ThreeDeck, Game.Orientation.Horizontal);
             myImage.DataContext = Model.Ships[8];
+            Image2.DataContext = Model.Ships[9];
+            
+
             MyFrame.Navigate(typeof(BeginPage), Model);
 
             //сделать поле
@@ -107,23 +119,25 @@ namespace SeaBattleClient
                             ship.Location.Y = row;
 
                             bool set = Model.SetShipLocation(ship, new Location(column, row));
-                            
-                            int colEnd = (int)(column + image.Width / 30 - 1);
-                            if(colEnd<10 && colEnd >= 0 && row >= 0 && row <10)
+                            if (set)
                             {
-                                int start = Convert.ToInt32(row.ToString() + column.ToString());
-                                int end = Convert.ToInt32(row.ToString() + colEnd.ToString());
-                                if(start>=0 && start<FieldGrid.Height && end>=0 && end < FieldGrid.Width)
+                                int colEnd = (int)(column + image.Width / 30 - 1);
+                                if(colEnd<10 && colEnd >= 0 && row >= 0 && row <10)
                                 {
-                                    for(int i = 0; i < 100; i++)
+                                    int start = Convert.ToInt32(row.ToString() + column.ToString());
+                                    int end = Convert.ToInt32(row.ToString() + colEnd.ToString());
+                                    if(start>=0 && start<FieldGrid.Height && end>=0 && end < FieldGrid.Width)
                                     {
-                                       Rectangle rect = (Rectangle)FieldGrid.Children[i];
-                                        rect.Fill = new SolidColorBrush(Colors.White);
-                                    }
-                                    for (int i=start; i<=end; i++)
-                                    {
-                                        Rectangle rect = (Rectangle)FieldGrid.Children[i];
-                                        rect.Fill = new SolidColorBrush(Colors.Red);
+                                        for(int i = 0; i < 100; i++)
+                                        {
+                                           Rectangle rect = (Rectangle)FieldGrid.Children[i];
+                                            rect.Fill = new SolidColorBrush(Colors.White);
+                                        }
+                                        for (int i=start; i<=end; i++)
+                                        {
+                                            Rectangle rect = (Rectangle)FieldGrid.Children[i];
+                                            rect.Fill = new SolidColorBrush(Colors.Red);
+                                        }
                                     }
                                 }
                             }   
@@ -155,7 +169,7 @@ namespace SeaBattleClient
             Ship ship = image.DataContext as Ship;
 
             shiftPoint = new Point(double.NaN, double.NaN);
-            
+
             PointerPoint ptrPt = e.GetCurrentPoint(FieldGrid);
             PointerPoint imagePtrPt = e.GetCurrentPoint(sender as Image);
             Point imagePoint = new Point(ptrPt.Position.X - imagePtrPt.Position.X, ptrPt.Position.Y - imagePtrPt.Position.Y);
@@ -168,37 +182,42 @@ namespace SeaBattleClient
                 double columnDouble = imagePoint.X / (FieldGrid.Width / 10);
                 int column = (int)columnDouble;
 
-                double rowDouble = (imagePoint.Y+image.Height/2) / (FieldGrid.Height / 10);
+                double rowDouble = (imagePoint.Y + image.Height / 2) / (FieldGrid.Height / 10);
                 int row = (int)rowDouble;
 
-                //int r = Convert.ToInt32(row.ToString() + column.ToString());
-                //var rect = FieldGrid.Children[r];
-
-                double X = Canvas.GetLeft(FieldGrid) + FieldGrid.Width/10 * column;
-                double Y = Canvas.GetTop(FieldGrid) + FieldGrid.Height/10 * row;
-
-                //проверяет, не выходит ли картинка за края
-                bool x = X <= FieldGrid.Width - (image.Width/3*2+1) + Canvas.GetLeft(FieldGrid);
-                bool y = Y <= FieldGrid.Height - (image.Height/3*2+1) + Canvas.GetTop(FieldGrid);
-                if (x && y)
+                bool set = Model.SetShipLocation(ship, new Location(column, row));
+                if (set)
                 {
-                    Row.Text = row.ToString();
-                    Column.Text = column.ToString();
+                    //int r = Convert.ToInt32(row.ToString() + column.ToString());
+                    //var rect = FieldGrid.Children[r];
 
-                    Canvas.SetLeft(image, X);
-                    Canvas.SetTop(image, Y);
+                    double X = Canvas.GetLeft(FieldGrid) + FieldGrid.Width / 10 * column;
+                    double Y = Canvas.GetTop(FieldGrid) + FieldGrid.Height / 10 * row;
 
-                    ship.Location.X = column;
-                    ship.Location.Y = row;
+                    //проверяет, не выходит ли картинка за края
+                    bool x = X <= FieldGrid.Width - (image.Width / 3 * 2 + 1) + Canvas.GetLeft(FieldGrid);
+                    bool y = Y <= FieldGrid.Height - (image.Height / 3 * 2 + 1) + Canvas.GetTop(FieldGrid);
+                    if (x && y)
+                    {
+                        Row.Text = row.ToString();
+                        Column.Text = column.ToString();
 
-                } 
-                else
-                {
-                    Canvas.SetLeft(image, 0);
-                    Canvas.SetTop(image, 0);
+                        Canvas.SetLeft(image, X);
+                        Canvas.SetTop(image, Y);
+
+                        ship.Location.X = column;
+                        ship.Location.Y = row;
+
+                    } else
+                    {
+                        Canvas.SetLeft(image, 0);
+                        Canvas.SetTop(image, 0);
+                    }
                 }
 
-                
+
+
+
 
                 /*Rectangle w = new Rectangle
                 {
@@ -227,8 +246,7 @@ namespace SeaBattleClient
                 Grid.SetColumnSpan(image, 3);
                 Grid.SetRow(image, row);
                 Grid.SetColumn(image, column);*/
-            }
-            else
+            } else
             {
                 Canvas.SetLeft(image, 0);
                 Canvas.SetTop(image, 0);
@@ -236,7 +254,7 @@ namespace SeaBattleClient
             //при отпускании снимает подсветку с поля
             for (int i = 0; i < 100; i++)
             {
-               Rectangle rect = (Rectangle)FieldGrid.Children[i];
+                Rectangle rect = (Rectangle)FieldGrid.Children[i];
                 rect.Fill = new SolidColorBrush(Colors.White);
             }
         }
