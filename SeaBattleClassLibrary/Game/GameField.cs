@@ -78,7 +78,7 @@ namespace SeaBattleClassLibrary.Game
             if (!targetShip.IsSet)
                 return false;
 
-            List<Ship> anotherShips = Ships.Where(x => x.Id != ship.Id) as List<Ship> ?? new List<Ship>();
+            List<Ship> anotherShips = Ships.Where(x => x.Id != ship.Id).ToList();
             
             foreach (Ship another in anotherShips)
             {
