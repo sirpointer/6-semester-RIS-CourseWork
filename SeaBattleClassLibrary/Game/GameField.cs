@@ -67,6 +67,14 @@ namespace SeaBattleClassLibrary.Game
             Ships.Capacity = 10;
         }
 
+        #region Set Ship Location
+
+        /// <summary>
+        /// Задает новое расположение кораблю, проверяя не накладывается ли он на другие.
+        /// </summary>
+        /// <param name="ship"></param>
+        /// <param name="location"></param>
+        /// <returns>True если расположение задано, false если нет.</returns>
         public bool SetShipLocation(Ship ship, Location location)
         {
             if (location.IsUnset)
@@ -95,9 +103,18 @@ namespace SeaBattleClassLibrary.Game
             return true;
         }
 
+        /// <summary>
+        /// Проверяет не накладывается ли <paramref name="targetShip"/> на <paramref name="anotherShip"/>.
+        /// </summary>
+        /// <param name="targetShip">Корабль, который следует расположить на поле.</param>
+        /// <param name="anotherShip">Корабль, который уже лежит на поле.</param>
+        /// <returns></returns>
         private bool CheckOverlay(Ship targetShip, Ship anotherShip)
         {
-            Location leftUp = new Location(anotherShip.Location.X - 1, anotherShip.Location.Y - 1);
+            int left = (anotherShip.Location.X - 1) >= 0 ? (anotherShip.Location.X - 1) : anotherShip.Location.X;
+            int up = (anotherShip.Location.Y - 1) >= 0 ? (anotherShip.Location.Y - 1) : anotherShip.Location.Y;
+            Location leftUp = new Location(left, up);
+
             int right = anotherShip.RightLocation.X + 1;
             int down = (anotherShip.DownLocation.Y + 1) > 9 ? anotherShip.DownLocation.Y : anotherShip.DownLocation.Y + 1;
             Location targetLocation = targetShip.Location.Clone() as Location;
@@ -136,6 +153,15 @@ namespace SeaBattleClassLibrary.Game
             return true;
         }
 
+        /// <summary>
+        /// Проверяет не попадает ли <paramref name="targetLocation"/> на позиции в диапозоне 
+        /// от <paramref name="leftUp"/> до <paramref name="right"/> и <paramref name="down"/>
+        /// </summary>
+        /// <param name="targetLocation"></param>
+        /// <param name="leftUp">Левый верхняя позиция.</param>
+        /// <param name="right">На сколько позиция лежит вправо.</param>
+        /// <param name="down">На сколько позиция лежит вниз.</param>
+        /// <returns>True если не попадает, false если попадает.</returns>
         private bool CheckOverlay(Location targetLocation, Location leftUp, int right, int down)
         {
             for (int x = leftUp.X; x <= leftUp.X + right; x++)
@@ -154,5 +180,7 @@ namespace SeaBattleClassLibrary.Game
 
             return true;
         }
+
+        #endregion
     }
 }
