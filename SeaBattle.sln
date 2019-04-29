@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.28307.572
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeaBattleServer", "SeaBattleServer\SeaBattleServer.csproj", "{03DE2A05-C318-4154-9297-C32EFF127A1A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeaBattleClient", "SeaBsttleClient\SeaBattleClient.csproj", "{60C0B88E-3F55-4910-9A07-910530136FE9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeaBattleClient", "SeaBattleClient\SeaBattleClient.csproj", "{60C0B88E-3F55-4910-9A07-910530136FE9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientTest", "ClientTest\ClientTest.csproj", "{D8EFDBF7-D57F-4AE1-A184-B46F566809FB}"
 EndProject
