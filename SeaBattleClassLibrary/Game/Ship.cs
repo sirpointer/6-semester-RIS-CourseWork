@@ -70,6 +70,72 @@ namespace SeaBattleClassLibrary.Game
             _location = location ?? new Location();
         }
 
+        public bool IsSet
+        {
+            get
+            {
+                if (Location.IsUnset)
+                    return false;
+
+                if (Orientation == Orientation.Horizontal)
+                {
+                    if (Location.X + (int)ShipClass - 1 < Location.Size)
+                        return true;
+                }
+                else
+                {
+                    if (Location.Y + (int)ShipClass - 1 < Location.Size)
+                        return true;
+                }
+
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Получить ширину, которую занимает корабль на поле.
+        /// </summary>
+        public int ShipWidth
+        {
+            get
+            {
+                return Orientation == Orientation.Horizontal ? (int)ShipClass : 1;
+            }
+        }
+
+        /// <summary>
+        /// Получить высоту, которую занимает корабль на поле.
+        /// </summary>
+        public int ShipHeight
+        {
+            get
+            {
+                return Orientation == Orientation.Vertical ? (int)ShipClass : 1;
+            }
+        }
+
+        /// <summary>
+        /// Получить крайнюю правую точку корабля на поле.
+        /// </summary>
+        public Location RightLocation
+        {
+            get
+            {
+                return Orientation == Orientation.Horizontal ? new Location(Location.X + ShipWidth - 1, Location.Y) : Location.Clone() as Location;
+            }
+        }
+
+        /// <summary>
+        /// Получить крайнюю нижнюю точку корабля на полу.
+        /// </summary>
+        public Location DownLocation
+        {
+            get
+            {
+                return Orientation == Orientation.Vertical ? new Location(Location.X, Location.Y + ShipHeight - 1) : Location.Clone() as Location;
+            }
+        }
+
         public object Clone() => new Ship(Id, ShipClass, Orientation, Location.Clone() as Location);
     }
 

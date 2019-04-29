@@ -31,6 +31,20 @@ namespace SeaBattleServer
         
         private static void StartListening()
         {
+            GameField f = new GameField();
+            f.SetShipLocation(f.Ships[6], new Location(0, 0));
+            f.Ships[0].Location = new Location(3, 6);
+            f.Ships[4].Location = new Location(9, 3);
+
+            f.SetShipLocation(f.Ships[2], new Location(0, 0));
+
+
+
+
+
+
+
+
             // Establish the local endpoint for the socket.  
             // The DNS name of the computer  
             // running the listener is "host.contoso.com".  

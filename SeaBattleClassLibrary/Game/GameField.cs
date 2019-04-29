@@ -72,79 +72,77 @@ namespace SeaBattleClassLibrary.Game
             if (location.IsUnset)
                 return false;
 
-            if (ship.Orientation == Orientation.Horizontal)
-            {
-                if (location.X + (int)ship.ShipClass >= location.Size)
-                    return false;
-            }
-            else
-            {
-                if (location.Y + (int)ship.ShipClass >= location.Size)
-                    return false;
-            }
+            Ship targetShip = ship.Clone() as Ship;
+            targetShip.Location = location.Clone() as Location;
 
-            return false;
+            if (!targetShip.IsSet)
+                return false;
 
-            List<Ship> anotherShips = Ships.Where(x => x.Id != ship.Id) as List<Ship>;
-
-            // Проверить. Лежит ли корабль на другом корабле или радом с ним.
-
+            List<Ship> anotherShips = Ships.Where(x => x.Id != ship.Id) as List<Ship> ?? new List<Ship>();
+            
             foreach (Ship another in anotherShips)
             {
-                if (another.Location.IsUnset)
+                if (!another.IsSet)
                     continue;
 
-                Location pos = new Location(location.X, location.Y);
+                bool overlay = !CheckOverlay(targetShip, another);
 
-                if (another.Orientation == Orientation.Horizontal)
-                {
-                    bool overlay = !CheckHorizontalOverlay(ship.Clone() as Ship, another.Clone() as Ship);
-                    if (overlay)
-                        return false;
-                }
+                if (overlay)
+                    return false;
             }
 
             ship.Location = location;
+            return true;
+        }
 
-            throw new NotImplementedException();
+        private bool CheckOverlay(Ship targetShip, Ship anotherShip)
+        {
+            Location leftUp = new Location(anotherShip.Location.X - 1, anotherShip.Location.Y - 1);
+            int right = anotherShip.RightLocation.X + 1;
+            int down = anotherShip.DownLocation.Y + 1;
+            Location targetLocation = targetShip.Location.Clone() as Location;
+
+            if (targetShip.Orientation == Orientation.Horizontal)
+            {
+                int endX = targetShip.Location.X + targetShip.ShipWidth;
+
+                while (targetLocation.X <= endX)
+                {
+                    bool overlay = !CheckOverlay(targetLocation, leftUp, right, down);
+
+                    if (overlay)
+                        return false;
+
+                    targetLocation.X += 1;
+                }
+            }
+            else
+            {
+                int endY = targetShip.Location.Y + targetShip.ShipHeight;
+
+                while (targetLocation.X <= endY)
+                {
+                    bool overlay = !CheckOverlay(targetLocation, leftUp, right, down);
+
+                    if (overlay)
+                        return false;
+
+                    targetLocation.Y += 1;
+                }
+            }
 
             return true;
         }
 
-        /// <summary>
-        /// Проверяет наложение кораблей друг на друга, если <paramref name="anotherShip"/> расположен горизонтально.
-        /// Метод НЕ менят позицию кораблей.
-        /// </summary>
-        /// <param name="targetShip">Корабль, который необходимо разместить.</param>
-        /// <param name="anotherShip">Корабль который уже лежит на поле.</param>
-        /// <returns>True если не накладывается, false если накладываются.</returns>
-        private bool CheckHorizontalOverlay(Ship targetShip, Ship anotherShip)
+        private bool CheckOverlay(Location targetLocation, Location leftUp, int right, int down)
         {
-            bool targetShipIsValid = (targetShip.Location.X >= 0) && (targetShip.Location.Y >= 0)
-                && (targetShip.Location.X + (int)targetShip.ShipClass <= 10);
-
-            bool anotherShipIsValid = (anotherShip.Orientation == Orientation.Horizontal);
-
-            if (!targetShipIsValid)
-                return false;
-
-            bool overlay = false;
-
-            Location targetLocation = targetShip.Location.Clone() as Location;
-            int endX = targetShip.Location.X + (int)targetShip.ShipClass;
-            
-            while (targetLocation.X <= endX)
+            for (int x = leftUp.X; x <= leftUp.X + right; x++)
             {
-                for (int y = anotherShip.Location.Y - 1; y <= anotherShip.Location.Y + 1; y++)
+                for (int y = leftUp.Y; y <= leftUp.Y + down; y++)
                 {
-                    for (int x = anotherShip.Location.X - 1; x <= anotherShip.Location.X + (int)anotherShip.ShipClass + 1; x++)
-                    {
-                        if (targetLocation.Equals(new Location(x, y)))
-                            return false;
-                    }
+                    if (targetLocation.Equals(new Location(x, y)))
+                        return false;
                 }
-
-                targetLocation.X += 1;
             }
 
             return true;
