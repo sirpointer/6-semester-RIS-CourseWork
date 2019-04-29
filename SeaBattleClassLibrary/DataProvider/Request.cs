@@ -15,7 +15,9 @@ namespace SeaBattleClassLibrary.DataProvider
             AddGame = 0,
             Shot = 1,
             SetField = 2,
-            BadRequest = 4
+            BadRequest = 4,
+            GetGames = 8,
+            JoinTheGame = 16
         }
 
         /// <summary>
@@ -26,6 +28,8 @@ namespace SeaBattleClassLibrary.DataProvider
             public const string SetField = "setField";
             public const string Shot = "shot";
             public const string AddGame = "addGame";
+            public const string GetGames = "getGames";
+            public const string JoinTheGame = "joinTheGame";
         }
 
         /// <summary>
@@ -44,6 +48,10 @@ namespace SeaBattleClassLibrary.DataProvider
                     return RequestTypes.Shot;
                 case RequestJsonTypes.AddGame:
                     return RequestTypes.AddGame;
+                case RequestJsonTypes.GetGames:
+                    return RequestTypes.GetGames;
+                case RequestJsonTypes.JoinTheGame:
+                    return RequestTypes.JoinTheGame;
                 default:
                     return RequestTypes.BadRequest;
             }
@@ -62,6 +70,10 @@ namespace SeaBattleClassLibrary.DataProvider
                     return RequestJsonTypes.Shot;
                 case RequestTypes.SetField:
                     return RequestJsonTypes.SetField;
+                case RequestTypes.GetGames:
+                    return RequestJsonTypes.GetGames;
+                case RequestTypes.JoinTheGame:
+                    return RequestJsonTypes.JoinTheGame;
                 case RequestTypes.BadRequest:
                     throw new ArgumentException("Невозможно преобразовать BadRequest", nameof(type));
             }

@@ -15,5 +15,12 @@ namespace SeaBattleServer
         public Player Player1 { get; set; } = null;
 
         public Player Player2 { get; set; } = null;
+
+        public GameSession(string sessionName)
+        {
+            SessionName = sessionName;
+        }
+
+        public bool GameStarted => Player1 != null && Player2 != null ? true : false;
     }
 }

@@ -164,9 +164,9 @@ namespace SeaBattleClassLibrary.Game
         /// <returns>True если не попадает, false если попадает.</returns>
         private bool CheckOverlay(Location targetLocation, Location leftUp, int right, int down)
         {
-            for (int x = leftUp.X; x <= leftUp.X + right; x++)
+            for (int x = leftUp.X; x <= right; x++)
             {
-                for (int y = leftUp.Y; y <= leftUp.Y + down; y++)
+                for (int y = leftUp.Y; y <= down; y++)
                 {
                     Location location = new Location(x, y, true);
 

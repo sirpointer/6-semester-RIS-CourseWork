@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
@@ -10,7 +11,39 @@ namespace SeaBattleClassLibrary.Game
         public string Name { get; set; } = null;
 
         public Socket PlayerSocket { get; set; } = null;
+        
+        // The port number for the remote device.  
+        private int port = 11000;
 
-        public GameField Field { get; set; } = null;
+        public GameField GameField { get; set; } = null;
+
+        public Player()
+        {
+            PlayerSocket = GetSocket();
+            GameField = new GameField();
+        }
+
+        public Player(Socket socket)
+        {
+            PlayerSocket = socket;
+        }
+
+        public Player(GameField gameField)
+        {
+            GameField = gameField;
+        }
+
+        private Socket GetSocket()
+        {
+            // Establish the remote endpoint for the socket.  
+            // The name of the   
+            // remote device is "host.contoso.com".  
+            IPHostEntry ipHostInfo = Dns.GetHostEntry("192.168.43.221");
+            IPAddress ipAddress = ipHostInfo.AddressList[0];
+            IPEndPoint remoteEP = new IPEndPoint(ipAddress, port);
+
+            // Create a TCP/IP socket.  
+            return new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+        }
     }
 }
