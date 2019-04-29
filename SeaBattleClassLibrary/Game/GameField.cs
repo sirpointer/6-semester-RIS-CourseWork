@@ -14,7 +14,6 @@ namespace SeaBattleClassLibrary.Game
         /// <summary>
         /// Попадания на поле (места куда уже нельзя бить). 
         /// </summary>
-        [DataMember(Name = "hitsField")]
         public bool[,] HitsField = new bool[10, 10]; // Надо что-то по интереснее придумать, это как то тупо.
 
         /// <summary>
