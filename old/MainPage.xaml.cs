@@ -18,6 +18,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Shapes;
+using SeaBattleClient.ViewModels;
 using SeaBattleClassLibrary.Game;
 using Game = SeaBattleClassLibrary.Game;
 
@@ -51,7 +52,7 @@ namespace SeaBattleClient
             ShipsImages.Add(Image2);
             ShipsImages.Add(myImage);
 
-            //MyFrame.Navigate(typeof(BeginPage), Model);
+            MyFrame.Navigate(typeof(BeginPage), Model);
 
             //сделать поле
             for (int i = 0; i < 10; i++)
@@ -67,7 +68,7 @@ namespace SeaBattleClient
                 {
                     Rectangle rectangle = new Rectangle() { StrokeThickness = 1 };
                     rectangle.Stroke = new SolidColorBrush(Colors.Black);
-                    rectangle.Fill = new SolidColorBrush(Colors.DarkSeaGreen);
+                    rectangle.Fill = new SolidColorBrush(Colors.White);
                     rectangle.Name = i.ToString() + j.ToString();
                     FieldGrid.Children.Add(rectangle);
                     Grid.SetRow(rectangle, i);
@@ -117,7 +118,7 @@ namespace SeaBattleClient
                             double columnDouble = imagePoint.X / (FieldGrid.Width / 10);
                             int column = (int)columnDouble;
 
-                            double rowDouble = (imagePoint.Y + image.ActualHeight / 2) / (FieldGrid.Height / 10);
+                            double rowDouble = (imagePoint.Y + image.Height / 2) / (FieldGrid.Height / 10);
                             int row = (int)rowDouble;
 
                             //ship.Location.X = column;
@@ -126,7 +127,7 @@ namespace SeaBattleClient
                             bool set = Model.SetShipLocation(ship, new Location(column, row));
                             if (set)
                             {
-                                int colEnd = (int)(column + image.ActualWidth / 30 - 1);
+                                int colEnd = (int)(column + image.Width / 30 - 1);
                                 if(colEnd<10 && colEnd >= 0 && row >= 0 && row <10)
                                 {
                                     int start = Convert.ToInt32(row.ToString() + column.ToString());
@@ -193,7 +194,7 @@ namespace SeaBattleClient
                 double columnDouble = imagePoint.X / (FieldGrid.Width / 10);
                 int column = (int)columnDouble;
 
-                double rowDouble = (imagePoint.Y + image.ActualHeight / 2) / (FieldGrid.Height / 10);
+                double rowDouble = (imagePoint.Y + image.Height / 2) / (FieldGrid.Height / 10);
                 int row = (int)rowDouble;
 
                 bool set = Model.SetShipLocation(ship, new Location(column, row));
@@ -206,8 +207,8 @@ namespace SeaBattleClient
                     double Y = Canvas.GetTop(FieldGrid) + (FieldGrid.Height / 10) * row;
 
                     //проверяет, не выходит ли картинка за края
-                    bool x = X <= FieldGrid.Width - (image.ActualWidth / 3 * 2 + 1) + Canvas.GetLeft(FieldGrid);
-                    bool y = Y <= FieldGrid.Height - (image.ActualHeight / 3 * 2 + 1) + Canvas.GetTop(FieldGrid);
+                    bool x = X <= FieldGrid.Width - (image.Width / 3 * 2 + 1) + Canvas.GetLeft(FieldGrid);
+                    bool y = Y <= FieldGrid.Height - (image.Height / 3 * 2 + 1) + Canvas.GetTop(FieldGrid);
                     if (x && y)
                     {
                         Row.Text = row.ToString();

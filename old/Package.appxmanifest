@@ -7,14 +7,14 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="0d3fd02b-0448-4dd6-8438-7a7517a7078e"
+    Name="984d534e-3114-4706-8f82-557e9b8e02e6"
     Publisher="CN=danil"
     Version="1.0.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="0d3fd02b-0448-4dd6-8438-7a7517a7078e" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="984d534e-3114-4706-8f82-557e9b8e02e6" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>SeaBattleClient</DisplayName>
+    <DisplayName>SeaBsttleClient</DisplayName>
     <PublisherDisplayName>danil</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -30,12 +30,12 @@
   <Applications>
     <Application Id="App"
       Executable="$targetnametoken$.exe"
-      EntryPoint="SeaBattleClient.App">
+      EntryPoint="SeaBsttleClient.App">
       <uap:VisualElements
-        DisplayName="SeaBattleClient"
+        DisplayName="SeaBsttleClient"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
-        Description="SeaBattleClient"
+        Description="SeaBsttleClient"
         BackgroundColor="transparent">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"/>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
