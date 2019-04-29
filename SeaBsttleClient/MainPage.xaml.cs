@@ -157,7 +157,7 @@ namespace SeaBattleClient
         private void MyImage_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             Image image = sender as Image;
-
+            Canvas.SetZIndex(image, 5);
             Ship ship = image.DataContext as Ship;
             for(int i=0; i<ShipsImages.Count; i++)
             {
@@ -203,8 +203,8 @@ namespace SeaBattleClient
                     //int r = Convert.ToInt32(row.ToString() + column.ToString());
                     //var rect = FieldGrid.Children[r];
 
-                    double X = Canvas.GetLeft(FieldGrid) + FieldGrid.Width / 10 * column;
-                    double Y = Canvas.GetTop(FieldGrid) + FieldGrid.Height / 10 * row;
+                    double X = Canvas.GetLeft(FieldGrid) + (FieldGrid.Width / 10) * column;
+                    double Y = Canvas.GetTop(FieldGrid) + (FieldGrid.Height / 10) * row;
 
                     //проверяет, не выходит ли картинка за края
                     bool x = X <= FieldGrid.Width - (image.Width / 3 * 2 + 1) + Canvas.GetLeft(FieldGrid);
@@ -225,6 +225,32 @@ namespace SeaBattleClient
                         Canvas.SetLeft(image, 0);
                         Canvas.SetTop(image, 0);
                     }
+                } 
+                else
+                { //эта херня полностью дублирует методы при срывании
+                    if (ship.Location.X == -1 || ship.Location.Y == -1 || ship.Location.X + ship.ShipWidth >= 10 || ship.Location.Y + ship.ShipHeight >= 10)
+                    {
+                        Canvas.SetLeft(image, 0);
+                        Canvas.SetTop(image, 0);
+
+                        for (int i = 0; i < 100; i++)
+                        {
+                            Rectangle rect = (Rectangle)FieldGrid.Children[i];
+                            rect.Fill = new SolidColorBrush(Colors.White);
+                        }
+                    } else
+                    {
+                        double X = (ship.Location.X) * (FieldGrid.Width / 10) + Canvas.GetLeft(FieldGrid);
+                        double Y = (ship.Location.Y) * (FieldGrid.Height / 10) + Canvas.GetTop(FieldGrid);
+
+                        Canvas.SetLeft(image, X);
+                        Canvas.SetTop(image, Y);
+                        for (int i = 0; i < 100; i++)
+                        {
+                            Rectangle rect = (Rectangle)FieldGrid.Children[i];
+                            rect.Fill = new SolidColorBrush(Colors.White);
+                        }
+                    }
                 }
 
                 for (int i = 0; i < ShipsImages.Count; i++)
@@ -232,7 +258,7 @@ namespace SeaBattleClient
                     ShipsImages[i].IsHitTestVisible = true;
                 }
 
-
+                Canvas.SetZIndex(image, 2);
 
 
 
@@ -309,6 +335,10 @@ namespace SeaBattleClient
                 }
             }
 
+            for(int i=0;i<ShipsImages.Count; i++)
+            {
+                ShipsImages[i].IsHitTestVisible = true;
+            }
         }
     }
 }
