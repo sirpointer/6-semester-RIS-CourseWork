@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace SeaBattleClassLibrary.DataProvider
 {
@@ -81,4 +82,15 @@ namespace SeaBattleClassLibrary.DataProvider
             throw new ArgumentException($"Тип не определён, тип - {type.ToString()}.", nameof(type));
         }
     }
+
+    [DataContract]
+    public class BeginGame
+    {
+        [DataMember]
+        public string GameName { get; set; }
+
+        [DataMember]
+        public string PlayerName { get; set; }
+    }
+
 }

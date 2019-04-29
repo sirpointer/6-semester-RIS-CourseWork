@@ -1,16 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SeaBattleClassLibrary.DataProvider;
+using SeaBattleClassLibrary.Game;
 
 namespace SeaBattleServer
 {
     internal static class RequestHandler
     {
+        /// <summary>
+        /// Определяет тип запроса.
+        /// </summary>
+        /// <param name="jsonRequest"></param>
+        /// <returns></returns>
         public static Request.RequestTypes GetRequestType(string jsonRequest)
         {
             JObject jObject;
@@ -36,6 +44,11 @@ namespace SeaBattleServer
             }
         }
 
+        /// <summary>
+        /// Возвращает тело запроса.
+        /// </summary>
+        /// <param name="jsonRequest"></param>
+        /// <returns></returns>
         public static string GetJsonRequestResult(string jsonRequest)
         {
             JObject jObject;
@@ -57,6 +70,24 @@ namespace SeaBattleServer
             }
             else
                 return null;
+        }
+
+        /// <summary>
+        /// Десереализованный результат запроса AddGame.
+        /// </summary>
+        /// <param name="jsonResult"></param>
+        /// <returns></returns>
+        public static BeginGame GetAddGameResult(string jsonResult)
+        {
+            try
+            {
+                return Serializer<BeginGame>.GetSerializedObject(jsonResult);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
+            }
         }
     }
 }
