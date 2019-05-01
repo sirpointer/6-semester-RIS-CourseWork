@@ -139,36 +139,57 @@ namespace SeaBattleClient
                             //жалкие попытки подсветки
                             //подходит только для горизонтальных корабликов, для вертикальных не прокатит
                             //не закрашивается правая (9) клетка
-                            double columnDouble = imagePoint.X / (FieldGrid.Width / 10);
+                            double columnDouble = (imagePoint.X +FieldGrid.Width/20)/ (FieldGrid.Width / 10);
                             int column = (int)columnDouble;
 
-                            double rowDouble = (imagePoint.Y + image.ActualHeight / 2) / (FieldGrid.Height / 10);
+                            double rowDouble = (imagePoint.Y +FieldGrid.Height/20) / (FieldGrid.Height / 10);
                             int row = (int)rowDouble;
 
                             //ship.Location.X = column;
                             //ship.Location.Y = row;
 
-                            bool set = Model.SetShipLocation(ship, new Location(column, row));
+                            bool set = Model.SetShipLocation(ship, new Location(column, row, true));
                             if (set)
                             {
-                                int colEnd = (int)(column + image.ActualWidth / 30 - 1);
+                                int colEnd = (int)(column + ship.ShipWidth - 1);
                                 if (colEnd < 10 && colEnd >= 0 && row >= 0 && row < 10)
                                 {
-                                    int start = Convert.ToInt32(row.ToString() + column.ToString());
-                                    int end = Convert.ToInt32(row.ToString() + colEnd.ToString());
-                                    if (start >= 0 && start < FieldGrid.Height && end >= 0 && end < FieldGrid.Width)
+                                    if(ship.Orientation == Game.Orientation.Horizontal)
                                     {
-                                        for (int i = 0; i < 100; i++)
+                                        int start = Convert.ToInt32(row.ToString() + column.ToString());
+                                        int end = start + ship.ShipWidth - 1;  // Convert.ToInt32(row.ToString() + colEnd.ToString());
+                                        if (start >= 0 && start < FieldGrid.Height && end >= 0 && end < FieldGrid.Width)
                                         {
-                                            Rectangle rect = (Rectangle)FieldGrid.Children[i];
-                                            rect.Fill = new SolidColorBrush(Colors.White);
+                                            for (int i = 0; i < 100; i++)
+                                            {
+                                                Rectangle rect = (Rectangle)FieldGrid.Children[i];
+                                                rect.Fill = new SolidColorBrush(Colors.White);
+                                            }
+                                            for (int i = start; i <= end; i++)
+                                            {
+                                                Rectangle rect = (Rectangle)FieldGrid.Children[i];
+                                                rect.Fill = new SolidColorBrush(Colors.Red);
+                                            }
                                         }
-                                        for (int i = start; i <= end; i++)
+                                    } else
+                                    {
+                                        int start = Convert.ToInt32(row.ToString() + (column).ToString());
+                                        int end = start + (ship.ShipHeight-1)*10;  // Convert.ToInt32(row.ToString() + colEnd.ToString());
+                                        if (start >= 0 && start < FieldGrid.Height && end >= 0 && end < FieldGrid.Width)
                                         {
-                                            Rectangle rect = (Rectangle)FieldGrid.Children[i];
-                                            rect.Fill = new SolidColorBrush(Colors.Red);
+                                            for (int i = 0; i < 100; i++)
+                                            {
+                                                Rectangle rect = (Rectangle)FieldGrid.Children[i];
+                                                rect.Fill = new SolidColorBrush(Colors.White);
+                                            }
+                                            for (int i = start; i <= end; i+=10)
+                                            {
+                                                Rectangle rect = (Rectangle)FieldGrid.Children[i];
+                                                rect.Fill = new SolidColorBrush(Colors.Red);
+                                            }
                                         }
                                     }
+                                    
                                 }
                             }
                         }
@@ -203,7 +224,7 @@ namespace SeaBattleClient
         {
             Image image = sender as Image;
             Ship ship = image.DataContext as Ship;
-
+            
             shiftPoint = new Point(double.NaN, double.NaN);
 
             PointerPoint ptrPt = e.GetCurrentPoint(FieldGrid);
@@ -215,10 +236,10 @@ namespace SeaBattleClient
             //можно расположить только внутри поля
             if (inside)
             {
-                double columnDouble = imagePoint.X / (FieldGrid.Width / 10);
+                double columnDouble = (imagePoint.X+FieldGrid.Width/20) / (FieldGrid.Width / 10);
                 int column = (int)columnDouble;
 
-                double rowDouble = (imagePoint.Y + image.ActualHeight / 2) / (FieldGrid.Height / 10);
+                double rowDouble = (imagePoint.Y+FieldGrid.Height/20) / (FieldGrid.Height / 10);
                 int row = (int)rowDouble;
 
                 bool set = Model.SetShipLocation(ship, new Location(column, row));
@@ -245,6 +266,7 @@ namespace SeaBattleClient
                     {
                         Canvas.SetLeft(image, 0);
                         Canvas.SetTop(image, 0);
+                        ship.Location = new Location();
                     }
                 } else
                 { //эта херня полностью дублирует методы при срывании
@@ -252,6 +274,7 @@ namespace SeaBattleClient
                     {
                         Canvas.SetLeft(image, 0);
                         Canvas.SetTop(image, 0);
+                        ship.Location = new Location();
 
                         for (int i = 0; i < 100; i++)
                         {
@@ -313,6 +336,7 @@ namespace SeaBattleClient
             {
                 Canvas.SetLeft(image, 0);
                 Canvas.SetTop(image, 0);
+                ship.Location = new Location();
             }
             //при отпускании снимает подсветку с поля
             for (int i = 0; i < 100; i++)
@@ -337,6 +361,7 @@ namespace SeaBattleClient
             {
                 Canvas.SetLeft(image, 0);
                 Canvas.SetTop(image, 0);
+                ship.Location = new Location();
 
                 for (int i = 0; i < 100; i++)
                 {
@@ -362,6 +387,8 @@ namespace SeaBattleClient
             {
                 ShipsImages[i].IsHitTestVisible = true;
             }
+
+            Canvas.SetZIndex(image, 2);
         }
 
         //поворот по правой кнопке мыши
@@ -371,18 +398,73 @@ namespace SeaBattleClient
         {
             Image image = sender as Image;
             Ship ship = image.DataContext as Ship;
+            
+            double x = Canvas.GetTop(image);
+            double y = Canvas.GetLeft(image);
 
-            if(ship.Orientation == Game.Orientation.Horizontal)
+            if (ship.Orientation == Game.Orientation.Horizontal)
             {
-                double x = Canvas.GetTop(image);
-                double y = Canvas.GetLeft(image);
-
-                image.RenderTransform = new CompositeTransform { Rotation = 90 };
+                switch (ship.ShipClass)
+                {
+                case ShipClass.OneDeck:
+                    image.Source = new BitmapImage(new Uri("ms-appx:///Assets/Ships/5.jpg", UriKind.Absolute));
+                    image.Height = 30;
+                    image.Width = 30;
+                    break;
+                case ShipClass.TwoDeck:
+                    image.Source = new BitmapImage(new Uri("ms-appx:///Assets/Ships/6.jpg", UriKind.Absolute));
+                    image.Height = 60;
+                    image.Width = 30;
+                    break;
+                case ShipClass.ThreeDeck:
+                    image.Source = new BitmapImage(new Uri("ms-appx:///Assets/Ships/7.jpg", UriKind.Absolute));
+                    image.Height = 90;
+                    image.Width = 30;
+                    break;
+                case ShipClass.FourDeck:
+                    image.Source = new BitmapImage(new Uri("ms-appx:///Assets/Ships/8.jpg", UriKind.Absolute));
+                    image.Height = 120;
+                    image.Width = 30;
+                    break;
+                }
+                
                 ship.Orientation = Game.Orientation.Vertical;
             
-                Canvas.SetTop(image, x);
-                Canvas.SetLeft(image, y+image.ActualHeight);
+                Canvas.SetTop(image, y);
+                Canvas.SetLeft(image, x+image.ActualWidth);
+            } else
+            {
+                switch (ship.ShipClass)
+                {
+                case ShipClass.OneDeck:
+                    image.Source = new BitmapImage(new Uri("ms-appx:///Assets/Ships/1.jpg", UriKind.Absolute));
+                    image.Height = 30;
+                    image.Width = 30;
+                    break;
+                case ShipClass.TwoDeck:
+                    image.Source = new BitmapImage(new Uri("ms-appx:///Assets/Ships/2.jpg", UriKind.Absolute));
+                    image.Height = 30;
+                    image.Width = 60;
+                    break;
+                case ShipClass.ThreeDeck:
+                    image.Source = new BitmapImage(new Uri("ms-appx:///Assets/Ships/3.jpg", UriKind.Absolute));
+                    image.Height = 30;
+                    image.Width = 90;
+                    break;
+                case ShipClass.FourDeck:
+                    image.Source = new BitmapImage(new Uri("ms-appx:///Assets/Ships/4.jpg", UriKind.Absolute));
+                    image.Height = 30;
+                    image.Width = 120;
+                    break;
+                }
+
+                ship.Orientation = Game.Orientation.Vertical;
+
+                Canvas.SetTop(image, y);
+                Canvas.SetLeft(image, x + image.ActualWidth);
             }
+
+
         }
     }
 }
