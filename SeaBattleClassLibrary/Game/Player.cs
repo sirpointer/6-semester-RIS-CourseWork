@@ -23,9 +23,10 @@ namespace SeaBattleClassLibrary.Game
             GameField = new GameField();
         }
 
-        public Player(Socket socket)
+        public Player(Socket socket, string name)
         {
             PlayerSocket = socket;
+            Name = name;
         }
 
         public Player(GameField gameField)
