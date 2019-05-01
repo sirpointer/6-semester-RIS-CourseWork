@@ -69,7 +69,9 @@ namespace SeaBattleServer
                 return result;
             }
             else
+            {
                 return null;
+            }
         }
 
         /// <summary>
@@ -79,6 +81,9 @@ namespace SeaBattleServer
         /// <returns></returns>
         public static BeginGame GetAddGameResult(string jsonResult)
         {
+            if (string.IsNullOrWhiteSpace(jsonResult))
+                return null;
+
             try
             {
                 return Serializer<BeginGame>.GetSerializedObject(jsonResult);

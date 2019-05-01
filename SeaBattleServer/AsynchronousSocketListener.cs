@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -9,7 +10,7 @@ using SeaBattleClassLibrary.Game;
 
 namespace SeaBattleServer
 {
-    class AsynchronousSocketListener
+    partial class AsynchronousSocketListener
     {
         private static readonly List<GameSession> sessions = new List<GameSession>();
 
@@ -31,27 +32,13 @@ namespace SeaBattleServer
         
         private static void StartListening()
         {
-            GameField f = new GameField();
-            f.SetShipLocation(f.Ships[6], new Location(0, 0));
-            f.Ships[0].Location = new Location(3, 6);
-            f.Ships[4].Location = new Location(9, 3);
-
-            f.SetShipLocation(f.Ships[2], new Location(0, 0));
-
-
-
-
-
-
-
-
             // Establish the local endpoint for the socket.  
             // The DNS name of the computer  
             // running the listener is "host.contoso.com".  
             IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
             IPAddress ipAddress = ipHostInfo.AddressList[0];
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
-            // Create a TCP/IP socket.  
+            // Create a TCP/IP socket.
             Socket listener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             
             // Bind the socket to the local endpoint and listen for incoming connections.  
@@ -92,14 +79,14 @@ namespace SeaBattleServer
 
         private static void AcceptCallback(IAsyncResult ar)
         {
-            // Signal the main thread to continue.  
+            // Signal the main thread to continue.
             allDone.Set();
 
-            // Get the socket that handles the client request.  
+            // Get the socket that handles the client request.
             Socket listener = (Socket)ar.AsyncState;
             Socket handler = listener.EndAccept(ar);
 
-            // Create the state object.  
+            // Create the state object.
             StateObject state = new StateObject();
             state.workSocket = handler;
             handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
@@ -109,21 +96,21 @@ namespace SeaBattleServer
         {
             string content = string.Empty;
 
-            // Retrieve the state object and the handler socket  
-            // from the asynchronous state object.  
+            // Retrieve the state object and the handler socket
+            // from the asynchronous state object.
             StateObject state = (StateObject)ar.AsyncState;
             Socket handler = state.workSocket;
 
-            // Read data from the client socket.   
+            // Read data from the client socket.
             int bytesRead = handler.EndReceive(ar);
 
             if (bytesRead > 0)
             {
-                // There  might be more data, so store the data received so far.  
+                // There  might be more data, so store the data received so far.
                 state.sb.Append(Encoding.UTF8.GetString(state.buffer, 0, bytesRead));
 
-                // Check for end-of-file tag. If it is not there, read   
-                // more data.  
+                // Check for end-of-file tag. If it is not there, read
+                // more data.
                 content = state.sb.ToString();
                 if (content.IndexOf("<EOF>") > -1)
                 {
@@ -133,22 +120,29 @@ namespace SeaBattleServer
               
                     content.Remove(content.LastIndexOf(JsonStructInfo.EndOfMessage));
                     Request.RequestTypes dataType = RequestHandler.GetRequestType(content);
+                    string result = RequestHandler.GetJsonRequestResult(content);
 
                     switch (dataType)
                     {
                         case Request.RequestTypes.AddGame:
+                            AddGame(handler, RequestHandler.GetAddGameResult(result));
                             break;
                         case Request.RequestTypes.Shot:
                             break;
                         case Request.RequestTypes.SetField:
                             break;
                         case Request.RequestTypes.BadRequest:
-                            SendError(handler);
+                            SendError(handler, true);
+                            break;
+                        case Request.RequestTypes.GetGames:
+                            GiveGames(handler);
+                            break;
+                        case Request.RequestTypes.JoinTheGame:
                             break;
                     }
 
                     // Echo the data back to the client.  
-                    Send(handler, content);
+                    //Send(handler, content);
                 }
                 else
                 {
@@ -159,24 +153,76 @@ namespace SeaBattleServer
         }
 
         /// <summary>
-        /// Отправить сообщение о неудачном запросе.
+        /// Добавляет новую игру в sessions.
         /// </summary>
-        private static void SendError(Socket handler)
+        /// <param name="handler"></param>
+        /// <param name="beginGame"></param>
+        private static void AddGame(Socket handler, BeginGame beginGame)
         {
-            string data = AnswerHandler.GetErrorMessage();
+            if (beginGame == null)
+                SendError(handler, false);
 
+            bool exist = false;
+
+            lock (sessions)
+            {
+                exist = sessions.Count(x => x.SessionName.Equals(beginGame.GameName, StringComparison.OrdinalIgnoreCase)) > 0 ? true : false;
+
+                if (!exist)
+                {
+                    GameSession game = new GameSession(beginGame.GameName);
+                    game.Player1 = new Player(handler, beginGame.PlayerName);
+                    sessions.Add(game);
+                }
+            }
+
+            if (exist)
+                SendError(handler, true);
+            else
+                SendOk(handler);
+        }
+
+        private static void GiveGames(Socket handler)
+        {
+            List<BeginGame> bg = new List<BeginGame>();
+
+            lock (sessions)
+            {
+                foreach (var game in sessions)
+                {
+                    if (!game.GameStarted)
+                        bg.Add(new BeginGame() { GameName = game.SessionName, PlayerName = game.Player1?.Name ?? game.Player2.Name });
+                }
+            }
+
+            string data = AnswerHandler.GetGamesMessage(bg);
             byte[] byteData = Encoding.UTF8.GetBytes(data);
-
             handler.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), handler);
         }
 
-        private static void Send(Socket handler, String data)
+        /// <summary>
+        /// Отправить сообщение о неудачном запросе.
+        /// </summary>
+        private static void SendError(Socket handler, bool closeSocket = false)
         {
-            // Convert the string data to byte data using ASCII encoding.  
-            byte[] byteData = Encoding.ASCII.GetBytes(data);
+            string data = AnswerHandler.GetErrorMessage();
+            byte[] byteData = Encoding.UTF8.GetBytes(data);
 
-            // Begin sending the data to the remote device.  
-            handler.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), handler);
+            if (closeSocket)
+                handler.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), handler);
+            else
+                handler.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallbackSaveConnect), handler);
+        }
+
+        private static void SendOk(Socket handler, bool closeSocket = false)
+        {
+            string data = AnswerHandler.GetOkMessage();
+            byte[] byteData = Encoding.UTF8.GetBytes(data);
+
+            if (closeSocket)
+                handler.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), handler);
+            else
+                handler.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallbackSaveConnect), handler);
         }
 
         private static void SendCallback(IAsyncResult ar)
@@ -193,6 +239,21 @@ namespace SeaBattleServer
                 handler.Shutdown(SocketShutdown.Both);
                 handler.Close();
 
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+        }
+
+        private static void SendCallbackSaveConnect(IAsyncResult ar)
+        {
+            try
+            {
+                Socket handler = (Socket)ar.AsyncState;
+
+                int bytesSent = handler.EndSend(ar);
+                Console.WriteLine("Sent {0} bytes to client.", bytesSent);
             }
             catch (Exception e)
             {

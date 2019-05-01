@@ -70,5 +70,16 @@ namespace SeaBattleServer
 
             return jObject.ToString() + JsonStructInfo.EndOfMessage;
         }
+
+        public static string GetGamesMessage(List<BeginGame> games)
+        {
+            string message = Serializer<List<BeginGame>>.SetSerializedObject(games);
+
+            JObject jObject = new JObject();
+            jObject.Add(JsonStructInfo.Type, Answer.EnumTypeToString(Answer.AnswerTypes.Games));
+            jObject.Add(JsonStructInfo.Result, message);
+
+            return jObject.ToString() + JsonStructInfo.EndOfMessage;
+        }
     }
 }
