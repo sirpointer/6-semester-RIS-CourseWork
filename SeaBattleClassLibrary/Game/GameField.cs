@@ -114,7 +114,7 @@ namespace SeaBattleClassLibrary.Game
             int up = (anotherShip.Location.Y - 1) >= 0 ? (anotherShip.Location.Y - 1) : anotherShip.Location.Y;
             Location leftUp = new Location(left, up);
 
-            int right = anotherShip.RightLocation.X + 1;
+            int right = (anotherShip.RightLocation.X + 1) > 9 ? anotherShip.RightLocation.X : anotherShip.RightLocation.X + 1;
             int down = (anotherShip.DownLocation.Y + 1) > 9 ? anotherShip.DownLocation.Y : anotherShip.DownLocation.Y + 1;
             Location targetLocation = targetShip.Location.Clone() as Location;
 
@@ -137,7 +137,7 @@ namespace SeaBattleClassLibrary.Game
             {
                 int endY = targetShip.DownLocation.Y;
 
-                while (targetLocation.X <= endY)
+                while (targetLocation.Y <= endY)
                 {
                     bool overlay = !CheckOverlay(targetLocation, leftUp, right, down);
 

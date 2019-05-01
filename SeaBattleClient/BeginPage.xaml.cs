@@ -38,45 +38,49 @@ namespace SeaBattleClient
             }
         }
 
+        public Player player = null;
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            if (e.Parameter == null)
+                return;
+                //player = e.Parameter as Player;
+
+            if (player == null)
+            {
+                player = e.Parameter as Player;
+                
+                DataContext = player.GameField;
+                
+                Image1.DataContext = Model.Ships[0];
+                Image2.DataContext = Model.Ships[1];
+                Image3.DataContext = Model.Ships[2];
+                Image4.DataContext = Model.Ships[3];
+                Image5.DataContext = Model.Ships[4];
+                Image6.DataContext = Model.Ships[5];
+                Image7.DataContext = Model.Ships[6];
+                Image8.DataContext = Model.Ships[7];
+                Image9.DataContext = Model.Ships[8];
+                Image10.DataContext = Model.Ships[9];
+                ShipsImages.Add(Image1);
+                ShipsImages.Add(Image2);
+                ShipsImages.Add(Image3);
+                ShipsImages.Add(Image4);
+                ShipsImages.Add(Image5);
+                ShipsImages.Add(Image6);
+                ShipsImages.Add(Image7);
+                ShipsImages.Add(Image8);
+                ShipsImages.Add(Image9);
+                ShipsImages.Add(Image10);
+            }
+        }
+
         List<Image> ShipsImages = new List<Image>();
 
         public BeginPage()
         {
             this.InitializeComponent();
-            DataContext = new GameField();
-            Model.Ships[0] = new Ship(0, ShipClass.OneDeck, Game.Orientation.Horizontal);
-            Model.Ships[1] = new Ship(1, ShipClass.OneDeck, Game.Orientation.Horizontal);
-            Model.Ships[2] = new Ship(2, ShipClass.OneDeck, Game.Orientation.Horizontal);
-            Model.Ships[3] = new Ship(3, ShipClass.OneDeck, Game.Orientation.Horizontal);
-            Model.Ships[4] = new Ship(4, ShipClass.TwoDeck, Game.Orientation.Horizontal);
-            Model.Ships[5] = new Ship(5, ShipClass.TwoDeck, Game.Orientation.Horizontal);
-            Model.Ships[6] = new Ship(6, ShipClass.TwoDeck, Game.Orientation.Horizontal);
-            Model.Ships[7] = new Ship(7, ShipClass.ThreeDeck, Game.Orientation.Horizontal);
-            Model.Ships[8] = new Ship(8, ShipClass.ThreeDeck, Game.Orientation.Horizontal);
-            Model.Ships[9] = new Ship(9, ShipClass.FourDeck, Game.Orientation.Horizontal);
-            Image1.DataContext = Model.Ships[0];
-            Image2.DataContext = Model.Ships[1];
-            Image3.DataContext = Model.Ships[2];
-            Image4.DataContext = Model.Ships[3];
-            Image5.DataContext = Model.Ships[4];
-            Image6.DataContext = Model.Ships[5];
-            Image7.DataContext = Model.Ships[6];
-            Image8.DataContext = Model.Ships[7];
-            Image9.DataContext = Model.Ships[8];
-            Image10.DataContext = Model.Ships[9];
-            ShipsImages.Add(Image1);
-            ShipsImages.Add(Image2);
-            ShipsImages.Add(Image3);
-            ShipsImages.Add(Image4);
-            ShipsImages.Add(Image5);
-            ShipsImages.Add(Image6);
-            ShipsImages.Add(Image7);
-            ShipsImages.Add(Image8);
-            ShipsImages.Add(Image9);
-            ShipsImages.Add(Image10);
-
-
-            //MyFrame.Navigate(typeof(BeginPage), Model);
 
             //сделать поле
             for (int i = 0; i < 10; i++)
@@ -429,7 +433,15 @@ namespace SeaBattleClient
                 }
                 
                 ship.Orientation = Game.Orientation.Vertical;
-            
+
+                bool set = Model.SetShipLocation(ship, new Location(ship.Location.X, ship.Location.Y, true));
+                if (!set)
+                {
+                    Canvas.SetLeft(image, 0);
+                    Canvas.SetTop(image, 0);
+                    ship.Location = new Location();
+                }
+
                 Canvas.SetTop(image, y);
                 Canvas.SetLeft(image, x+image.ActualWidth);
             } else
@@ -458,7 +470,15 @@ namespace SeaBattleClient
                     break;
                 }
 
-                ship.Orientation = Game.Orientation.Vertical;
+                ship.Orientation = Game.Orientation.Horizontal;
+
+                bool set = Model.SetShipLocation(ship, new Location(ship.Location.X, ship.Location.Y, true));
+                if (!set)
+                {
+                    Canvas.SetLeft(image, 0);
+                    Canvas.SetTop(image, 0);
+                    ship.Location = new Location();
+                }
 
                 Canvas.SetTop(image, y);
                 Canvas.SetLeft(image, x + image.ActualWidth);

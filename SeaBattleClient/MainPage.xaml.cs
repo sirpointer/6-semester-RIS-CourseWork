@@ -43,7 +43,7 @@ namespace SeaBattleClient
             this.InitializeComponent();
             this.DataContext = new Player();
 
-            MyFrame.Navigate(typeof(BeginPage), Model.GameField);
+            MyFrame.Navigate(typeof(BeginPage), Model);
         }
 
         
