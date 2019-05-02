@@ -9,7 +9,12 @@
     Background="{ThemeResource SystemControlAcrylicWindowBrush}">
 
     <Grid>
-        <Button Width="200" Name="btnCreateGame" Click="BtnCreateGame_Click">Создать игру</Button>
-        <Button Width="200" Name="btnJoinGame" HorizontalAlignment="Left" Margin="245,0,0,0" VerticalAlignment="Center" Click="BtnJoinGame_Click">Присоелиниться к игре</Button>
+        <ProgressRing Name="progresRing" IsActive="False" HorizontalAlignment="Left" Margin="229,0,0,0" VerticalAlignment="Top" Height="62" Width="62"></ProgressRing>
+        <StackPanel>
+            <Button Width="200" Name="btnCreateGame" Click="BtnCreateGame_Click">Создать игру</Button>
+            <Button Width="200" Name="btnJoinGame" Click="BtnJoinGame_Click">Присоелиниться к игре</Button>
+            <TextBlock>Введите IP</TextBlock>
+            <TextBox Name="tbInputIP" Text="192.168.0.153"></TextBox>
+        </StackPanel>
     </Grid>
 </Page>
