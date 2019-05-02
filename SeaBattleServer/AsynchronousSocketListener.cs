@@ -124,6 +124,9 @@ namespace SeaBattleServer
 
                     switch (dataType)
                     {
+                        case Request.RequestTypes.Ping:
+                            SendOk(handler, true);
+                            break;
                         case Request.RequestTypes.AddGame:
                             AddGame(handler, RequestHandler.GetAddGameResult(result));
                             break;
@@ -148,6 +151,19 @@ namespace SeaBattleServer
                 {
                     // Not all data received. Get more.  
                     handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
+                }
+            }
+        }
+
+        private static void JoinTheGame(Socket handler, BeginGame beginGame)
+        {
+            lock (sessions)
+            {
+                if (sessions.Any(x => x.SessionName.Equals(beginGame.GameName, StringComparison.OrdinalIgnoreCase)))
+                {
+                    GameSession game = sessions.Find(x => x.SessionName == beginGame.GameName);
+                    game.Player2 = new Player(handler, beginGame.PlayerName);
+
                 }
             }
         }
