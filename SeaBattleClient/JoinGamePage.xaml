@@ -9,8 +9,6 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-        <ListView Name="listView">
-            
-        </ListView>
+        <ListView Name="listView" SelectionChanged="ListView_SelectionChanged"/>
     </Grid>
 </Page>
