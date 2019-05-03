@@ -2,8 +2,9 @@
 using System.Net;  
 using System.Net.Sockets;  
 using System.Threading;  
-using System.Text;  
-  
+using System.Text;
+using System.Linq;
+
 // State object for receiving data from remote device.  
 public class StateObject
 {
@@ -35,11 +36,12 @@ public class AsynchronousClient
         // Connect to a remote device.  
         try
         {
+
             // Establish the remote endpoint for the socket.  
             // The name of the   
             // remote device is "host.contoso.com".  
-            IPHostEntry ipHostInfo = Dns.GetHostEntry("192.168.43.221");
-            IPAddress ipAddress = ipHostInfo.AddressList[0];
+            IPHostEntry ipHostInfo = Dns.GetHostEntry("192.168.0.153");
+            IPAddress ipAddress = ipHostInfo.AddressList.Where(x => x.AddressFamily == AddressFamily.InterNetwork).Last();
             IPEndPoint remoteEP = new IPEndPoint(ipAddress, port);
 
             // Create a TCP/IP socket.  
@@ -124,10 +126,17 @@ public class AsynchronousClient
             if (bytesRead > 0)
             {
                 // There might be more data, so store the data received so far.  
-                state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesRead));
+                state.sb.Append(Encoding.UTF8.GetString(state.buffer, 0, bytesRead));
 
-                // Get the rest of the data.  
-                client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
+                if (state.sb.ToString().IndexOf("<EOF>") > -1)
+                {
+                    receiveDone.Set();
+                }
+                else
+                {
+                    // Get the rest of the data.  
+                    client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
+                }
             }
             else
             {
@@ -149,7 +158,7 @@ public class AsynchronousClient
     private static void Send(Socket client, String data)
     {
         // Convert the string data to byte data using ASCII encoding.  
-        byte[] byteData = Encoding.ASCII.GetBytes(data);
+        byte[] byteData = Encoding.UTF8.GetBytes(data);
 
         // Begin sending the data to the remote device.  
         client.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), client);

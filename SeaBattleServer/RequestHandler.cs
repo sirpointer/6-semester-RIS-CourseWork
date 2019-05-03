@@ -29,7 +29,10 @@ namespace SeaBattleServer
             }
             catch (JsonReaderException e)
             {
+                Console.WriteLine();
                 Console.WriteLine(e);
+                Console.WriteLine(jsonRequest);
+                Console.WriteLine();
                 return Request.RequestTypes.BadRequest;
             }
             

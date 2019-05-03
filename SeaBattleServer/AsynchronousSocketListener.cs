@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using SeaBattleClassLibrary.DataProvider;
 using SeaBattleClassLibrary.Game;
 
@@ -29,15 +30,15 @@ namespace SeaBattleServer
 
         // Thread signal.  
         private static ManualResetEvent allDone = new ManualResetEvent(false);
-        
+
         private static void StartListening()
         {
             // Establish the local endpoint for the socket.  
             // The DNS name of the computer  
             // running the listener is "host.contoso.com".  
             IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-            IPAddress ipAddress = ipHostInfo.AddressList[0];
-            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
+            IPAddress ipAddress = ipHostInfo.AddressList.Where(x => x.AddressFamily == AddressFamily.InterNetwork).Last();
+            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11005);
             // Create a TCP/IP socket.
             Socket listener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             
@@ -47,13 +48,17 @@ namespace SeaBattleServer
                 listener.Bind(localEndPoint);
                 listener.Listen(100);
 
-                foreach (var ip in ipHostInfo.AddressList)
+                Console.WriteLine(localEndPoint.ToString());
+
+                /*foreach (var ip in ipHostInfo.AddressList)
                 {
                     if (ip.AddressFamily == AddressFamily.InterNetwork)
                     {
                         Console.WriteLine(ip.ToString());
                     }
-                }
+                }*/
+
+               
 
                 while (true)
                 {
@@ -63,6 +68,7 @@ namespace SeaBattleServer
                     // Start an asynchronous socket to listen for connections.  
                     Console.WriteLine("Waiting for a connection...");
                     listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
+
                     // Wait until a connection is made before continuing.  
                     allDone.WaitOne();
                 }
@@ -96,8 +102,7 @@ namespace SeaBattleServer
         {
             string content = string.Empty;
 
-            // Retrieve the state object and the handler socket
-            // from the asynchronous state object.
+            // Retrieve the state object and the handler socket from the asynchronous state object.
             StateObject state = (StateObject)ar.AsyncState;
             Socket handler = state.workSocket;
 
@@ -109,16 +114,14 @@ namespace SeaBattleServer
                 // There  might be more data, so store the data received so far.
                 state.sb.Append(Encoding.UTF8.GetString(state.buffer, 0, bytesRead));
 
-                // Check for end-of-file tag. If it is not there, read
-                // more data.
+                // Check for end-of-file tag. If it is not there, read more data.
                 content = state.sb.ToString();
                 if (content.IndexOf("<EOF>") > -1)
                 {
-                    // All the data has been read from the   
-                    // client. Display it on the console.  
+                    // All the data has been read from the client. Display it on the console.  
                     Console.WriteLine("Read {0} bytes from socket. \n Data : {1}", content.Length, content);
               
-                    content.Remove(content.LastIndexOf(JsonStructInfo.EndOfMessage));
+                    content = content.Remove(content.LastIndexOf(JsonStructInfo.EndOfMessage));
                     Request.RequestTypes dataType = RequestHandler.GetRequestType(content);
                     string result = RequestHandler.GetJsonRequestResult(content);
 
@@ -224,6 +227,8 @@ namespace SeaBattleServer
             string data = AnswerHandler.GetErrorMessage();
             byte[] byteData = Encoding.UTF8.GetBytes(data);
 
+            Thread.Sleep(5000);
+
             if (closeSocket)
                 handler.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), handler);
             else
@@ -254,7 +259,6 @@ namespace SeaBattleServer
 
                 handler.Shutdown(SocketShutdown.Both);
                 handler.Close();
-
             }
             catch (Exception e)
             {

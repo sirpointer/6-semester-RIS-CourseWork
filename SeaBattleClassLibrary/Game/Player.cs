@@ -29,6 +29,7 @@ namespace SeaBattleClassLibrary.Game
         {
             PlayerSocket = socket;
             Name = name;
+            IPEndPoint = (IPEndPoint)PlayerSocket.RemoteEndPoint;
         }
 
         public Player(GameField gameField)
