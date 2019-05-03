@@ -13,9 +13,9 @@
         <StackPanel>
             <TextBlock>Создание игры</TextBlock>
             <TextBlock >Твое имя</TextBlock>
-            <TextBox Name="tbPlayerName"></TextBox>
+            <TextBox Name="tbPlayerName" Text="Хихитка"></TextBox>
             <TextBlock>Имя игры</TextBlock>
-            <TextBox Name="tbGameName"></TextBox>
+            <TextBox Name="tbGameName" Text="myGame"></TextBox>
 
         </StackPanel>
         <Button Name="btnStartGame" HorizontalAlignment="Left" Margin="0,167,0,0" VerticalAlignment="Top" Click="BtnStartGame_Click">Создать</Button>
