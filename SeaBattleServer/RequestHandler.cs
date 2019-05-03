@@ -97,5 +97,15 @@ namespace SeaBattleServer
                 return null;
             }
         }
+
+        /// <summary>
+        /// Десереализованный результат запроса AddGame.
+        /// </summary>
+        /// <param name="jsonResult"></param>
+        /// <returns></returns>
+        public static BeginGame GetJoinTheGameResult(string jsonResult)
+        {
+            return GetAddGameResult(jsonResult);
+        }
     }
 }

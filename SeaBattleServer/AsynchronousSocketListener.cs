@@ -123,7 +123,9 @@ namespace SeaBattleServer
                 if (content.IndexOf("<EOF>") > -1)
                 {
                     // All the data has been read from the client. Display it on the console.  
+                    Console.WriteLine();
                     Console.WriteLine("Read {0} bytes from socket. \n Data : {1}", content.Length, content);
+                    Console.WriteLine();
               
                     content = content.Remove(content.LastIndexOf(JsonStructInfo.EndOfMessage));
                     Request.RequestTypes dataType = RequestHandler.GetRequestType(content);
@@ -148,6 +150,7 @@ namespace SeaBattleServer
                             GiveGames(handler);
                             break;
                         case Request.RequestTypes.JoinTheGame:
+                            JoinTheGame(handler, RequestHandler.GetJoinTheGameResult(result));
                             break;
                     }
 
@@ -164,14 +167,24 @@ namespace SeaBattleServer
 
         private static void JoinTheGame(Socket handler, BeginGame beginGame)
         {
+            GameSession game = null;
             lock (sessions)
             {
                 if (sessions.Any(x => x.SessionName.Equals(beginGame.GameName, StringComparison.OrdinalIgnoreCase)))
                 {
-                    GameSession game = sessions.Find(x => x.SessionName == beginGame.GameName);
+                    game = sessions.Find(x => x.SessionName == beginGame.GameName);
                     game.Player2 = new Player(handler, beginGame.PlayerName);
-
                 }
+            }
+
+            if (game?.GameStarted ?? false)
+            {
+                SendOk(handler, false);
+                //SendOk(game.Player1.PlayerSocket, false);
+            }
+            else
+            {
+                SendError(handler, true);
             }
         }
 
@@ -220,6 +233,7 @@ namespace SeaBattleServer
 
             string data = AnswerHandler.GetGamesMessage(bg);
             byte[] byteData = Encoding.UTF8.GetBytes(data);
+            Console.WriteLine($"Sending: {data}");
             handler.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), handler);
         }
 
@@ -230,7 +244,8 @@ namespace SeaBattleServer
         {
             string data = AnswerHandler.GetErrorMessage();
             byte[] byteData = Encoding.UTF8.GetBytes(data);
-            
+            Console.WriteLine($"Sending: {data}");
+
             if (closeSocket)
                 handler.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), handler);
             else
@@ -241,6 +256,7 @@ namespace SeaBattleServer
         {
             string data = AnswerHandler.GetOkMessage();
             byte[] byteData = Encoding.UTF8.GetBytes(data);
+            Console.WriteLine($"Sending: {data}");
 
             if (closeSocket)
                 handler.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), handler);
@@ -258,6 +274,7 @@ namespace SeaBattleServer
                 // Complete sending the data to the remote device.  
                 int bytesSent = handler.EndSend(ar);
                 Console.WriteLine("Sent {0} bytes to client.", bytesSent);
+                Console.WriteLine();
 
                 handler.Shutdown(SocketShutdown.Both);
                 handler.Close();
@@ -276,6 +293,7 @@ namespace SeaBattleServer
 
                 int bytesSent = handler.EndSend(ar);
                 Console.WriteLine("Sent {0} bytes to client.", bytesSent);
+                Console.WriteLine();
             }
             catch (Exception e)
             {
