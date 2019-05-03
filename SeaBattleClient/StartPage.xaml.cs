@@ -53,10 +53,10 @@ namespace SeaBattleClient
             }
         }
 
-        public void DeactivateRing()
-        {
-            progresRing.IsActive = false;
-        }
+        //public void DeactivateRing()
+        //{
+        //    progresRing.IsActive = false;
+        //}
 
         Player player = null;
 
@@ -85,13 +85,14 @@ namespace SeaBattleClient
         {
             progresRing.IsActive = true;
             string ip = tbInputIP.Text;
+            IPEndPoint remoteEP = null;
             //ring = new ProgressRing() { IsActive = true };
 
             await Task.Run(() => {
                 pingDone.Reset();
                 IPHostEntry ipHostInfo = Dns.GetHostEntry(ip);
                 IPAddress ipAddress = ipHostInfo.AddressList.Where(x => x.AddressFamily == AddressFamily.InterNetwork).First();
-                IPEndPoint remoteEP = new IPEndPoint(ipAddress, port);
+                remoteEP = new IPEndPoint(ipAddress, port);
 
                 // Create a TCP/IP socket.  
                 Socket client = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -103,8 +104,9 @@ namespace SeaBattleClient
                 // Connect to the remote endpoint.  
                 client.BeginConnect(remoteEP, new AsyncCallback(ConnectCallback), state);
                 pingDone.WaitOne();
-                });
+            });
 
+            Model.IPEndPoint = remoteEP;
             progresRing.IsActive = false;
             (Parent as Frame).Navigate(typeof(CreateGamePage), Model);
             /*connectDone.WaitOne();

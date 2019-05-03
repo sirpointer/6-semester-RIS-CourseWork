@@ -17,6 +17,8 @@ namespace SeaBattleClassLibrary.Game
 
         public GameField GameField { get; set; } = null;
 
+        public IPEndPoint IPEndPoint { get; set; } = null;
+
         public Player()
         {
             PlayerSocket = GetSocket();
