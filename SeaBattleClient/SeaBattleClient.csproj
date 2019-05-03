@@ -125,6 +125,9 @@
     <Compile Include="CreateGamePage.xaml.cs">
       <DependentUpon>CreateGamePage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="JoinGamePage.xaml.cs">
+      <DependentUpon>JoinGamePage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -183,6 +186,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CreateGamePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="JoinGamePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
