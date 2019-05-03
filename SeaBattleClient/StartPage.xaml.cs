@@ -3,6 +3,7 @@ using SeaBattleClassLibrary.DataProvider;
 using SeaBattleClassLibrary.Game;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -151,7 +152,7 @@ namespace SeaBattleClient
                 // Complete the connection.  
                 client.EndConnect(ar);
 
-                Console.WriteLine("Socket connected to {0}", client.RemoteEndPoint.ToString());
+                Debug.WriteLine("Socket connected to {0}", client.RemoteEndPoint.ToString());
 
 
                 JObject jObject = new JObject();
@@ -169,7 +170,7 @@ namespace SeaBattleClient
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString());
+                Debug.WriteLine(e.ToString());
             }
         }
 
@@ -193,7 +194,7 @@ namespace SeaBattleClient
 
                 // Complete sending the data to the remote device.  
                 int bytesSent = client.EndSend(ar);
-                Console.WriteLine("Sent {0} bytes to server.", bytesSent);
+                Debug.WriteLine("Sent {0} bytes to server.", bytesSent);
 
                 // Signal that all bytes have been sent.  
                 //sendDone.Set();
@@ -202,7 +203,7 @@ namespace SeaBattleClient
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString());
+                Debug.WriteLine(e.ToString());
             }
         }
 
@@ -216,7 +217,7 @@ namespace SeaBattleClient
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString());
+                Debug.WriteLine(e.ToString());
             }
         }
 
@@ -264,7 +265,7 @@ namespace SeaBattleClient
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString());
+                Debug.WriteLine(e.ToString());
             }
         }
     }
