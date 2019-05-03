@@ -13,7 +13,11 @@ namespace SeaBattleServer
 {
     partial class AsynchronousSocketListener
     {
-        private static readonly List<GameSession> sessions = new List<GameSession>();
+        private static readonly List<GameSession> sessions = new List<GameSession>()
+        {
+            new GameSession("123456789") { Player1 = new Player() { Name = "Dasha" } },
+            new GameSession("qwertyuio") { Player1 = new Player() {Name = "Nikita" } }
+        };
 
         // State object for reading client data asynchronously  
         private class StateObject
@@ -38,7 +42,7 @@ namespace SeaBattleServer
             // running the listener is "host.contoso.com".  
             IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
             IPAddress ipAddress = ipHostInfo.AddressList.Where(x => x.AddressFamily == AddressFamily.InterNetwork).Last();
-            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11005);
+            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
             // Create a TCP/IP socket.
             Socket listener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             
@@ -226,9 +230,7 @@ namespace SeaBattleServer
         {
             string data = AnswerHandler.GetErrorMessage();
             byte[] byteData = Encoding.UTF8.GetBytes(data);
-
-            Thread.Sleep(5000);
-
+            
             if (closeSocket)
                 handler.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), handler);
             else
