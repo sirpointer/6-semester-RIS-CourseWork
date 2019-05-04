@@ -11,10 +11,14 @@
     <Grid>
         <ProgressRing Name="progresRing" IsActive="False" HorizontalAlignment="Left" Margin="229,0,0,0" VerticalAlignment="Top" Height="62" Width="62"></ProgressRing>
         <StackPanel>
-            <Button Width="200" Name="btnCreateGame" Click="BtnCreateGame_Click">Создать игру</Button>
-            <Button Width="200" Name="btnJoinGame" Click="BtnJoinGame_Click">Присоединиться к игре</Button>
-            <TextBlock>Введите IP</TextBlock>
-            <TextBox Name="tbInputIP" Text="192.168.0.173"></TextBox>
+            <TextBlock>Введите IP сервера</TextBlock>
+            <TextBox Name="tbInputIP" Text="192.168.0.153"></TextBox>
+            <TextBlock/>
+            <StackPanel Orientation="Horizontal">
+                <Button Width="200" Name="btnCreateGame" Click="BtnCreateGame_Click" >Создать игру</Button>
+                <TextBlock Width="10"></TextBlock>
+                <Button Width="200" Name="btnJoinGame" Click="BtnJoinGame_Click">Присоединиться к игре</Button>
+            </StackPanel>
         </StackPanel>
     </Grid>
 </Page>
