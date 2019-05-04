@@ -548,7 +548,7 @@ namespace SeaBattleClient
 
 
 
-
+            response = response.Remove(response.LastIndexOf(JsonStructInfo.EndOfMessage));
             Answer.AnswerTypes dataType = GetAnswerType(response);
             //string result = GetJsonRequestResult(content);
             if (dataType == Answer.AnswerTypes.GameReady)
