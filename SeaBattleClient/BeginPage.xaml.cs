@@ -518,7 +518,8 @@ namespace SeaBattleClient
             string fieldGame = Serializer<List<Ship>>.SetSerializedObject(Model.Ships);
             Socket socket = Player.PlayerSocket;
 
-            await Task.Run(() => {
+            await Task.Run(() =>
+            {
                 pingDone.Reset();
                 //IPHostEntry ipHostInfo = Dns.GetHostEntry(ip);
                 //IPAddress ipAddress = ipHostInfo.AddressList.Where(x => x.AddressFamily == AddressFamily.InterNetwork).First();
@@ -545,19 +546,25 @@ namespace SeaBattleClient
                 //client.BeginConnect(remoteEP, new AsyncCallback(ConnectCallback), state);
                 pingDone.WaitOne();
             });
+            WaitOtherPlayer(socket);
+        }
 
-
-
+        private void WaitOtherPlayer(Socket socket)
+        {
             response = response.Remove(response.LastIndexOf(JsonStructInfo.EndOfMessage));
             Answer.AnswerTypes dataType = GetAnswerType(response);
+            StateObject so = new StateObject();
+            so.workSocket = socket;
             //string result = GetJsonRequestResult(content);
             if (dataType == Answer.AnswerTypes.GameReady)
             {
                 (Parent as Frame).Navigate(typeof(GamePage), Model);
-            } 
-            else
+            } else
             {
-                Receive(stateObject);
+                pingDone.Reset();
+                Receive(so);
+                pingDone.WaitOne();
+                WaitOtherPlayer(socket);
             }
         }
 
@@ -678,7 +685,8 @@ namespace SeaBattleClient
                 //startPage.progresRing.IsActive = false;
                 //(startPage.Parent as Frame).Navigate(typeof(CreateGamePage), startPage.Model);
                 //}
-            } catch (Exception e)
+            } 
+            catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
             }
