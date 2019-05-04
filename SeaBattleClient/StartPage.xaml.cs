@@ -86,16 +86,16 @@ namespace SeaBattleClient
         {
             progresRing.IsActive = true;
             string ip = tbInputIP.Text;
-            //IPEndPoint remoteEP = null;
-            Socket socket = null;
+            IPEndPoint remoteEP = null;
+            //Socket socket = null;
             //ring = new ProgressRing() { IsActive = true };
 
             await Task.Run(() =>
             {
-                socket = ConnectServer(ip);
+                remoteEP = ConnectServer(ip);
             });
 
-            Model.PlayerSocket = socket;
+            Model.IPEndPoint = remoteEP;
             progresRing.IsActive = false;
             (Parent as Frame).Navigate(typeof(CreateGamePage), Model);
             /*connectDone.WaitOne();
@@ -128,21 +128,21 @@ namespace SeaBattleClient
         {
             progresRing.IsActive = true;
             string ip = tbInputIP.Text;
-            //IPEndPoint remoteEP = null;
+            IPEndPoint remoteEP = null;
             //ring = new ProgressRing() { IsActive = true };
-            Socket socket = null;
+            //Socket socket = null;
 
             await Task.Run(() =>
             {
-                socket = ConnectServer(ip);
+                remoteEP = ConnectServer(ip);
             });
 
-            Model.PlayerSocket = socket;
+            Model.IPEndPoint = remoteEP;
             progresRing.IsActive = false;
             (Parent as Frame).Navigate(typeof(JoinGamePage), Model);
         }
 
-        private Socket ConnectServer(string ip)
+        private IPEndPoint ConnectServer(string ip)
         {
             IPEndPoint remoteEP;
             pingDone.Reset();
@@ -161,7 +161,7 @@ namespace SeaBattleClient
             // Connect to the remote endpoint.  
             client.BeginConnect(remoteEP, new AsyncCallback(ConnectCallback), state);
             pingDone.WaitOne();
-            return client;
+            return remoteEP;
         }
 
         private static void ConnectCallback(IAsyncResult ar)
