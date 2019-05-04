@@ -208,7 +208,7 @@ namespace SeaBattleServer
             if (game?.GameStarted ?? false)
             {
                 SendOk(handler, false);
-                SendOk(game.Player1.PlayerSocket, false);
+                //SendOk(game.Player1.PlayerSocket, false);
             }
             else
             {

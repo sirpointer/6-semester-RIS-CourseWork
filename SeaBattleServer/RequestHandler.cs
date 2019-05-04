@@ -115,7 +115,8 @@ namespace SeaBattleServer
 
             try
             {
-                return Serializer<GameField>.GetSerializedObject(jsonResult);
+                List<Ship> ships = Serializer<List<Ship>>.GetSerializedObject(jsonResult);
+                return new GameField(ships);
             }
             catch (Exception e)
             {

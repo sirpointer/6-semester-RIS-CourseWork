@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 
 namespace SeaBattleClassLibrary.Game
 {
-    [DataContract(Name = "gameField")]
     public class GameField : NotifyPropertyChanged
     {
         /// <summary>
@@ -19,7 +18,6 @@ namespace SeaBattleClassLibrary.Game
         /// <summary>
         /// Корабли на поле.
         /// </summary>
-        [DataMember(Name = "ships")]
         public readonly List<Ship> Ships;
 
 
