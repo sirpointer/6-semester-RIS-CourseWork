@@ -185,24 +185,20 @@ namespace SeaBattleClient
             {
                 // Retrieve the state object and the client socket   
                 // from the asynchronous state object.  
+                // Retrieve the state object and the client socket   
+                // from the asynchronous state object.  
                 StateObject state = (StateObject)ar.AsyncState;
                 Socket client = state.workSocket;
-                StartPage startPage = state.obj as StartPage;
 
                 // Read data from the remote device.  
                 int bytesRead = client.EndReceive(ar);
 
-                if (bytesRead > 0)
-                {
-                    // There might be more data, so store the data received so far.  
-                    state.sb.Append(Encoding.UTF8.GetString(state.buffer, 0, bytesRead));
-
-                    // Get the rest of the data.  
-                    client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
-                } else
-                {
-                    // All the data has arrived; put it in response.  
-                    if (state.sb.Length > 1)
+                //if (bytesRead > 0)
+                //{
+                //    // There might be more data, so store the data received so far.  
+                state.sb.Append(Encoding.UTF8.GetString(state.buffer, 0, bytesRead));
+                // All the data has arrived; put it in response.  
+                if (state.sb.Length > 1)
                     {
                         response = state.sb.ToString();
                     }
@@ -218,7 +214,7 @@ namespace SeaBattleClient
                     //startPage.ring = new ProgressRing() { IsActive = false };
                     //startPage.progresRing.IsActive = false;
                     //(startPage.Parent as Frame).Navigate(typeof(CreateGamePage), startPage.Model);
-                }
+                //}
             } catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
