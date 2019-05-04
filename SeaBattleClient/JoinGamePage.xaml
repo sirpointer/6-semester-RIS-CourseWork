@@ -9,6 +9,10 @@
     Background="{ThemeResource SystemControlAcrylicWindowBrush}">
 
     <Grid>
-        <ListView Name="listView" SelectionChanged="ListView_SelectionChanged"/>
+        <StackPanel>
+            <ListView Name="listView" SelectionChanged="ListView_SelectionChanged"/>
+            <TextBlock/>
+            <Button Name="btnCancle" Width="200">Отмена</Button>
+        </StackPanel>
     </Grid>
 </Page>
