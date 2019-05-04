@@ -172,7 +172,7 @@ namespace SeaBattleServer
 
             lock (sessions)
             {
-                game = sessions.Find(x => x.Player1.IPEndPoint == handler.RemoteEndPoint || x.Player2.IPEndPoint == handler.RemoteEndPoint);
+                game = sessions.Find(x => x.Player1?.IPEndPoint == handler.RemoteEndPoint || x.Player2?.IPEndPoint == handler.RemoteEndPoint);
             }
 
             Player player = game.Player1.IPEndPoint == handler.RemoteEndPoint ? game.Player1 : game.Player2;
@@ -180,12 +180,21 @@ namespace SeaBattleServer
 
             player.GameField = gameField;
             
-            if (secondPlayer.GameField != null)
+            if (secondPlayer.GameField != null && player.GameField != null)
             {
                 string gameReady = AnswerHandler.GetGameReadyMessage();
                 byte[] data = Encoding.UTF8.GetBytes(gameReady);
-                player.PlayerSocket.BeginSend(data, 0, data.Length, 0, new AsyncCallback(SendCallback), handler);
-                player.PlayerSocket.BeginSend(data, 0, data.Length, 0, new AsyncCallback(SendCallback), secondPlayer.PlayerSocket);
+                player.PlayerSocket.BeginSend(data, 0, data.Length, 0, new AsyncCallback(SendCallbackSaveConnect), player.PlayerSocket);
+                secondPlayer.PlayerSocket.BeginSend(data, 0, data.Length, 0, new AsyncCallback(SendCallbackSaveConnect), secondPlayer.PlayerSocket);
+
+                //// Create the state object.
+                //StateObject state = new StateObject();
+                //state.workSocket = player.PlayerSocket;
+                //player.PlayerSocket.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
+
+                //state = new StateObject();
+                //state.workSocket = secondPlayer.PlayerSocket;
+                //secondPlayer.PlayerSocket.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
             }
             else
             {
@@ -208,6 +217,10 @@ namespace SeaBattleServer
             if (game?.GameStarted ?? false)
             {
                 SendOk(handler, false);
+
+                StateObject state = new StateObject();
+                state.workSocket = handler;
+                handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
                 //SendOk(game.Player1.PlayerSocket, false);
             }
             else
@@ -243,7 +256,13 @@ namespace SeaBattleServer
             if (exist)
                 SendError(handler, true);
             else
-                SendOk(handler);
+            {
+                SendOk(handler, false);
+
+                StateObject state = new StateObject();
+                state.workSocket = handler;
+                handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
+            }
         }
 
         private static void GiveGames(Socket handler)
