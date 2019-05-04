@@ -85,7 +85,7 @@ namespace SeaBattleClient
                 //IPAddress ipAddress = ipHostInfo.AddressList.Where(x => x.AddressFamily == AddressFamily.InterNetwork).First();
 
                 // Create a TCP/IP socket.  
-                Socket client = Model.PlayerSocket;//new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                Socket client = new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
                 StateObject state = new StateObject();
                 state.workSocket = client;
@@ -312,7 +312,7 @@ namespace SeaBattleClient
             //sender as ListViewItem
             string s = ((e.AddedItems.ToList()[0] as StackPanel).Children[0] as TextBlock).Text;
             string gameName = s.Substring(6, s.IndexOf('\n') - 6);
-
+            Socket socket = null;
 
             await Task.Run(() =>
             {
@@ -321,17 +321,19 @@ namespace SeaBattleClient
                 //IPAddress ipAddress = ipHostInfo.AddressList.Where(x => x.AddressFamily == AddressFamily.InterNetwork).First();
 
                 // Create a TCP/IP socket.  
-                Socket client = Model.PlayerSocket;//new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                Socket client = new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
                 StateObject state = new StateObject();
                 state.workSocket = client;
                 state.obj = gameName;
-
+                socket = client;
+                
                 // Connect to the remote endpoint.  
                 client.BeginConnect(remoteEP, new AsyncCallback(ConnectCallback1), state);
                 pingDone.WaitOne();
             });
 
+            Model.PlayerSocket = socket;
             //string content = string.Empty;
 
             //response = response.Remove(response.LastIndexOf(JsonStructInfo.EndOfMessage));

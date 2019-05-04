@@ -67,6 +67,7 @@ namespace SeaBattleClient
             gameName = tbGameName.Text;
             IPEndPoint remoteEP = Model.IPEndPoint;
             //ring = new ProgressRing() { IsActive = true };
+            Socket socket = null;
 
             await Task.Run(() => {
                 pingDone.Reset();
@@ -74,16 +75,19 @@ namespace SeaBattleClient
                 //IPAddress ipAddress = ipHostInfo.AddressList.Where(x => x.AddressFamily == AddressFamily.InterNetwork).First();
 
                 // Create a TCP/IP socket.  
-                Socket client = Model.PlayerSocket;//new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                Socket client = new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
                 StateObject state = new StateObject();
                 state.workSocket = client;
                 state.obj = this;
+                socket = client;
 
                 // Connect to the remote endpoint.  
                 client.BeginConnect(remoteEP, new AsyncCallback(ConnectCallback), state);
                 pingDone.WaitOne();
             });
+
+            Model.PlayerSocket = socket;
 
             //Model.IPEndPoint = remoteEP;
             progresRing.IsActive = false;

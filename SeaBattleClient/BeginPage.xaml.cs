@@ -516,6 +516,7 @@ namespace SeaBattleClient
             IPEndPoint remoteEP = Player.IPEndPoint;
             //ring = new ProgressRing() { IsActive = true };
             string fieldGame = Serializer<List<Ship>>.SetSerializedObject(Model.Ships);
+            Socket socket = Player.PlayerSocket;
 
             await Task.Run(() => {
                 pingDone.Reset();
@@ -523,7 +524,7 @@ namespace SeaBattleClient
                 //IPAddress ipAddress = ipHostInfo.AddressList.Where(x => x.AddressFamily == AddressFamily.InterNetwork).First();
 
                 // Create a TCP/IP socket.  
-                Socket client = Player.PlayerSocket;//new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                Socket client = socket;//new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
                 StateObject state = new StateObject();
                 state.workSocket = client;

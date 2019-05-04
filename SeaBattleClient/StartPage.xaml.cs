@@ -86,15 +86,16 @@ namespace SeaBattleClient
         {
             progresRing.IsActive = true;
             string ip = tbInputIP.Text;
-            IPEndPoint remoteEP = null;
+            //IPEndPoint remoteEP = null;
+            Socket socket = null;
             //ring = new ProgressRing() { IsActive = true };
 
             await Task.Run(() =>
             {
-                remoteEP = ConnectServer(ip);
+                socket = ConnectServer(ip);
             });
 
-            Model.IPEndPoint = remoteEP;
+            Model.PlayerSocket = socket;
             progresRing.IsActive = false;
             (Parent as Frame).Navigate(typeof(CreateGamePage), Model);
             /*connectDone.WaitOne();
@@ -127,20 +128,21 @@ namespace SeaBattleClient
         {
             progresRing.IsActive = true;
             string ip = tbInputIP.Text;
-            IPEndPoint remoteEP = null;
+            //IPEndPoint remoteEP = null;
             //ring = new ProgressRing() { IsActive = true };
+            Socket socket = null;
 
             await Task.Run(() =>
             {
-                remoteEP = ConnectServer(ip);
+                socket = ConnectServer(ip);
             });
 
-            Model.IPEndPoint = remoteEP;
+            Model.PlayerSocket = socket;
             progresRing.IsActive = false;
             (Parent as Frame).Navigate(typeof(JoinGamePage), Model);
         }
 
-        private IPEndPoint ConnectServer(string ip)
+        private Socket ConnectServer(string ip)
         {
             IPEndPoint remoteEP;
             pingDone.Reset();
@@ -153,13 +155,13 @@ namespace SeaBattleClient
 
             StateObject state = new StateObject();
             state.workSocket = client;
-            Model.PlayerSocket = client;
+            //Model.PlayerSocket = client;
             state.obj = this;
 
             // Connect to the remote endpoint.  
             client.BeginConnect(remoteEP, new AsyncCallback(ConnectCallback), state);
             pingDone.WaitOne();
-            return remoteEP;
+            return client;
         }
 
         private static void ConnectCallback(IAsyncResult ar)
