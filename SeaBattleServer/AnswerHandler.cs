@@ -81,5 +81,14 @@ namespace SeaBattleServer
 
             return jObject.ToString() + JsonStructInfo.EndOfMessage;
         }
+
+        public static string GetGameReadyMessage()
+        {
+            JObject jObject = new JObject();
+            jObject.Add(JsonStructInfo.Type, Answer.EnumTypeToString(Answer.AnswerTypes.GameReady));
+            jObject.Add(JsonStructInfo.Result, "");
+
+            return jObject.ToString() + JsonStructInfo.EndOfMessage;
+        }
     }
 }
