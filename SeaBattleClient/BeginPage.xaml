@@ -6,7 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{ThemeResource SystemControlAcrylicWindowBrush}">
 
     <Grid>
         <!--<Grid x:Name="FieldGrid" Height="300" Width="300" >
@@ -30,7 +30,7 @@
 
             </Grid>
 
-            <Button HorizontalAlignment="Left" Canvas.Left="395" Canvas.Top="80" VerticalAlignment="Top">Start game</Button>
+            <Button HorizontalAlignment="Left" Canvas.Left="395" Canvas.Top="80" VerticalAlignment="Top" Click="Button_Click">Start game</Button>
             <!--<TextBlock Name="Row" Text="Row" HorizontalAlignment="Stretch" Canvas.Left="428" Canvas.Top="95" VerticalAlignment="Stretch" />
             <TextBlock Margin="0,0,0,0" Name="Column" Text="Col" Canvas.Left="505" Canvas.Top="92" /> -->
         </Canvas>
