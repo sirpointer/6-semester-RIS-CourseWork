@@ -65,11 +65,11 @@ namespace SeaBattleClient
                 return;
                 //player = e.Parameter as Player;
 
-            if (Player == null)
+            if (Player != null)
             {
                 Player = e.Parameter as Player;
                 
-                DataContext = Player.GameField;
+                //DataContext = Player.GameField;
                 
                 Image1.DataContext = Model.Ships[0];
                 Image2.DataContext = Model.Ships[1];
@@ -515,7 +515,7 @@ namespace SeaBattleClient
 
             IPEndPoint remoteEP = Player.IPEndPoint;
             //ring = new ProgressRing() { IsActive = true };
-            string fieldGame = Serializer<GameField>.SetSerializedObject(Model);
+            string fieldGame = Serializer<List<Ship>>.SetSerializedObject(Model.Ships);
 
             await Task.Run(() => {
                 pingDone.Reset();
