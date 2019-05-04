@@ -147,7 +147,7 @@ namespace SeaBattleClient
             IPEndPoint remoteEP;
             pingDone.Reset();
             IPHostEntry ipHostInfo = Dns.GetHostEntry(ip);
-            IPAddress ipAddress = ipHostInfo.AddressList.Where(x => x.AddressFamily == AddressFamily.InterNetwork).First();
+            IPAddress ipAddress = ipHostInfo.AddressList.Where(x => x.AddressFamily == AddressFamily.InterNetwork).Last();
             remoteEP = new IPEndPoint(ipAddress, port);
 
             // Create a TCP/IP socket.  
