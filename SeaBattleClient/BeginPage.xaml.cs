@@ -530,8 +530,19 @@ namespace SeaBattleClient
                 state.workSocket = client;
                 state.obj = fieldGame;
 
+                JObject jObject = new JObject();
+                jObject.Add(JsonStructInfo.Type, Request.EnumTypeToString(Request.RequestTypes.SetField));
+                //string message = Serializer<BeginGame>.SetSerializedObject();
+                jObject.Add(JsonStructInfo.Result, state.obj.ToString());
+                //jObject.Add(JsonStructInfo.Result, message);
+
+                string s = jObject.ToString() + JsonStructInfo.EndOfMessage;
+
+                // Send test data to the remote device.  
+                Send(state, s);
+
                 // Connect to the remote endpoint.  
-                client.BeginConnect(remoteEP, new AsyncCallback(ConnectCallback), state);
+                //client.BeginConnect(remoteEP, new AsyncCallback(ConnectCallback), state);
                 pingDone.WaitOne();
             });
 
