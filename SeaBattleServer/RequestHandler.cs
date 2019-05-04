@@ -107,5 +107,21 @@ namespace SeaBattleServer
         {
             return GetAddGameResult(jsonResult);
         }
+
+        public static GameField GetGameFieldResult(string jsonResult)
+        {
+            if (string.IsNullOrWhiteSpace(jsonResult))
+                return null;
+
+            try
+            {
+                return Serializer<GameField>.GetSerializedObject(jsonResult);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
+            }
+        }
     }
 }

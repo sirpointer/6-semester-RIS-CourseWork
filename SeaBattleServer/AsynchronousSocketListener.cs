@@ -142,6 +142,7 @@ namespace SeaBattleServer
                         case Request.RequestTypes.Shot:
                             break;
                         case Request.RequestTypes.SetField:
+                            SetField(handler, RequestHandler.GetGameFieldResult(result));
                             break;
                         case Request.RequestTypes.BadRequest:
                             SendError(handler, true);
@@ -162,6 +163,33 @@ namespace SeaBattleServer
                     // Not all data received. Get more.  
                     handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
                 }
+            }
+        }
+
+        private static void SetField(Socket handler, GameField gameField)
+        {
+            GameSession game = null;
+
+            lock (sessions)
+            {
+                game = sessions.Find(x => x.Player1.IPEndPoint == handler.RemoteEndPoint || x.Player2.IPEndPoint == handler.RemoteEndPoint);
+            }
+
+            Player player = game.Player1.IPEndPoint == handler.RemoteEndPoint ? game.Player1 : game.Player2;
+            Player secondPlayer = game.Player1.IPEndPoint != handler.RemoteEndPoint ? game.Player1 : game.Player2;
+
+            player.GameField = gameField;
+            
+            if (secondPlayer.GameField != null)
+            {
+                string gameReady = AnswerHandler.GetGameReadyMessage();
+                byte[] data = Encoding.UTF8.GetBytes(gameReady);
+                player.PlayerSocket.BeginSend(data, 0, data.Length, 0, new AsyncCallback(SendCallback), handler);
+                player.PlayerSocket.BeginSend(data, 0, data.Length, 0, new AsyncCallback(SendCallback), secondPlayer.PlayerSocket);
+            }
+            else
+            {
+                SendOk(handler);
             }
         }
 
