@@ -16,7 +16,7 @@ namespace SeaBattleServer
         private static readonly List<GameSession> sessions = new List<GameSession>()
         {
             new GameSession("123456789") { Player1 = new Player() { Name = "Dasha" } },
-            new GameSession("qwertyuio") { Player1 = new Player() {Name = "Nikita" } }
+            new GameSession("qwertyuio") { Player1 = new Player() { Name = "Nikita" } }
         };
 
         // State object for reading client data asynchronously  
@@ -180,7 +180,7 @@ namespace SeaBattleServer
             if (game?.GameStarted ?? false)
             {
                 SendOk(handler, false);
-                //SendOk(game.Player1.PlayerSocket, false);
+                SendOk(game.Player1.PlayerSocket, false);
             }
             else
             {
