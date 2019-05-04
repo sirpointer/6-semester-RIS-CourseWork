@@ -9,7 +9,7 @@
     Background="{ThemeResource SystemControlAcrylicWindowBrush}">
 
     <Grid>
-        <ProgressRing Name="progresRing" IsActive="False" HorizontalAlignment="Left" Margin="229,0,0,0" VerticalAlignment="Top" Height="62" Width="62"></ProgressRing>
+        <ProgressRing Name="progresRing" IsActive="False" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="200" Width="200"></ProgressRing>
         <StackPanel>
             <TextBlock>Введите IP сервера</TextBlock>
             <TextBox Name="tbInputIP" Text="192.168.0.153"></TextBox>

@@ -12,7 +12,7 @@
         <StackPanel>
             <ListView Name="listView" SelectionChanged="ListView_SelectionChanged"/>
             <TextBlock/>
-            <Button Name="btnCancle" Width="200">Отмена</Button>
+            <Button Name="btnCancle" Width="200" Click="BtnCancle_Click">Отмена</Button>
         </StackPanel>
     </Grid>
 </Page>

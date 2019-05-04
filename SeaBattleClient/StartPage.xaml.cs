@@ -153,6 +153,7 @@ namespace SeaBattleClient
 
             StateObject state = new StateObject();
             state.workSocket = client;
+            Model.PlayerSocket = client;
             state.obj = this;
 
             // Connect to the remote endpoint.  

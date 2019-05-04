@@ -85,7 +85,7 @@ namespace SeaBattleClient
                 //IPAddress ipAddress = ipHostInfo.AddressList.Where(x => x.AddressFamily == AddressFamily.InterNetwork).First();
 
                 // Create a TCP/IP socket.  
-                Socket client = new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                Socket client = Model.PlayerSocket;//new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
                 StateObject state = new StateObject();
                 state.workSocket = client;
@@ -321,7 +321,7 @@ namespace SeaBattleClient
                 //IPAddress ipAddress = ipHostInfo.AddressList.Where(x => x.AddressFamily == AddressFamily.InterNetwork).First();
 
                 // Create a TCP/IP socket.  
-                Socket client = new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                Socket client = Model.PlayerSocket;//new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
                 StateObject state = new StateObject();
                 state.workSocket = client;
@@ -466,6 +466,13 @@ namespace SeaBattleClient
             {
                 Console.WriteLine(e.ToString());
             }
+        }
+
+        private void BtnCancle_Click(object sender, RoutedEventArgs e)
+        {
+            Frame frame = (Parent as Frame);
+            if (frame.CanGoBack)
+                frame.GoBack();
         }
     }
 }
