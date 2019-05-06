@@ -9,7 +9,7 @@
     Background="{ThemeResource SystemControlAcrylicWindowBrush}">
 
     <Grid>
-        <Grid Name="Player1Grid"></Grid>
-        <Grid Name="Player2Grid"></Grid>
+        <Grid Name="Player1Grid" Width="300" Height="300"></Grid>
+        <Grid Name="Player2Grid" Width="300" Height="300" PointerPressed="Player2Grid_PointerPressed"></Grid>
     </Grid>
 </Page>

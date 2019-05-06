@@ -122,6 +122,7 @@
     <Compile Include="BeginPage.xaml.cs">
       <DependentUpon>BeginPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ClientShip.cs" />
     <Compile Include="CreateGamePage.xaml.cs">
       <DependentUpon>CreateGamePage.xaml</DependentUpon>
     </Compile>
