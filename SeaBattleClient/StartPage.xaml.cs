@@ -2,24 +2,15 @@
 using SeaBattleClassLibrary.DataProvider;
 using SeaBattleClassLibrary.Game;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 // Документацию по шаблону элемента "Пустая страница" см. по адресу https://go.microsoft.com/fwlink/?LinkId=234238
@@ -54,11 +45,6 @@ namespace SeaBattleClient
             }
         }
 
-        //public void DeactivateRing()
-        //{
-        //    progresRing.IsActive = false;
-        //}
-
         Player player = null;
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -66,7 +52,6 @@ namespace SeaBattleClient
             base.OnNavigatedTo(e);
             if (e.Parameter != null)
                 player=e.Parameter as Player;
-            //progresRing.IsActive = false;
         }
 
         public StartPage()
@@ -78,68 +63,58 @@ namespace SeaBattleClient
         private const int port = 11000;
         // The response from the remote device.  
         private static String response = String.Empty;
-        //ProgressRing ring = null;
 
         public static ManualResetEvent pingDone = new ManualResetEvent(false);
 
         private async void BtnCreateGame_Click(object sender, RoutedEventArgs e)
         {
-            progresRing.IsActive = true;
-            string ip = tbInputIP.Text;
-            IPEndPoint remoteEP = null;
-            //Socket socket = null;
-            //ring = new ProgressRing() { IsActive = true };
+            string ip = tbInputIP.Text.Trim();
 
-            await Task.Run(() =>
+            if(!string.IsNullOrEmpty(ip))
             {
-                remoteEP = ConnectServer(ip);
-            });
+                IPEndPoint remoteEP = null;
+                ElementEnable(false);
 
-            Model.IPEndPoint = remoteEP;
-            progresRing.IsActive = false;
-            (Parent as Frame).Navigate(typeof(CreateGamePage), Model);
-            /*connectDone.WaitOne();
-            
+                await Task.Run(() =>
+                {
+                    remoteEP = ConnectServer(ip);
+                });
 
-            JObject jObject = new JObject();
-            jObject.Add(JsonStructInfo.Type, Request.EnumTypeToString(Request.RequestTypes.Ping));
-            jObject.Add(JsonStructInfo.Result, "");
+                Model.IPEndPoint = remoteEP;
+                ElementEnable(true);
 
-            string s = jObject.ToString() + JsonStructInfo.EndOfMessage;
-
-            // Send test data to the remote device.  
-            Send(client, s);
-            sendDone.WaitOne();
-
-            // Receive the response from the remote device.  
-            Receive(client);
-            receiveDone.WaitOne();
-
-            // Write the response to the console.  
-            Console.WriteLine("Response received : {0}", response);
-
-            // Release the socket.  
-            client.Shutdown(SocketShutdown.Both);
-            client.Close();
-            (Parent as Frame).Navigate(typeof(CreateGamePage), Model);*/
+                (Parent as Frame).Navigate(typeof(CreateGamePage), Model);
+            }
         }
 
         private async void BtnJoinGame_Click(object sender, RoutedEventArgs e)
         {
-            progresRing.IsActive = true;
-            string ip = tbInputIP.Text;
-            IPEndPoint remoteEP = null;
-            //ring = new ProgressRing() { IsActive = true };
-            //Socket socket = null;
+            string ip = tbInputIP.Text.Trim();
 
-            await Task.Run(() =>
+            if (ip != null && ip != string.Empty)
             {
-                remoteEP = ConnectServer(ip);
-            });
+                IPEndPoint remoteEP = null;
+                ElementEnable(false);
 
-            Model.IPEndPoint = remoteEP;
-            progresRing.IsActive = false;
-            (Parent as Frame).Navigate(typeof(JoinGamePage), Model);
+                await Task.Run(() =>
+                {
+                    remoteEP = ConnectServer(ip);
+                });
+
+                Model.IPEndPoint = remoteEP;
+                ElementEnable(true);
+
+                (Parent as Frame).Navigate(typeof(JoinGamePage), Model);
+            }
+        }
+
+        private void ElementEnable(bool enabled)
+        {
+            progresRing.IsActive = !enabled;
+
+            btnCreateGame.IsEnabled = enabled;
+            btnJoinGame.IsEnabled = enabled;
+            tbInputIP.IsEnabled = enabled;
         }
 
         private IPEndPoint ConnectServer(string ip)
@@ -155,7 +130,6 @@ namespace SeaBattleClient
 
             StateObject state = new StateObject();
             state.workSocket = client;
-            //Model.PlayerSocket = client;
             state.obj = this;
 
             // Connect to the remote endpoint.  
@@ -186,10 +160,6 @@ namespace SeaBattleClient
 
                 // Send test data to the remote device.  
                 Send(state, s);
-                // send ping
-
-                // Signal that the connection has been made.  
-                //connectDone.Set();
             }
             catch (Exception e)
             {
@@ -220,7 +190,6 @@ namespace SeaBattleClient
                 Debug.WriteLine("Sent {0} bytes to server.", bytesSent);
 
                 // Signal that all bytes have been sent.  
-                //sendDone.Set();
                 Receive(state);
 
             }
@@ -272,18 +241,11 @@ namespace SeaBattleClient
                     {
                         response = state.sb.ToString();
                     }
-                    // Signal that all bytes have been received.  
-                    //receiveDone.Set();
 
                     client.Shutdown(SocketShutdown.Both);
                     client.Close();
 
                     pingDone.Set();
-
-                    //startPage.DeactivateRing();
-                    //startPage.ring = new ProgressRing() { IsActive = false };
-                    //startPage.progresRing.IsActive = false;
-                    //(startPage.Parent as Frame).Navigate(typeof(CreateGamePage), startPage.Model);
                 }
             }
             catch (Exception e)

@@ -9,10 +9,7 @@
     Background="{ThemeResource SystemControlAcrylicWindowBrush}">
 
     <Grid>
-        <!--<Grid x:Name="FieldGrid" Height="300" Width="300" >
-             <Image Name="Image" Source="/Assets/Ships/ship.jpg" CanDrag="True" Width="100" />
-            
-        </Grid >-->
+        <ProgressRing Name="progressRign"></ProgressRing>
 
         <Canvas Name="canvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
             <Image Name="Image1" Canvas.ZIndex="3" Source="/Assets/Ships/1.jpg" Height="30" PointerMoved="MyImage_PointerMoved" PointerPressed="MyImage_PointerPressed" PointerReleased="MyImage_PointerReleased" PointerExited="MyImage_PointerExited" RightTapped="Image1_RightTapped"/>
@@ -26,15 +23,9 @@
             <Image Name="Image9" Canvas.ZIndex="3" Source="/Assets/Ships/3.jpg" Height="30" PointerMoved="MyImage_PointerMoved" PointerPressed="MyImage_PointerPressed" PointerReleased="MyImage_PointerReleased" PointerExited="MyImage_PointerExited" Canvas.Left="155" VerticalAlignment="Stretch" RightTapped="Image1_RightTapped"/>
             <Image Name="Image10" Canvas.ZIndex="3" Source="/Assets/Ships/4.jpg" Height="30" PointerMoved="MyImage_PointerMoved" PointerPressed="MyImage_PointerPressed" PointerReleased="MyImage_PointerReleased" PointerExited="MyImage_PointerExited" Canvas.Left="275" HorizontalAlignment="Stretch" RightTapped="Image1_RightTapped"/>
 
-            <Grid x:Name="FieldGrid" Canvas.ZIndex="1" Height="300" Width="300" Canvas.Left="0" Canvas.Top="70" >
-
-            </Grid>
+            <Grid x:Name="FieldGrid" Canvas.ZIndex="1" Height="300" Width="300" Canvas.Left="0" Canvas.Top="70" ></Grid>
 
             <Button HorizontalAlignment="Left" Canvas.Left="395" Canvas.Top="80" VerticalAlignment="Top" Click="Button_Click">Start game</Button>
-            <!--<TextBlock Name="Row" Text="Row" HorizontalAlignment="Stretch" Canvas.Left="428" Canvas.Top="95" VerticalAlignment="Stretch" />
-            <TextBlock Margin="0,0,0,0" Name="Column" Text="Col" Canvas.Left="505" Canvas.Top="92" /> -->
         </Canvas>
-
-        <!-- <Rectangle Width="250" Height="250" Fill="Red" VerticalAlignment="Bottom" /> -->
     </Grid>
 </Page>

@@ -4,24 +4,15 @@ using SeaBattleClassLibrary.DataProvider;
 using SeaBattleClassLibrary.Game;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using static SeaBattleClient.StartPage;
 
 // Документацию по шаблону элемента "Пустая страница" см. по адресу https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -67,22 +58,15 @@ namespace SeaBattleClient
             if (e.Parameter != null)
                 player = e.Parameter as Player;
 
+            progressRing.IsActive = true;
 
-
-
-            //progresRing.IsActive = true;
-            //playerName = tbPlayerName.Text;
-            //gameName = tbGameName.Text;
             IPEndPoint remoteEP = Model.IPEndPoint;
-            //ring = new ProgressRing() { IsActive = true };
 
             List<BeginGame> beginGames = new List<BeginGame>();
 
             await Task.Run(() =>
             {
                 pingDone.Reset();
-                //IPHostEntry ipHostInfo = Dns.GetHostEntry(ip);
-                //IPAddress ipAddress = ipHostInfo.AddressList.Where(x => x.AddressFamily == AddressFamily.InterNetwork).First();
 
                 // Create a TCP/IP socket.  
                 Socket client = new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -109,12 +93,7 @@ namespace SeaBattleClient
                 listView.Items.Add(stackPanel);
             }
 
-
-
-            //Model.IPEndPoint = remoteEP;
-            //progresRing.IsActive = false;
-            //(Parent as Frame).Navigate(typeof(BeginPage), Model);
-
+            progressRing.IsActive = false;
         }
 
         /// <summary>
@@ -192,19 +171,14 @@ namespace SeaBattleClient
 
                 JObject jObject = new JObject();
                 jObject.Add(JsonStructInfo.Type, Request.EnumTypeToString(Request.RequestTypes.GetGames));
-                //string message = Serializer<BeginGame>.SetSerializedObject(new BeginGame() { PlayerName = playerName, GameName = gameName });
                 jObject.Add(JsonStructInfo.Result, "");
-                //jObject.Add(JsonStructInfo.Result, message);
 
                 string s = jObject.ToString() + JsonStructInfo.EndOfMessage;
 
                 // Send test data to the remote device.  
                 Send(state, s);
-                // send ping
-
-                // Signal that the connection has been made.  
-                //connectDone.Set();
-            } catch (Exception e)
+            } 
+            catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
             }
@@ -233,10 +207,10 @@ namespace SeaBattleClient
                 Console.WriteLine("Sent {0} bytes to server.", bytesSent);
 
                 // Signal that all bytes have been sent.  
-                //sendDone.Set();
                 Receive(state);
 
-            } catch (Exception e)
+            } 
+            catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
             }
@@ -283,33 +257,27 @@ namespace SeaBattleClient
                         string resp = state.sb.ToString();
                         response = resp.Remove(resp.LastIndexOf(JsonStructInfo.EndOfMessage));
                     }
-                    // Signal that all bytes have been received.  
-                    //receiveDone.Set();
 
                     client.Shutdown(SocketShutdown.Both);
                     client.Close();
                     
                     pingDone.Set();
-
-                    //startPage.DeactivateRing();
-                    //startPage.ring = new ProgressRing() { IsActive = false };
-                    //startPage.progresRing.IsActive = false;
-                    //(startPage.Parent as Frame).Navigate(typeof(CreateGamePage), startPage.Model);
                 }
-            } catch (Exception e)
+            } 
+            catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
             }
-        }
-
-        
+        }        
 
         private async void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            progressRing.IsActive = true;
+            btnCancle.IsEnabled = false;
 
             IPEndPoint remoteEP = Model.IPEndPoint;
             var a = e.AddedItems.ToList();
-            //sender as ListViewItem
+
             string s = ((e.AddedItems.ToList()[0] as StackPanel).Children[0] as TextBlock).Text;
             string gameName = s.Substring(6, s.IndexOf('\n') - 6);
             Socket socket = null;
@@ -317,8 +285,6 @@ namespace SeaBattleClient
             await Task.Run(() =>
             {
                 pingDone.Reset();
-                //IPHostEntry ipHostInfo = Dns.GetHostEntry(ip);
-                //IPAddress ipAddress = ipHostInfo.AddressList.Where(x => x.AddressFamily == AddressFamily.InterNetwork).First();
 
                 // Create a TCP/IP socket.  
                 Socket client = new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -334,15 +300,15 @@ namespace SeaBattleClient
             });
 
             Model.PlayerSocket = socket;
-            //string content = string.Empty;
-
-            //response = response.Remove(response.LastIndexOf(JsonStructInfo.EndOfMessage));
             Answer.AnswerTypes dataType = GetAnswerType(response);
-            //string result = GetJsonRequestResult(content);
+
             if (dataType == Answer.AnswerTypes.Ok)
             {
                 (Parent as Frame).Navigate(typeof(BeginPage), Model);
             }
+
+            progressRing.IsActive = false;
+            btnCancle.IsEnabled = true;
         }
 
         private static void ConnectCallback1(IAsyncResult ar)
@@ -362,18 +328,14 @@ namespace SeaBattleClient
                 JObject jObject = new JObject();
                 jObject.Add(JsonStructInfo.Type, Request.EnumTypeToString(Request.RequestTypes.JoinTheGame));
                 string message = Serializer<BeginGame>.SetSerializedObject(new BeginGame() { GameName = state.obj.ToString() });
-                //jObject.Add(JsonStructInfo.Result, "");
                 jObject.Add(JsonStructInfo.Result, message);
 
                 string s = jObject.ToString() + JsonStructInfo.EndOfMessage;
 
                 // Send test data to the remote device.  
                 Send1(state, s);
-                // send ping
-
-                // Signal that the connection has been made.  
-                //connectDone.Set();
-            } catch (Exception e)
+            } 
+            catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
             }
@@ -402,10 +364,10 @@ namespace SeaBattleClient
                 Console.WriteLine("Sent {0} bytes to server.", bytesSent);
 
                 // Signal that all bytes have been sent.  
-                //sendDone.Set();
                 Receive1(state);
 
-            } catch (Exception e)
+            } 
+            catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
             }
@@ -436,33 +398,17 @@ namespace SeaBattleClient
 
                 // Read data from the remote device.  
                 int bytesRead = client.EndReceive(ar);
+                
+                state.sb.Append(Encoding.UTF8.GetString(state.buffer, 0, bytesRead));
+                
+                // All the data has arrived; put it in response.  
+                if (state.sb.Length > 1)
+                {
+                    string resp = state.sb.ToString();
+                    response = resp.Remove(resp.LastIndexOf(JsonStructInfo.EndOfMessage));
+                }
 
-                //if (bytesRead > 0)
-                //{
-                //    // There might be more data, so store the data received so far.  
-                    state.sb.Append(Encoding.UTF8.GetString(state.buffer, 0, bytesRead));
-
-                //    // Get the rest of the data.  
-                //    client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback1), state);
-                //} 
-                //else
-                //{
-                    // All the data has arrived; put it in response.  
-                    if (state.sb.Length > 1)
-                    {
-                        string resp = state.sb.ToString();
-                        response = resp.Remove(resp.LastIndexOf(JsonStructInfo.EndOfMessage));
-                    }
-                    // Signal that all bytes have been received.  
-                    //receiveDone.Set();
-
-                    pingDone.Set();
-
-                    //startPage.DeactivateRing();
-                    //startPage.ring = new ProgressRing() { IsActive = false };
-                    //startPage.progresRing.IsActive = false;
-                    //(startPage.Parent as Frame).Navigate(typeof(CreateGamePage), startPage.Model);
-                //}
+                pingDone.Set();
             } 
             catch (Exception e)
             {

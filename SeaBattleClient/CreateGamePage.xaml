@@ -9,7 +9,7 @@
     Background="{ThemeResource SystemControlAcrylicWindowBrush}">
 
     <Grid>
-        <ProgressRing Name="progresRing" HorizontalAlignment="Left" Margin="55,147,0,0" VerticalAlignment="Top" Height="110" Width="110"></ProgressRing>
+        <ProgressRing Name="progresRing" Height="200" Width="200"></ProgressRing>
         <StackPanel>
             <TextBlock FontSize="20">Создание игры</TextBlock>
             <TextBlock/>

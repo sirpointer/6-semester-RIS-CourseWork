@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SeaBattleClassLibrary.Game;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -22,6 +23,23 @@ namespace SeaBattleClient
     /// </summary>
     public sealed partial class GamePage : Page
     {
+        public Player Model
+        {
+            get
+            {
+                return this.DataContext as Player;
+            }
+        }
+
+        Player player = null;
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            if (e.Parameter != null)
+                player = e.Parameter as Player;
+        }
+
         public GamePage()
         {
             this.InitializeComponent();

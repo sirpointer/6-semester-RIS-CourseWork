@@ -9,10 +9,12 @@
     Background="{ThemeResource SystemControlAcrylicWindowBrush}">
 
     <Grid>
-        <ProgressRing Name="progresRing" IsActive="False" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="200" Width="200"></ProgressRing>
+        <ProgressRing Name="progresRing" Height="200" Width="200"></ProgressRing>
         <StackPanel>
+            <TextBlock FontSize="20">Добро пожаловать!</TextBlock>
+            <TextBlock/>
             <TextBlock>Введите IP сервера</TextBlock>
-            <TextBox Name="tbInputIP" Text="192.168.0.153"></TextBox>
+            <TextBox Name="tbInputIP" Text="192.168.1.39"></TextBox>
             <TextBlock/>
             <StackPanel Orientation="Horizontal">
                 <Button Width="200" Name="btnCreateGame" Click="BtnCreateGame_Click" >Создать игру</Button>

@@ -1,18 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.Storage;
 using Windows.UI;
 using Windows.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
@@ -63,13 +55,10 @@ namespace SeaBattleClient
             base.OnNavigatedTo(e);
             if (e.Parameter == null)
                 return;
-                //player = e.Parameter as Player;
 
             if (Player != null)
             {
                 Player = e.Parameter as Player;
-                
-                //DataContext = Player.GameField;
                 
                 Image1.DataContext = Model.Ships[0];
                 Image2.DataContext = Model.Ships[1];
@@ -95,31 +84,43 @@ namespace SeaBattleClient
         }
 
         List<Image> ShipsImages = new List<Image>();
+        Color backColor = Colors.DarkSeaGreen;
+        Color lightColor = Colors.Goldenrod;
 
         public BeginPage()
         {
             this.InitializeComponent();
 
             //сделать поле
-            for (int i = 0; i < 10; i++)
-            {
-                FieldGrid.RowDefinitions.Add(new RowDefinition());
-                FieldGrid.ColumnDefinitions.Add(new ColumnDefinition());
-            }
+            CreateField();
 
             //заполнить поле квадратиками
+            FillFieldWithRectangle();
+        }
+
+        private void FillFieldWithRectangle()
+        {
             for (int i = 0; i < FieldGrid.RowDefinitions.Count; i++)
             {
                 for (int j = 0; j < FieldGrid.ColumnDefinitions.Count; j++)
                 {
                     Rectangle rectangle = new Rectangle() { StrokeThickness = 1 };
                     rectangle.Stroke = new SolidColorBrush(Colors.Black);
-                    rectangle.Fill = new SolidColorBrush(Colors.DarkSeaGreen);
+                    rectangle.Fill = new SolidColorBrush(backColor);
                     rectangle.Name = i.ToString() + j.ToString();
                     FieldGrid.Children.Add(rectangle);
                     Grid.SetRow(rectangle, i);
                     Grid.SetColumn(rectangle, j);
                 }
+            }
+        }
+
+        private void CreateField()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                FieldGrid.RowDefinitions.Add(new RowDefinition());
+                FieldGrid.ColumnDefinitions.Add(new ColumnDefinition());
             }
         }
 
@@ -158,9 +159,7 @@ namespace SeaBattleClient
                         //можно расположить только внутри поля
                         if (inside)
                         {
-                            //жалкие попытки подсветки
-                            //подходит только для горизонтальных корабликов, для вертикальных не прокатит
-                            //не закрашивается правая (9) клетка
+                            //подсветка
                             double columnDouble = (imagePoint.X +FieldGrid.Width/20)/ (FieldGrid.Width / 10);
                             int column = (int)columnDouble;
 
@@ -182,15 +181,11 @@ namespace SeaBattleClient
                                         int end = start + ship.ShipWidth - 1;  // Convert.ToInt32(row.ToString() + colEnd.ToString());
                                         if (start >= 0 && start < FieldGrid.Height && end >= 0 && end < FieldGrid.Width)
                                         {
-                                            for (int i = 0; i < 100; i++)
-                                            {
-                                                Rectangle rect = (Rectangle)FieldGrid.Children[i];
-                                                rect.Fill = new SolidColorBrush(Colors.White);
-                                            }
+                                            FillBackField();
                                             for (int i = start; i <= end; i++)
                                             {
                                                 Rectangle rect = (Rectangle)FieldGrid.Children[i];
-                                                rect.Fill = new SolidColorBrush(Colors.Red);
+                                                rect.Fill = new SolidColorBrush(lightColor);
                                             }
                                         }
                                     } else
@@ -199,15 +194,12 @@ namespace SeaBattleClient
                                         int end = start + (ship.ShipHeight-1)*10;  // Convert.ToInt32(row.ToString() + colEnd.ToString());
                                         if (start >= 0 && start < FieldGrid.Height && end >= 0 && end < FieldGrid.Width)
                                         {
-                                            for (int i = 0; i < 100; i++)
-                                            {
-                                                Rectangle rect = (Rectangle)FieldGrid.Children[i];
-                                                rect.Fill = new SolidColorBrush(Colors.White);
-                                            }
+                                            FillBackField();
+
                                             for (int i = start; i <= end; i+=10)
                                             {
                                                 Rectangle rect = (Rectangle)FieldGrid.Children[i];
-                                                rect.Fill = new SolidColorBrush(Colors.Red);
+                                                rect.Fill = new SolidColorBrush(lightColor);
                                             }
                                         }
                                     }
@@ -217,6 +209,15 @@ namespace SeaBattleClient
                         }
                     }
                 }
+            }
+        }
+
+        private void FillBackField()
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                Rectangle rect = (Rectangle)FieldGrid.Children[i];
+                rect.Fill = new SolidColorBrush(backColor);
             }
         }
 
@@ -267,9 +268,6 @@ namespace SeaBattleClient
                 bool set = Model.SetShipLocation(ship, new Location(column, row));
                 if (set)
                 {
-                    //int r = Convert.ToInt32(row.ToString() + column.ToString());
-                    //var rect = FieldGrid.Children[r];
-
                     double X = Canvas.GetLeft(FieldGrid) + (FieldGrid.Width / 10) * column;
                     double Y = Canvas.GetTop(FieldGrid) + (FieldGrid.Height / 10) * row;
 
@@ -280,9 +278,6 @@ namespace SeaBattleClient
                     {
                         Canvas.SetLeft(image, X);
                         Canvas.SetTop(image, Y);
-
-                        //ship.Location.X = column;
-                        //ship.Location.Y = row;
 
                     } else
                     {
@@ -298,11 +293,7 @@ namespace SeaBattleClient
                         Canvas.SetTop(image, 0);
                         ship.Location = new Location();
 
-                        for (int i = 0; i < 100; i++)
-                        {
-                            Rectangle rect = (Rectangle)FieldGrid.Children[i];
-                            rect.Fill = new SolidColorBrush(Colors.White);
-                        }
+                        FillBackField();
                     } else
                     {
                         double X = (ship.Location.X) * (FieldGrid.Width / 10) + Canvas.GetLeft(FieldGrid);
@@ -310,11 +301,8 @@ namespace SeaBattleClient
 
                         Canvas.SetLeft(image, X);
                         Canvas.SetTop(image, Y);
-                        for (int i = 0; i < 100; i++)
-                        {
-                            Rectangle rect = (Rectangle)FieldGrid.Children[i];
-                            rect.Fill = new SolidColorBrush(Colors.White);
-                        }
+
+                        FillBackField();
                     }
                 }
 
@@ -361,11 +349,7 @@ namespace SeaBattleClient
                 ship.Location = new Location();
             }
             //при отпускании снимает подсветку с поля
-            for (int i = 0; i < 100; i++)
-            {
-                Rectangle rect = (Rectangle)FieldGrid.Children[i];
-                rect.Fill = new SolidColorBrush(Colors.White);
-            }
+            FillBackField();
         }
 
         //при срывнии мыши
@@ -385,11 +369,7 @@ namespace SeaBattleClient
                 Canvas.SetTop(image, 0);
                 ship.Location = new Location();
 
-                for (int i = 0; i < 100; i++)
-                {
-                    Rectangle rect = (Rectangle)FieldGrid.Children[i];
-                    rect.Fill = new SolidColorBrush(Colors.White);
-                }
+                FillBackField();
             } 
             else
             {
@@ -398,11 +378,7 @@ namespace SeaBattleClient
 
                 Canvas.SetLeft(image, X);
                 Canvas.SetTop(image, Y);
-                for (int i = 0; i < 100; i++)
-                {
-                    Rectangle rect = (Rectangle)FieldGrid.Children[i];
-                    rect.Fill = new SolidColorBrush(Colors.White);
-                }
+                FillBackField();
             }
 
             for (int i = 0; i < ShipsImages.Count; i++)
@@ -512,17 +488,14 @@ namespace SeaBattleClient
 
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
-
+            progressRign.IsActive = true;
             IPEndPoint remoteEP = Player.IPEndPoint;
-            //ring = new ProgressRing() { IsActive = true };
             string fieldGame = Serializer<List<Ship>>.SetSerializedObject(Model.Ships);
             Socket socket = Player.PlayerSocket;
 
             await Task.Run(() =>
             {
                 pingDone.Reset();
-                //IPHostEntry ipHostInfo = Dns.GetHostEntry(ip);
-                //IPAddress ipAddress = ipHostInfo.AddressList.Where(x => x.AddressFamily == AddressFamily.InterNetwork).First();
 
                 // Create a TCP/IP socket.  
                 Socket client = socket;//new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -533,9 +506,7 @@ namespace SeaBattleClient
 
                 JObject jObject = new JObject();
                 jObject.Add(JsonStructInfo.Type, Request.EnumTypeToString(Request.RequestTypes.SetField));
-                //string message = Serializer<BeginGame>.SetSerializedObject();
                 jObject.Add(JsonStructInfo.Result, state.obj.ToString());
-                //jObject.Add(JsonStructInfo.Result, message);
 
                 string s = jObject.ToString() + JsonStructInfo.EndOfMessage;
 
@@ -543,10 +514,11 @@ namespace SeaBattleClient
                 Send(state, s);
 
                 // Connect to the remote endpoint.  
-                //client.BeginConnect(remoteEP, new AsyncCallback(ConnectCallback), state);
                 pingDone.WaitOne();
             });
+
             WaitOtherPlayer(socket);
+            progressRign.IsActive = false;
         }
 
         private void WaitOtherPlayer(Socket socket)
@@ -555,7 +527,7 @@ namespace SeaBattleClient
             Answer.AnswerTypes dataType = GetAnswerType(response);
             StateObject so = new StateObject();
             so.workSocket = socket;
-            //string result = GetJsonRequestResult(content);
+
             if (dataType == Answer.AnswerTypes.GameReady)
             {
                 (Parent as Frame).Navigate(typeof(GamePage), Model);
@@ -585,19 +557,14 @@ namespace SeaBattleClient
 
                 JObject jObject = new JObject();
                 jObject.Add(JsonStructInfo.Type, Request.EnumTypeToString(Request.RequestTypes.SetField));
-                //string message = Serializer<BeginGame>.SetSerializedObject();
                 jObject.Add(JsonStructInfo.Result, state.obj.ToString());
-                //jObject.Add(JsonStructInfo.Result, message);
 
                 string s = jObject.ToString() + JsonStructInfo.EndOfMessage;
 
                 // Send test data to the remote device.  
                 Send(state, s);
-                // send ping
-
-                // Signal that the connection has been made.  
-                //connectDone.Set();
-            } catch (Exception e)
+            } 
+            catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
             }
@@ -626,7 +593,6 @@ namespace SeaBattleClient
                 Console.WriteLine("Sent {0} bytes to server.", bytesSent);
 
                 // Signal that all bytes have been sent.  
-                //sendDone.Set();
                 stateObject = state;
                 Receive(state);
 
@@ -662,29 +628,15 @@ namespace SeaBattleClient
 
                 // Read data from the remote device.  
                 int bytesRead = client.EndReceive(ar);
-
-                //if (bytesRead > 0)
-                //{
-                //    // There might be more data, so store the data received so far.  
+                
                 state.sb.Append(Encoding.UTF8.GetString(state.buffer, 0, bytesRead));
                 // All the data has arrived; put it in response.  
                 if (state.sb.Length > 1)
                 {
                     response = state.sb.ToString();
                 }
-                // Signal that all bytes have been received.  
-                //receiveDone.Set();
-
-                //client.Shutdown(SocketShutdown.Both);
-                //client.Close();
 
                 pingDone.Set();
-
-                //startPage.DeactivateRing();
-                //startPage.ring = new ProgressRing() { IsActive = false };
-                //startPage.progresRing.IsActive = false;
-                //(startPage.Parent as Frame).Navigate(typeof(CreateGamePage), startPage.Model);
-                //}
             } 
             catch (Exception e)
             {

@@ -9,6 +9,7 @@
     Background="{ThemeResource SystemControlAcrylicWindowBrush}">
 
     <Grid>
+        <ProgressRing Name="progressRing" Height="200" Width="200"></ProgressRing>
         <StackPanel>
             <ListView Name="listView" SelectionChanged="ListView_SelectionChanged"/>
             <TextBlock/>
