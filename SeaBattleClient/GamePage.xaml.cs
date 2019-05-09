@@ -46,25 +46,20 @@ namespace SeaBattleClient
             base.OnNavigatedTo(e);
             if (e.Parameter != null)
                 player = e.Parameter as Player;
-        }
-
-        public GamePage()
-        {
-            this.InitializeComponent();
 
             //заполнить поле первого игрока
             CreateField(Player1Grid);
             FillFieldWithRectangle(Player1Grid);
 
-            foreach(var ship in Model.GameField.Ships)
+            foreach (var ship in Model.GameField.Ships)
             {
                 Image image = new Image();
                 BitmapImage bitmapImage = new BitmapImage();
                 var uri = new Uri("ms-appx:///Assets/Ships/ship.jpg", UriKind.Absolute);
                 bitmapImage.UriSource = uri;
                 image.Source = bitmapImage;
-                image.Width = ship.ShipWidth*(Player1Grid.Width/10);
-                image.Height = ship.ShipHeight*(Player1Grid.Height/10);
+                image.Width = ship.ShipWidth * (Player1Grid.Width / 10);
+                image.Height = ship.ShipHeight * (Player1Grid.Height / 10);
                 Player1Grid.Children.Add(image);
 
 
@@ -72,6 +67,18 @@ namespace SeaBattleClient
                 Grid.SetRow(image, ship.Location.Y);
                 Grid.SetColumn(image, ship.Location.X);
             }
+
+
+            //заполнить поле второго игрока
+            CreateField(Player2Grid);
+            FillFieldWithRectangle(Player2Grid);
+        }
+
+        public GamePage()
+        {
+            this.InitializeComponent();
+
+            
             //добавление картинки на грид намертво
             /*Image image = new Image();
             BitmapImage bitmapImage = new BitmapImage();
@@ -95,9 +102,6 @@ namespace SeaBattleClient
 
 
 
-            //заполнить поле второго игрока
-            CreateField(Player2Grid);
-            FillFieldWithRectangle(Player2Grid);
         }
 
         private void FillFieldWithRectangle(Grid grid)
