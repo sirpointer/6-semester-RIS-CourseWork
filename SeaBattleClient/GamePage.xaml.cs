@@ -58,12 +58,14 @@ namespace SeaBattleClient
                 var uri = new Uri(ship.Source);
                 bitmapImage.UriSource = uri;
                 image.Source = bitmapImage;
-                image.Width = ship.ShipWidth * (Player1Grid.Width / 10);
-                image.Height = ship.ShipHeight * (Player1Grid.Height / 10);
+                //image.Width = ship.ShipWidth * (Player1Grid.Width / 10);
+                //image.Height = ship.ShipHeight * (Player1Grid.Height / 10);
+                image.HorizontalAlignment = HorizontalAlignment.Stretch;
+                image.VerticalAlignment = VerticalAlignment.Stretch;
                 Player1Grid.Children.Add(image);
 
 
-                Grid.SetColumnSpan(image, ship.Location.Size);
+                Grid.SetColumnSpan(image, (int)ship.ShipClass);
                 Grid.SetRow(image, ship.Location.Y);
                 Grid.SetColumn(image, ship.Location.X);
             }
@@ -77,31 +79,6 @@ namespace SeaBattleClient
         public GamePage()
         {
             this.InitializeComponent();
-
-            
-            //добавление картинки на грид намертво
-            /*Image image = new Image();
-            BitmapImage bitmapImage = new BitmapImage();
-            var uri = new Uri("ms-appx:///Assets/Ships/ship.jpg", UriKind.Absolute);
-            bitmapImage.UriSource = uri;
-            image.Source = bitmapImage;
-            image.Width = 90;
-            image.Height = 30;
-            FieldGrid.Children.Add(image);
-
-
-            Grid.SetColumnSpan(image, 3);
-            Grid.SetRow(image, row);
-            Grid.SetColumn(image, column);*/
-
-
-
-
-
-
-
-
-
         }
 
         private void FillFieldWithRectangle(Grid grid)
@@ -115,24 +92,28 @@ namespace SeaBattleClient
                     rectangle.Fill = new SolidColorBrush(backColor);
                     rectangle.Name = i.ToString() + j.ToString();
                     grid.Children.Add(rectangle);
+                    rectangle.HorizontalAlignment = HorizontalAlignment.Stretch;
+                    rectangle.VerticalAlignment = VerticalAlignment.Stretch;
                     Grid.SetRow(rectangle, i);
                     Grid.SetColumn(rectangle, j);
+
+                    rectangle.Tapped += Rectangle_Tapped;
                 }
             }
+        }
+
+        private void Rectangle_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            (sender as Rectangle).Fill = new SolidColorBrush(Colors.Azure);
         }
 
         private void CreateField(Grid grid)
         {
             for (int i = 0; i < 10; i++)
             {
-                grid.RowDefinitions.Add(new RowDefinition());
-                grid.ColumnDefinitions.Add(new ColumnDefinition());
+                grid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Star) });
+                grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
             }
-        }
-
-        private void Player2Grid_PointerPressed(object sender, PointerRoutedEventArgs e)
-        {
-            
         }
     }
 }

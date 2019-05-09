@@ -14,7 +14,7 @@
             <TextBlock FontSize="20">Добро пожаловать!</TextBlock>
             <TextBlock/>
             <TextBlock>Введите IP сервера</TextBlock>
-            <TextBox Name="tbInputIP" Text="192.168.1.39"></TextBox>
+            <TextBox Name="tbInputIP" Text="192.168.0.153"></TextBox>
             <TextBlock/>
             <StackPanel Orientation="Horizontal">
                 <Button Width="200" Name="btnCreateGame" Click="BtnCreateGame_Click" >Создать игру</Button>
