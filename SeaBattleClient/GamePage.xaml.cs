@@ -51,11 +51,11 @@ namespace SeaBattleClient
             CreateField(Player1Grid);
             FillFieldWithRectangle(Player1Grid);
 
-            foreach (var ship in Model.GameField.Ships)
+            foreach (ClientShip ship in Model.GameField.Ships)
             {
                 Image image = new Image();
                 BitmapImage bitmapImage = new BitmapImage();
-                var uri = new Uri("ms-appx:///Assets/Ships/ship.jpg", UriKind.Absolute);
+                var uri = new Uri(ship.Source);
                 bitmapImage.UriSource = uri;
                 image.Source = bitmapImage;
                 image.Width = ship.ShipWidth * (Player1Grid.Width / 10);

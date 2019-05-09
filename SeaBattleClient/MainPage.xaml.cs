@@ -43,6 +43,26 @@ namespace SeaBattleClient
             this.InitializeComponent();
             this.DataContext = new Player();
 
+            List<Ship> ships = new List<Ship>(10);
+
+            for (int i = 1; i <= 4; i++)
+            {
+                ships.Add(new ClientShip(i, ShipClass.OneDeck));
+            }
+            for (int i = 5; i <= 7; i++)
+            {
+                ships.Add(new ClientShip(i, ShipClass.TwoDeck));
+            }
+            for (int i = 8; i <= 9; i++)
+            {
+                ships.Add(new ClientShip(i, ShipClass.ThreeDeck));
+            }
+            ships.Add(new ClientShip(10, ShipClass.FourDeck));
+
+            GameField gameField = new GameField(ships);
+
+            Model.GameField = gameField;
+
             MyFrame.Navigate(typeof(StartPage), Model);
         }
 
