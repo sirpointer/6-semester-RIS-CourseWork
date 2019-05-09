@@ -490,7 +490,12 @@ namespace SeaBattleClient
         {
             progressRign.IsActive = true;
             IPEndPoint remoteEP = Player.IPEndPoint;
-            string fieldGame = Serializer<List<Ship>>.SetSerializedObject(Model.Ships);
+
+            List<Ship> ships = new List<Ship>(10);
+            foreach (ClientShip ship in Model.Ships)
+                ships.Add(ship.Clone() as Ship);
+
+            string fieldGame = Serializer<List<Ship>>.SetSerializedObject(ships);
             Socket socket = Player.PlayerSocket;
 
             await Task.Run(() =>
