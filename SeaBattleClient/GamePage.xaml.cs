@@ -39,7 +39,7 @@ namespace SeaBattleClient
         }
 
         Player player = null;
-        private Windows.UI.Color backColor;
+        private Color backColor;
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
@@ -49,25 +49,11 @@ namespace SeaBattleClient
 
             //заполнить поле первого игрока
             CreateField(Player1Grid);
-            FillFieldWithRectangle(Player1Grid);
+            FillFieldWithRectangle(Player1Grid, true);
 
             foreach (ClientShip ship in Model.GameField.Ships)
             {
-                Image image = new Image();
-                BitmapImage bitmapImage = new BitmapImage();
-                var uri = new Uri(ship.Source);
-                bitmapImage.UriSource = uri;
-                image.Source = bitmapImage;
-                //image.Width = ship.ShipWidth * (Player1Grid.Width / 10);
-                //image.Height = ship.ShipHeight * (Player1Grid.Height / 10);
-                image.HorizontalAlignment = HorizontalAlignment.Stretch;
-                image.VerticalAlignment = VerticalAlignment.Stretch;
-                Player1Grid.Children.Add(image);
-
-
-                Grid.SetColumnSpan(image, (int)ship.ShipClass);
-                Grid.SetRow(image, ship.Location.Y);
-                Grid.SetColumn(image, ship.Location.X);
+                SetImage(ship.Source, (int)ship.ShipClass, ship.Location.X, ship.Location.Y, Player1Grid);
             }
 
 
@@ -76,12 +62,29 @@ namespace SeaBattleClient
             FillFieldWithRectangle(Player2Grid);
         }
 
+        public void SetImage(string source, int lenth, int x, int y, Grid grid)
+        {
+            Image image = new Image(); 
+            BitmapImage bitmapImage = new BitmapImage();
+            var uri = new Uri(source);
+            bitmapImage.UriSource = uri;
+            image.Source = bitmapImage;
+            image.HorizontalAlignment = HorizontalAlignment.Stretch;
+            image.VerticalAlignment = VerticalAlignment.Stretch;
+            grid.Children.Add(image);
+
+
+            Grid.SetColumnSpan(image, lenth);
+            Grid.SetRow(image, y);
+            Grid.SetColumn(image, x);
+        }
+
         public GamePage()
         {
             this.InitializeComponent();
         }
 
-        private void FillFieldWithRectangle(Grid grid)
+        private void FillFieldWithRectangle(Grid grid, bool mine = false)
         {
             for (int i = 0; i < grid.RowDefinitions.Count; i++)
             {
@@ -96,15 +99,10 @@ namespace SeaBattleClient
                     rectangle.VerticalAlignment = VerticalAlignment.Stretch;
                     Grid.SetRow(rectangle, i);
                     Grid.SetColumn(rectangle, j);
-
-                    rectangle.Tapped += Rectangle_Tapped;
+                    if(mine)
+                        rectangle.Tapped += Rectangle_Tapped;
                 }
             }
-        }
-
-        private void Rectangle_Tapped(object sender, TappedRoutedEventArgs e)
-        {
-            (sender as Rectangle).Fill = new SolidColorBrush(Colors.Azure);
         }
 
         private void CreateField(Grid grid)
@@ -113,6 +111,71 @@ namespace SeaBattleClient
             {
                 grid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Star) });
                 grid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
+            }
+        }
+
+        private async void Rectangle_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            Rectangle rec = sender as Rectangle;
+            int col = Grid.GetColumn(rec);
+            int row = Grid.GetRow(rec);
+            Location location = new Location(col, row);
+
+            Socket socket = Model.PlayerSocket;
+
+            byte[] resp = new byte[1024];
+
+            await Task.Run(() =>
+            {
+                pingDone.Reset();
+
+                // Create a TCP/IP socket.  
+                Socket client = socket;//new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+                StateObject state = new StateObject();
+                state.workSocket = client;
+
+                JObject jObject = new JObject();
+                jObject.Add(JsonStructInfo.Type, Request.EnumTypeToString(Request.RequestTypes.Shot));
+                jObject.Add(JsonStructInfo.Result, Serializer<Location>.SetSerializedObject(location));
+
+                string s = jObject.ToString() + JsonStructInfo.EndOfMessage;
+
+                client.Send(Encoding.UTF8.GetBytes(s));
+
+                client.Receive(resp);
+            });
+
+            string response = Encoding.UTF8.GetString(resp);
+
+            if (true) //промах
+            {
+                rec.Fill = new SolidColorBrush(Colors.Black);
+            }
+            if (true) //ранил
+            {
+                SetImage("ms - appx:///Assets/Ships/ранен.jpg", 1, col, row, Player2Grid);
+            }
+            if (true) //убил
+            {
+                Ship ship = new Ship(100); // сюда передается кораблик
+                KillShip(ship); 
+                SetImage("ms - appx:///Assets/Ships/ранен.jpg", (int)ship.ShipClass, ship.Location.Y, ship.Location.X, Player2Grid);
+            }
+        }
+
+        public void KillShip(Ship ship)
+        {
+            for (int i = ship.Location.X-1; i < ship.Location.X+ship.ShipWidth; i++)
+            {
+                for(int j=ship.Location.Y; j < ship.Location.Y + ship.ShipHeight; j++)
+                {
+                    Rectangle rectangle = new Rectangle();
+                    Grid.SetColumn(rectangle, i);
+                    Grid.SetRow(rectangle, j);
+
+                    rectangle.Fill = new SolidColorBrush(Colors.Black);
+                }
             }
         }
     }
