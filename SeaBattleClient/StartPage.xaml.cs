@@ -80,6 +80,12 @@ namespace SeaBattleClient
                     remoteEP = ConnectServer(ip);
                 });
 
+                if (remoteEP == null)
+                {
+                    (Parent as Frame).Navigate(typeof(ErrorPage));
+                    return;
+                }
+
                 Model.IPEndPoint = remoteEP;
                 ElementEnable(true);
 
@@ -101,6 +107,14 @@ namespace SeaBattleClient
                     remoteEP = ConnectServer(ip);
                 });
 
+                if (remoteEP == null)
+                {
+                    (Parent as Frame).Navigate(typeof(ErrorPage));
+                    return;
+                }
+
+
+
                 Model.IPEndPoint = remoteEP;
                 ElementEnable(true);
 
@@ -119,26 +133,32 @@ namespace SeaBattleClient
 
         private IPEndPoint ConnectServer(string ip)
         {
-            IPEndPoint remoteEP;
-            pingDone.Reset();
-            IPHostEntry ipHostInfo = Dns.GetHostEntry(ip);
-            IPAddress ipAddress = ipHostInfo.AddressList.Where(x => x.AddressFamily == AddressFamily.InterNetwork).Last();
-            remoteEP = new IPEndPoint(ipAddress, port);
+            try
+            {
+                IPEndPoint remoteEP;
+                pingDone.Reset();
+                IPHostEntry ipHostInfo = Dns.GetHostEntry(ip);
+                IPAddress ipAddress = ipHostInfo.AddressList.Where(x => x.AddressFamily == AddressFamily.InterNetwork).Last();
+                remoteEP = new IPEndPoint(ipAddress, port);
 
-            // Create a TCP/IP socket.  
-            Socket client = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                // Create a TCP/IP socket.  
+                Socket client = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-            StateObject state = new StateObject();
-            state.workSocket = client;
-            state.obj = this;
+                StateObject state = new StateObject();
+                state.workSocket = client;
+                state.obj = this;
 
-            // Connect to the remote endpoint.  
-            client.BeginConnect(remoteEP, new AsyncCallback(ConnectCallback), state);
-            pingDone.WaitOne();
-            return remoteEP;
+                // Connect to the remote endpoint.  
+                client.BeginConnect(remoteEP, new AsyncCallback(ConnectCallback), state);
+                pingDone.WaitOne();
+                return remoteEP;
+            } catch
+            {
+                return null;
+            }
         }
 
-        private static void ConnectCallback(IAsyncResult ar)
+        private static void ConnectCallback(IAsyncResult ar)  ///////////////////////////////////////////
         {
             try
             {
@@ -164,17 +184,26 @@ namespace SeaBattleClient
             catch (Exception e)
             {
                 Debug.WriteLine(e.ToString());
+                //(Parent as Frame).Navigate(typeof(ErrorPage));
             }
         }
 
-        private static void Send(StateObject state, String data)
+        private static void Send(StateObject state, String data) ////////////////////////////////////
         {
-            Socket client = state.workSocket;
-            // Convert the string data to byte data using ASCII encoding.  
-            byte[] byteData = Encoding.UTF8.GetBytes(data);
+            try
+            {
 
-            // Begin sending the data to the remote device.  
-            client.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), state);
+                Socket client = state.workSocket;
+                // Convert the string data to byte data using ASCII encoding.  
+                byte[] byteData = Encoding.UTF8.GetBytes(data);
+
+                // Begin sending the data to the remote device.  
+                client.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), state);
+            } catch
+            {
+                //(Parent as Frame).Navigate(typeof(ErrorPage));
+            }
+
         }
 
         private static void SendCallback(IAsyncResult ar)

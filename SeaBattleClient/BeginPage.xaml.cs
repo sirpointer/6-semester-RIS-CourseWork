@@ -166,9 +166,6 @@ namespace SeaBattleClient
                             double rowDouble = (imagePoint.Y +FieldGrid.Height/20) / (FieldGrid.Height / 10);
                             int row = (int)rowDouble;
 
-                            //ship.Location.X = column;
-                            //ship.Location.Y = row;
-
                             bool set = Model.SetShipLocation(ship, new Location(column, row, true));
                             if (set)
                             {
@@ -312,36 +309,6 @@ namespace SeaBattleClient
                 }
 
                 Canvas.SetZIndex(image, 2);
-
-
-
-                /*Rectangle w = new Rectangle
-                {
-                    Height = 30,
-                    Width = 30,
-                    Fill = new SolidColorBrush(Colors.Red)
-                };
-                canvas.Children.Add(w);
-                Canvas.SetZIndex(w, 2);
-                Canvas.SetLeft(w, X);
-                Canvas.SetTop(w, Y); */
-
-                //double b = Canvas.GetLeft(FieldGrid);
-
-                //добавление картинки на грид намертво
-                /*Image image = new Image();
-                BitmapImage bitmapImage = new BitmapImage();
-                var uri = new Uri("ms-appx:///Assets/Ships/ship.jpg", UriKind.Absolute);
-                bitmapImage.UriSource = uri;
-                image.Source = bitmapImage;
-                image.Width = 90;
-                image.Height = 30;
-                FieldGrid.Children.Add(image);
-
-
-                Grid.SetColumnSpan(image, 3);
-                Grid.SetRow(image, row);
-                Grid.SetColumn(image, column);*/
             } else
             {
                 Canvas.SetLeft(image, 0);
@@ -388,10 +355,7 @@ namespace SeaBattleClient
 
             Canvas.SetZIndex(image, 2);
         }
-
-        //поворот по правой кнопке мыши
-        //странно возвращает координаты
-        //происходит какая-то херня
+        
         private void Image1_RightTapped(object sender, RightTappedRoutedEventArgs e)
         {
             Image image = sender as Image;

@@ -272,8 +272,7 @@ namespace SeaBattleClient
 
         private async void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            progressRing.IsActive = true;
-            btnCancle.IsEnabled = false;
+            ElementEnabled(true);
 
             IPEndPoint remoteEP = Model.IPEndPoint;
             var a = e.AddedItems.ToList();
@@ -307,8 +306,13 @@ namespace SeaBattleClient
                 (Parent as Frame).Navigate(typeof(BeginPage), Model);
             }
 
-            progressRing.IsActive = false;
-            btnCancle.IsEnabled = true;
+            ElementEnabled(false);
+        }
+
+        private void ElementEnabled(bool enable)
+        {
+            progressRing.IsActive = enable;
+            btnCancle.IsEnabled = !enable;
         }
 
         private static void ConnectCallback1(IAsyncResult ar)
