@@ -70,6 +70,9 @@ namespace SeaBattleClassLibrary.Game
             _location = location ?? new Location();
         }
 
+        /// <summary>
+        /// Находится ли корабль на поле.
+        /// </summary>
         public bool IsSet
         {
             get
@@ -126,7 +129,7 @@ namespace SeaBattleClassLibrary.Game
         }
 
         /// <summary>
-        /// Получить крайнюю нижнюю точку корабля на полу.
+        /// Получить крайнюю нижнюю точку корабля на поле.
         /// </summary>
         public Location DownLocation
         {
@@ -134,6 +137,43 @@ namespace SeaBattleClassLibrary.Game
             {
                 return Orientation == Orientation.Vertical ? new Location(Location.X, Location.Y + ShipHeight - 1) : Location.Clone() as Location;
             }
+        }
+
+        public bool ContainLocation(Location location)
+        {
+            for (int x = Location.X; x <= RightLocation.X; x++)
+            {
+                for (int y = Location.Y; y <= DownLocation.Y; y++)
+                {
+                    if (location.Equals(new Location(x, y)))
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool Shot(Location location)
+        {
+            Location hitLocation = Location.Clone() as Location;
+
+            for (int x = 0; x < ShipWidth; x++)
+            {
+                for (int y = 0; y < ShipHeight; y++)
+                {
+                    hitLocation.X += x;
+                    hitLocation.Y += y;
+
+                    if (hitLocation.Equals(location))
+                    {
+                        int pos = x != 0 ? x : y;
+                        Hits[pos] = true;
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         public object Clone() => new Ship(Id, ShipClass, Orientation, Location.Clone() as Location);
@@ -246,7 +286,7 @@ namespace SeaBattleClassLibrary.Game
             }
         }
 
-        public bool Equals(Location other) => (other.X == X && other.Y == Y) ? true : false;
+        public bool Equals(Location other) => (IsSet && other.IsSet && other.X == X && other.Y == Y);
 
         public object Clone() => new Location(X, Y);
     }

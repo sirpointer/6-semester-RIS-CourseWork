@@ -64,6 +64,21 @@ namespace SeaBattleClassLibrary.Game
             Ships.Capacity = 10;
         }
 
+        public Ship Shot(Location location)
+        {
+            if (location.IsUnset)
+                throw new ArgumentException("По данной позиции нельзя стрелять", nameof(location));
+
+            if (!HitsField[location.X, location.Y])
+                throw new ArgumentException("По данной позиции нельзя стрелять", nameof(location));
+
+            foreach (Ship ship in Ships)
+                if (ship.Shot(location))
+                    return ship;
+
+            return null;
+        }
+
         #region Set Ship Location
 
         /// <summary>
