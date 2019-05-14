@@ -174,7 +174,7 @@
     <Content Include="Assets\Ships\8.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\Ships\ранен.jpg">
+    <Content Include="Assets\Ships\hurt.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Properties\Default.rd.xml" />

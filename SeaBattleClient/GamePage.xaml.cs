@@ -66,7 +66,7 @@ namespace SeaBattleClient
         {
             Image image = new Image(); 
             BitmapImage bitmapImage = new BitmapImage();
-            var uri = new Uri(source);
+            var uri = new Uri(source, UriKind.Absolute);
             bitmapImage.UriSource = uri;
             image.Source = bitmapImage;
             image.HorizontalAlignment = HorizontalAlignment.Stretch;
@@ -99,7 +99,7 @@ namespace SeaBattleClient
                     rectangle.VerticalAlignment = VerticalAlignment.Stretch;
                     Grid.SetRow(rectangle, i);
                     Grid.SetColumn(rectangle, j);
-                    if(mine)
+                    //if(mine)
                         rectangle.Tapped += Rectangle_Tapped;
                 }
             }
@@ -125,58 +125,64 @@ namespace SeaBattleClient
 
             byte[] resp = new byte[1024];
 
-            await Task.Run(() =>
-            {
-                pingDone.Reset();
+            //await Task.Run(() =>
+            //{
+            //    pingDone.Reset();
 
-                // Create a TCP/IP socket.  
-                Socket client = socket;//new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            //    // Create a TCP/IP socket.  
+            //    Socket client = socket;//new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-                StateObject state = new StateObject();
-                state.workSocket = client;
+            //    StateObject state = new StateObject();
+            //    state.workSocket = client;
 
-                JObject jObject = new JObject();
-                jObject.Add(JsonStructInfo.Type, Request.EnumTypeToString(Request.RequestTypes.Shot));
-                jObject.Add(JsonStructInfo.Result, Serializer<Location>.SetSerializedObject(location));
+            //    JObject jObject = new JObject();
+            //    jObject.Add(JsonStructInfo.Type, Request.EnumTypeToString(Request.RequestTypes.Shot));
+            //    jObject.Add(JsonStructInfo.Result, Serializer<Location>.SetSerializedObject(location));
 
-                string s = jObject.ToString() + JsonStructInfo.EndOfMessage;
+            //    string s = jObject.ToString() + JsonStructInfo.EndOfMessage;
 
-                client.Send(Encoding.UTF8.GetBytes(s));
+            //    client.Send(Encoding.UTF8.GetBytes(s));
 
-                client.Receive(resp);
-            });
+            //    client.Receive(resp);
+            //});
 
             string response = Encoding.UTF8.GetString(resp);
 
-            if (true) //промах
+            if (false) //промах
             {
                 rec.Fill = new SolidColorBrush(Colors.Black);
             }
-            if (true) //ранил
+            if (false) //ранил
             {
-                SetImage("ms - appx:///Assets/Ships/ранен.jpg", 1, col, row, Player2Grid);
+                
+                SetImage("ms-appx:///Assets/Ships/hurt.jpg", 1, col, row, Player2Grid);
             }
             if (true) //убил
             {
                 Location loc = new Location(1, 1);
-                Ship ship = new Ship(100, ShipClass.TwoDeck, Game.Orientation.Horizontal, loc); // сюда передается кораблик
-
+                Ship s = new Ship(100, ShipClass.TwoDeck, Game.Orientation.Horizontal, loc);
+                ClientShip ship = new ClientShip(s.Id, s.ShipClass, s.Orientation, s.Location); // сюда передается кораблик
+                
                 KillShip(ship); 
-                SetImage("ms - appx:///Assets/Ships/ранен.jpg", (int)ship.ShipClass, ship.Location.Y, ship.Location.X, Player2Grid);
+                SetImage(ship.Source, (int)ship.ShipClass, ship.Location.Y, ship.Location.X, Player2Grid);
             }
         }
 
         public void KillShip(Ship ship)
         {
-            for (int i = ship.Location.X-1; i < ship.Location.X+ship.ShipWidth; i++)
+            for (int i = ship.Location.X-1; i <= ship.Location.X+ship.ShipWidth; i++)
             {
-                for(int j=ship.Location.Y-1; j < ship.Location.Y + ship.ShipHeight; j++)
+                for(int j=ship.Location.Y-1; j <= ship.Location.Y + ship.ShipHeight; j++)
                 {
-                    Rectangle rectangle = new Rectangle();
-                    Grid.SetColumn(rectangle, i);
-                    Grid.SetRow(rectangle, j);
-
-                    rectangle.Fill = new SolidColorBrush(Colors.Black);
+                    if(i<10 && j < 10)
+                    {
+                        Rectangle rectangle = new Rectangle();
+                        Player2Grid.Children.Add(rectangle);
+                        Grid.SetColumn(rectangle, i);
+                        Grid.SetRow(rectangle, j);
+                        
+                        rectangle.Fill = new SolidColorBrush(Colors.Black);
+                    }
                 }
             }
         }

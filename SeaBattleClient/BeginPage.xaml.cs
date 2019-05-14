@@ -453,6 +453,7 @@ namespace SeaBattleClient
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
             progressRign.IsActive = true;
+            btnStartGame.IsEnabled = false;
             IPEndPoint remoteEP = Player.IPEndPoint;
 
             List<Ship> ships = new List<Ship>(10);
@@ -488,6 +489,7 @@ namespace SeaBattleClient
 
             WaitOtherPlayer(socket);
             progressRign.IsActive = false;
+            btnStartGame.IsEnabled = true;
         }
 
         private void WaitOtherPlayer(Socket socket)
