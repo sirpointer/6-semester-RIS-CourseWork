@@ -496,13 +496,16 @@ namespace SeaBattleClient
         {
             response = response.Remove(response.LastIndexOf(JsonStructInfo.EndOfMessage));
             Answer.AnswerTypes dataType = GetAnswerType(response);
+            Answer.AnswerTypes result = Answer.JsonTypeToEnum(GetJsonRequestResult(response));
             StateObject so = new StateObject();
             so.workSocket = socket;
 
             if (dataType == Answer.AnswerTypes.GameReady)
             {
-                (Parent as Frame).Navigate(typeof(GamePage), Model);
-            } else
+                Player.CanShot = result == Answer.AnswerTypes.Yes ? true : false;
+                (Parent as Frame).Navigate(typeof(GamePage), Player);
+            } 
+            else
             {
                 pingDone.Reset();
                 Receive(so);

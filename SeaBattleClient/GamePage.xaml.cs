@@ -20,6 +20,7 @@ using Newtonsoft.Json.Linq;
 using System.Threading;
 using SeaBattleClassLibrary.DataProvider;
 using System.Text;
+using Newtonsoft.Json;
 
 // Документацию по шаблону элемента "Пустая страница" см. по адресу https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -41,26 +42,92 @@ namespace SeaBattleClient
         Player player = null;
         private Color backColor;
 
+        public EnemyGameField EnemyGameField = new EnemyGameField();
+
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
             if (e.Parameter != null)
                 player = e.Parameter as Player;
 
+            EnemyGameField.EnemyShot += EnemyGameField_EnemyShot;
+
             //заполнить поле первого игрока
             CreateField(Player1Grid);
-            FillFieldWithRectangle(Player1Grid, true);
+            FillFieldWithRectangle(Player1Grid);
 
             foreach (ClientShip ship in Model.GameField.Ships)
             {
                 SetImage(ship.Source, (int)ship.ShipClass, ship.Location.X, ship.Location.Y, Player1Grid);
             }
 
-
             //заполнить поле второго игрока
             CreateField(Player2Grid);
-            FillFieldWithRectangle(Player2Grid);
+            FillFieldWithRectangle(Player2Grid, true);
+
+
+
+            if (Model.CanShot == false)
+            {
+                Socket socket = Model.PlayerSocket;
+
+                byte[] resp = new byte[1024];
+
+
+
+                Task.Run(() =>
+                {
+                    pingDone.Reset();
+
+                    // Create a TCP/IP socket.  
+                    Socket client = socket;//new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+                    StateObject state = new StateObject();
+                    state.workSocket = client;
+
+                    client.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None, new AsyncCallback(ReceiveCallback), state);
+                });
+            }
+
         }
+
+        private void EnemyGameField_EnemyShot(object sender, EnemyShotEventArgs e)
+        {
+            Rectangle rectangle = new Rectangle();
+            Player2Grid.Children.Add(rectangle);
+            Grid.SetColumn(rectangle, e.Hits[0].X);
+            Grid.SetRow(rectangle, e.Hits[0].Y);
+
+            if (e.ShotResult == Game.ShotResult.Miss) //промах
+            {
+                rectangle.Fill = new SolidColorBrush(Colors.Black);
+            }
+            if (e.ShotResult == Game.ShotResult.Damage) //ранил
+            {
+
+                SetImage("ms-appx:///Assets/Ships/hurt.jpg", 1, e.Hits[0].X, e.Hits[0].Y, Player2Grid);
+            }
+            if (e.ShotResult == Game.ShotResult.Kill) //убил
+            {
+                //Location loc = new Location(1, 1);
+                Ship s = (Ship)e.Ship.Clone();//new Ship(100, ShipClass.TwoDeck, Game.Orientation.Horizontal, loc);
+                ClientShip ship = new ClientShip(s.Id, s.ShipClass, s.Orientation, s.Location); // сюда передается кораблик
+
+                KillShip(ship);
+                SetImage(ship.Source, (int)ship.ShipClass, ship.Location.Y, ship.Location.X, Player2Grid);
+            }
+        }
+
+        public static async Task<Location> AwaitReceive(Socket socket)
+        {
+            byte[] resp = new byte[1024];
+            await new Task(() => socket.Receive(resp));
+
+            Location location = new Location();
+
+            return location;
+        }
+
 
         public void SetImage(string source, int lenth, int x, int y, Grid grid)
         {
@@ -82,6 +149,8 @@ namespace SeaBattleClient
         public GamePage()
         {
             this.InitializeComponent();
+
+
         }
 
         private void FillFieldWithRectangle(Grid grid, bool mine = false)
@@ -99,7 +168,7 @@ namespace SeaBattleClient
                     rectangle.VerticalAlignment = VerticalAlignment.Stretch;
                     Grid.SetRow(rectangle, i);
                     Grid.SetColumn(rectangle, j);
-                    //if(mine)
+                    if(mine)
                         rectangle.Tapped += Rectangle_Tapped;
                 }
             }
@@ -125,46 +194,119 @@ namespace SeaBattleClient
 
             byte[] resp = new byte[1024];
 
-            //await Task.Run(() =>
-            //{
-            //    pingDone.Reset();
+            await Task.Run(() =>
+            {
+                pingDone.Reset();
 
-            //    // Create a TCP/IP socket.  
-            //    Socket client = socket;//new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                // Create a TCP/IP socket.  
+                Socket client = socket;//new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-            //    StateObject state = new StateObject();
-            //    state.workSocket = client;
+                StateObject state = new StateObject();
+                state.workSocket = client;
 
-            //    JObject jObject = new JObject();
-            //    jObject.Add(JsonStructInfo.Type, Request.EnumTypeToString(Request.RequestTypes.Shot));
-            //    jObject.Add(JsonStructInfo.Result, Serializer<Location>.SetSerializedObject(location));
+                JObject jObject = new JObject();
+                jObject.Add(JsonStructInfo.Type, Request.EnumTypeToString(Request.RequestTypes.Shot));
+                jObject.Add(JsonStructInfo.Result, Serializer<Location>.SetSerializedObject(location));
 
-            //    string s = jObject.ToString() + JsonStructInfo.EndOfMessage;
+                string s = jObject.ToString() + JsonStructInfo.EndOfMessage;
 
-            //    client.Send(Encoding.UTF8.GetBytes(s));
+                client.Send(Encoding.UTF8.GetBytes(s));
 
-            //    client.Receive(resp);
-            //});
+                client.Receive(resp);
+            });
 
             string response = Encoding.UTF8.GetString(resp);
 
-            if (false) //промах
+            
+        }
+
+        public static string response = string.Empty;
+
+        private static void ReceiveCallback(IAsyncResult ar)
+        {
+            try
             {
-                rec.Fill = new SolidColorBrush(Colors.Black);
+                // Retrieve the state object and the client socket   
+                // from the asynchronous state object.  
+                // Retrieve the state object and the client socket   
+                // from the asynchronous state object.  
+                StateObject state = (StateObject)ar.AsyncState;
+                Socket client = state.workSocket;
+                EnemyGameField enemyGameField = (EnemyGameField)state.obj;
+
+                // Read data from the remote device.  
+                int bytesRead = client.EndReceive(ar);
+
+                state.sb.Append(Encoding.UTF8.GetString(state.buffer, 0, bytesRead));
+                // All the data has arrived; put it in response.  
+                if (state.sb.Length > 1)
+                {
+                    response = state.sb.ToString();
+                }
+
+                response = response.Remove(response.LastIndexOf(JsonStructInfo.EndOfMessage));
+
+                JObject jObject = null;
+
+                Answer.AnswerTypes type = Answer.AnswerTypes.ShotOfTheEnemy;
+                SeaBattleClassLibrary.DataProvider.ShotResult.ShotResultType result = SeaBattleClassLibrary.DataProvider.ShotResult.ShotResultType.Miss;
+                Ship ship = null;
+
+                try
+                {
+                    jObject = JObject.Parse(response);
+                }
+                catch (JsonReaderException e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                type = Answer.JsonTypeToEnum((string)jObject[JsonStructInfo.Type]);
+                result = SeaBattleClassLibrary.DataProvider.ShotResult.JsonTypeToEnum((string)jObject[JsonStructInfo.Result]);
+                ship = result == SeaBattleClassLibrary.DataProvider.ShotResult.ShotResultType.Kill ?
+                    Serializer<Ship>.GetSerializedObject((string)jObject[JsonStructInfo.AdditionalContent]) : null;
+                Location location = Serializer<Location>.GetSerializedObject((string)jObject[JsonStructInfo.Content]);
+
+                Game.ShotResult shotResult = Game.ShotResult.Miss;
+
+                if (result != SeaBattleClassLibrary.DataProvider.ShotResult.ShotResultType.Miss)
+                {
+                    shotResult = result == SeaBattleClassLibrary.DataProvider.ShotResult.ShotResultType.Damage ? 
+                        Game.ShotResult.Damage : Game.ShotResult.Kill;
+                }
+
+                enemyGameField.Shot(location, shotResult, ship);
             }
-            if (false) //ранил
+            catch (Exception e)
             {
-                
-                SetImage("ms-appx:///Assets/Ships/hurt.jpg", 1, col, row, Player2Grid);
+                Console.WriteLine(e.ToString());
             }
-            if (true) //убил
+        }
+
+        public static Answer.AnswerTypes GetAnswerType(string jsonRequest)
+        {
+            JObject jObject;
+
+            try
             {
-                Location loc = new Location(1, 1);
-                Ship s = new Ship(100, ShipClass.TwoDeck, Game.Orientation.Horizontal, loc);
-                ClientShip ship = new ClientShip(s.Id, s.ShipClass, s.Orientation, s.Location); // сюда передается кораблик
-                
-                KillShip(ship); 
-                SetImage(ship.Source, (int)ship.ShipClass, ship.Location.Y, ship.Location.X, Player2Grid);
+                jObject = JObject.Parse(jsonRequest);
+            } 
+            catch (JsonReaderException e)
+            {
+                Console.WriteLine();
+                Console.WriteLine(e);
+                Console.WriteLine(jsonRequest);
+                Console.WriteLine();
+                return Answer.AnswerTypes.Error;
+            }
+
+            if (jObject.ContainsKey(JsonStructInfo.Type))
+            {
+                string requestType = (string)jObject[JsonStructInfo.Type];
+                return Answer.JsonTypeToEnum(requestType);
+            } else
+            {
+                return Answer.AnswerTypes.Error;
             }
         }
 
@@ -174,7 +316,7 @@ namespace SeaBattleClient
             {
                 for(int j=ship.Location.Y-1; j <= ship.Location.Y + ship.ShipHeight; j++)
                 {
-                    if(i<10 && j < 10)
+                    if(i<10 && j < 10 && i>-1 && j>-1)
                     {
                         Rectangle rectangle = new Rectangle();
                         Player2Grid.Children.Add(rectangle);

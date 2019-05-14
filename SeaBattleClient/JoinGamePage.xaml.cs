@@ -108,7 +108,8 @@ namespace SeaBattleClient
             try
             {
                 jObject = JObject.Parse(jsonRequest);
-            } catch (JsonReaderException e)
+            } 
+            catch (JsonReaderException e)
             {
                 Console.WriteLine(e);
                 return null;
@@ -118,7 +119,8 @@ namespace SeaBattleClient
             {
                 string result = (string)jObject[JsonStructInfo.Result];
                 return result;
-            } else
+            }
+            else
             {
                 return null;
             }

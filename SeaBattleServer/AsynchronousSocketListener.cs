@@ -163,7 +163,7 @@ namespace SeaBattleServer
             BeginReceive(player.PlayerSocket);
 
             player = session.Player1.Name == game.PlayerName ? session.Player1 : session.Player2;
-            BeginSendSaveConnect(player.PlayerSocket, AnswerHandler.GetShotResultMessage(ship));
+            BeginSendSaveConnect(player.PlayerSocket, AnswerHandler.GetShotResultMessage(ship, shotLocation));
 
             session.WhoseTurn = player;
         }

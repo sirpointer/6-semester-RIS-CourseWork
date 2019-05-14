@@ -19,6 +19,8 @@ namespace SeaBattleClassLibrary.Game
 
         public IPEndPoint IPEndPoint { get; set; } = null;
 
+        public bool? CanShot { get; set; } = null;
+
         public Player()
         {
             PlayerSocket = GetSocket();

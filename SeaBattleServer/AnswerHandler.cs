@@ -68,22 +68,25 @@ namespace SeaBattleServer
             return jObject.ToString() + JsonStructInfo.EndOfMessage;
         }
 
-        public static string GetShotResultMessage(Ship ship)
+        public static string GetShotResultMessage(Ship ship, Location location)
         {
-            ShotResult.ShotResultType type = ShotResult.ShotResultType.Miss;
+            SeaBattleClassLibrary.DataProvider.ShotResult.ShotResultType type = SeaBattleClassLibrary.DataProvider.ShotResult.ShotResultType.Miss;
 
             if (ship != null)
             {
                 if (ship.IsDead)
-                    type = ShotResult.ShotResultType.Kill;
+                    type = SeaBattleClassLibrary.DataProvider.ShotResult.ShotResultType.Kill;
                 else
-                    type = ShotResult.ShotResultType.Damage;
+                    type = SeaBattleClassLibrary.DataProvider.ShotResult.ShotResultType.Damage;
             }
+
+            ship = type == SeaBattleClassLibrary.DataProvider.ShotResult.ShotResultType.Kill ? ship : null;
 
             JObject jObject = new JObject();
             jObject.Add(JsonStructInfo.Type, Answer.EnumTypeToString(Answer.AnswerTypes.ShotResult));
-            jObject.Add(JsonStructInfo.Result, ShotResult.EnumTypeToString(type));
+            jObject.Add(JsonStructInfo.Result, SeaBattleClassLibrary.DataProvider.ShotResult.EnumTypeToString(type));
             jObject.Add(JsonStructInfo.AdditionalContent, Serializer<Ship>.SetSerializedObject(ship));
+            jObject.Add(JsonStructInfo.Content, Serializer<Location>.SetSerializedObject(location));
 
             return jObject.ToString() + JsonStructInfo.EndOfMessage;
         }

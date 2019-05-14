@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace SeaBattleClassLibrary.Game
 {
-    public class GameField : NotifyPropertyChanged
+    public abstract class Field : NotifyPropertyChanged
     {
         /// <summary>
-        /// Попадания на поле (места куда уже нельзя бить). 
+        /// Попадания на поле (места куда уже нельзя бить).
         /// </summary>
         public bool[,] HitsField = new bool[10, 10]; // Надо что-то по интереснее придумать, это как то тупо.
 
@@ -20,29 +20,7 @@ namespace SeaBattleClassLibrary.Game
         /// </summary>
         public readonly List<Ship> Ships;
 
-
-        public GameField()
-        {
-            List<Ship> ships = new List<Ship>(10);
-
-            for (int i = 1; i <= 4; i++)
-            {
-                ships.Add(new Ship(i, ShipClass.OneDeck));
-            }
-            for (int i = 5; i <= 7; i++)
-            {
-                ships.Add(new Ship(i, ShipClass.TwoDeck));
-            }
-            for (int i = 8; i <= 9; i++)
-            {
-                ships.Add(new Ship(i, ShipClass.ThreeDeck));
-            }
-            ships.Add(new Ship(10, ShipClass.FourDeck));
-
-            Ships = ships;
-        }
-
-        public GameField(List<Ship> ships)
+        public Field(List<Ship> ships)
         {
             if (ships == null || ships.Count != 10)
                 throw new ArgumentException();
@@ -64,6 +42,37 @@ namespace SeaBattleClassLibrary.Game
             Ships.Capacity = 10;
         }
 
+        public Field()
+        {
+            Ships = new List<Ship>(10);
+        }
+    }
+
+
+    public class GameField : Field
+    {
+        public GameField() : base()
+        {
+            for (int i = 1; i <= 4; i++)
+            {
+                Ships.Add(new Ship(i, ShipClass.OneDeck));
+            }
+            for (int i = 5; i <= 7; i++)
+            {
+                Ships.Add(new Ship(i, ShipClass.TwoDeck));
+            }
+            for (int i = 8; i <= 9; i++)
+            {
+                Ships.Add(new Ship(i, ShipClass.ThreeDeck));
+            }
+            Ships.Add(new Ship(10, ShipClass.FourDeck));
+        }
+
+        public GameField(List<Ship> ships) : base(ships)
+        {
+
+        }
+
         public Ship Shot(Location location)
         {
             if (location.IsUnset)
@@ -74,7 +83,11 @@ namespace SeaBattleClassLibrary.Game
 
             foreach (Ship ship in Ships)
                 if (ship.Shot(location))
+                {
+                    HitsField[location.X, location.Y] = true;
+
                     return ship;
+                }
 
             return null;
         }
@@ -195,4 +208,76 @@ namespace SeaBattleClassLibrary.Game
 
         #endregion
     }
+
+    public class EnemyGameField : Field
+    {
+        public event EventHandler<EnemyShotEventArgs> EnemyShot;
+
+        private void OnEnemyShot(object sender, EnemyShotEventArgs e)
+        {
+            EnemyShot?.Invoke(sender, e);
+        }
+
+        public EnemyGameField() : base() { }
+
+        public void Shot(Location location, ShotResult shotResult, Ship ship)
+        {
+            List<Location> hits = new List<Location>();
+
+            switch (shotResult)
+            {
+            case ShotResult.Miss:
+                hits.Add((Location)location.Clone());
+                break;
+            case ShotResult.Damage:
+                hits.Add((Location)location.Clone());
+                break;
+            case ShotResult.Kill:
+                for (int x = ship.Location.X - 1; x <= ship.Location.X + ship.ShipWidth; x++)
+                {
+                    for (int y = ship.Location.Y - 1; y <= ship.Location.Y + ship.ShipHeight; y++)
+                    {
+                        if (x < 10 && y < 10 && x>-1 && y>-1)
+                        {
+                            hits.Add(new Location(x, y));
+                        }
+                    }
+                }
+                Ships.Add((Ship)ship.Clone());
+                break;
+            }
+
+            foreach(var hit in hits)
+            {
+                HitsField[hit.X, hit.Y] = true;
+            }
+
+            OnEnemyShot(this, new EnemyShotEventArgs(hits, shotResult, ship));
+        }
+    }
+
+
+    public class EnemyShotEventArgs : EventArgs
+    {
+        public EnemyShotEventArgs(List<Location> hits, ShotResult shotResult, Ship ship)
+        {
+            Ship = ship;
+            Hits = hits;
+            ShotResult = shotResult;
+        }
+
+        public List<Location> Hits { get; }
+        
+        public ShotResult ShotResult { get; }
+
+        public Ship Ship { get; }
+    }
+
+    public enum ShotResult
+    {
+        Kill,
+        Miss,
+        Damage
+    }
+
 }
