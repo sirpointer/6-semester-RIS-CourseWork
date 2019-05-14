@@ -21,6 +21,8 @@ namespace SeaBattleServer
             SessionName = sessionName;
         }
 
+        public Player WhoseTurn { get; set; } = null;
+
         public bool GameStarted => Player1 != null && Player2 != null ? true : false;
     }
 }

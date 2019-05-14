@@ -5,12 +5,12 @@ namespace SeaBattleClassLibrary.DataProvider
     /// <summary>
     /// Типы попаданий.
     /// </summary>
-    public class ShootResult
+    public class ShotResult
     {
         /// <summary>
         /// Типы попаданий.
         /// </summary>
-        public enum ShootResultType
+        public enum ShotResultType
         {
             Miss = 0,
             Damage = 1,
@@ -27,7 +27,7 @@ namespace SeaBattleClassLibrary.DataProvider
             public const string Kill = "kill";
         }
         
-        public static ShootResultType JsonTypeToEnum(string type)
+        public static ShotResultType JsonTypeToEnum(string type)
         {
             if (string.IsNullOrWhiteSpace(type))
                 throw new ArgumentException("message", nameof(type));
@@ -35,25 +35,25 @@ namespace SeaBattleClassLibrary.DataProvider
             switch (type)
             {
                 case ShootResultJsonTypes.Miss:
-                    return ShootResultType.Miss;
+                    return ShotResultType.Miss;
                 case ShootResultJsonTypes.Damage:
-                    return ShootResultType.Damage;
+                    return ShotResultType.Damage;
                 case ShootResultJsonTypes.Kill:
-                    return ShootResultType.Kill;
+                    return ShotResultType.Kill;
             }
 
             throw new ArgumentException($"Неопределенный тип {nameof(type)} = {type}", nameof(type));
         }
         
-        public static string EnumTypeToString(ShootResultType type)
+        public static string EnumTypeToString(ShotResultType type)
         {
             switch (type)
             {
-                case ShootResultType.Miss:
+                case ShotResultType.Miss:
                     return ShootResultJsonTypes.Miss;
-                case ShootResultType.Damage:
+                case ShotResultType.Damage:
                     return ShootResultJsonTypes.Damage;
-                case ShootResultType.Kill:
+                case ShotResultType.Kill:
                     return ShootResultJsonTypes.Kill;
             }
 

@@ -16,8 +16,10 @@ namespace SeaBattleClassLibrary.DataProvider
             Error = 1,
             ShotOfTheEnemy = 2,
             GameReady = 4,
-            ShootResult = 8,
-            Games = 16
+            ShotResult = 8,
+            Games = 16,
+            Yes = 32, 
+            No = 64
         }
 
         /// <summary>
@@ -29,8 +31,10 @@ namespace SeaBattleClassLibrary.DataProvider
             public const string Error = "error";
             public const string ShotOfTheEnemy = "shotOfTheEnemy";
             public const string GameReady = "gameReady";
-            public const string ShootResult = "shootResult";
+            public const string ShotResult = "shotResult";
             public const string Games = "games";
+            public const string Yes = "yes";
+            public const string No = "no";
         }
 
         /// <summary>
@@ -51,10 +55,14 @@ namespace SeaBattleClassLibrary.DataProvider
                     return AnswerTypes.Ok;
                 case AnswerJsonTypes.ShotOfTheEnemy:
                     return AnswerTypes.ShotOfTheEnemy;
-                case AnswerJsonTypes.ShootResult:
-                    return AnswerTypes.ShootResult;
+                case AnswerJsonTypes.ShotResult:
+                    return AnswerTypes.ShotResult;
                 case AnswerJsonTypes.Games:
                     return AnswerTypes.Games;
+                case AnswerJsonTypes.Yes:
+                    return AnswerTypes.Yes;
+                case AnswerJsonTypes.No:
+                    return AnswerTypes.No;
             }
 
             throw new ArgumentException($"Неопределенный тип {nameof(type)} = {type}", nameof(type));
@@ -75,10 +83,14 @@ namespace SeaBattleClassLibrary.DataProvider
                     return AnswerJsonTypes.ShotOfTheEnemy;
                 case AnswerTypes.GameReady:
                     return AnswerJsonTypes.GameReady;
-                case AnswerTypes.ShootResult:
-                    return AnswerJsonTypes.ShootResult;
+                case AnswerTypes.ShotResult:
+                    return AnswerJsonTypes.ShotResult;
                 case AnswerTypes.Games:
                     return AnswerJsonTypes.Games;
+                case AnswerTypes.Yes:
+                    return AnswerJsonTypes.Yes;
+                case AnswerTypes.No:
+                    return AnswerJsonTypes.No;
             }
 
             throw new ArgumentException($"Тип не определён, тип - {type.ToString()}.", nameof(type));

@@ -77,6 +77,31 @@ namespace SeaBattleServer
             }
         }
 
+        public static string GetAdditionalContent(string jsonRequest)
+        {
+            JObject jObject;
+
+            try
+            {
+                jObject = JObject.Parse(jsonRequest);
+            }
+            catch (JsonReaderException e)
+            {
+                Console.WriteLine(e);
+                return null;
+            }
+
+            if (jObject.ContainsKey(JsonStructInfo.AdditionalContent))
+            {
+                string result = (string)jObject[JsonStructInfo.AdditionalContent];
+                return result;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         /// <summary>
         /// Десереализованный результат запроса AddGame.
         /// </summary>
@@ -106,6 +131,27 @@ namespace SeaBattleServer
         public static BeginGame GetJoinTheGameResult(string jsonResult)
         {
             return GetAddGameResult(jsonResult);
+        }
+
+        public static BeginGame GetGame(string json)
+        {
+            return GetAddGameResult(json);
+        }
+
+        public static Location GetLocation(string json)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+                return null;
+
+            try
+            {
+                return Serializer<Location>.GetSerializedObject(json);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
+            }
         }
 
         public static GameField GetGameFieldResult(string jsonResult)
