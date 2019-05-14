@@ -158,7 +158,9 @@ namespace SeaBattleClient
             }
             if (true) //убил
             {
-                Ship ship = new Ship(100); // сюда передается кораблик
+                Location loc = new Location(1, 1);
+                Ship ship = new Ship(100, ShipClass.TwoDeck, Game.Orientation.Horizontal, loc); // сюда передается кораблик
+
                 KillShip(ship); 
                 SetImage("ms - appx:///Assets/Ships/ранен.jpg", (int)ship.ShipClass, ship.Location.Y, ship.Location.X, Player2Grid);
             }
@@ -168,7 +170,7 @@ namespace SeaBattleClient
         {
             for (int i = ship.Location.X-1; i < ship.Location.X+ship.ShipWidth; i++)
             {
-                for(int j=ship.Location.Y; j < ship.Location.Y + ship.ShipHeight; j++)
+                for(int j=ship.Location.Y-1; j < ship.Location.Y + ship.ShipHeight; j++)
                 {
                     Rectangle rectangle = new Rectangle();
                     Grid.SetColumn(rectangle, i);
