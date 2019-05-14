@@ -9,7 +9,7 @@
     Background="{ThemeResource SystemControlAcrylicWindowBrush}">
 
     <Grid>
-        <ProgressRing Name="progressRign"></ProgressRing>
+        <ProgressRing Name="progressRign" Height="300" Width="300"></ProgressRing>
 
         <Canvas Name="canvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
             <Image Name="Image1" Canvas.ZIndex="3" Source="/Assets/Ships/1.jpg" Height="30" PointerMoved="MyImage_PointerMoved" PointerPressed="MyImage_PointerPressed" PointerReleased="MyImage_PointerReleased" PointerExited="MyImage_PointerExited" RightTapped="Image1_RightTapped"/>
