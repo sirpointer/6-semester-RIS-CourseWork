@@ -84,6 +84,7 @@ namespace SeaBattleClient
 
                     StateObject state = new StateObject();
                     state.workSocket = client;
+                    state.obj = EnemyGameField;
 
                     client.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None, new AsyncCallback(ReceiveCallback), state);
                 });
