@@ -211,14 +211,16 @@ namespace SeaBattleClient
 
                 string s = jObject.ToString() + JsonStructInfo.EndOfMessage;
 
-                Send(state, s);
-                //client.Send(Encoding.UTF8.GetBytes(s));
+                //Send(state, s);
+                client.Send(Encoding.UTF8.GetBytes(s));
+                pingDone.Set();
 
-                //Receive(state);
+                Receive(state);
+                pingDone.WaitOne();
                 //client.Receive(resp);
             });
 
-            string response = Encoding.UTF8.GetString(resp);
+            //string response = Encoding.UTF8.GetString(resp);
 
             
         }
@@ -279,6 +281,7 @@ namespace SeaBattleClient
                 }
 
                 enemyGameField.Shot(location, shotResult, ship);
+                pingDone.Reset();
             }
             catch (Exception e)
             {
