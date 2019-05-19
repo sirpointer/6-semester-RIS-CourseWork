@@ -73,7 +73,7 @@ namespace SeaBattleClient
 
                 byte[] resp = new byte[1024];
 
-
+                //добавить надпись ждите хода
 
                 Task.Run(() =>
                 {
@@ -212,7 +212,8 @@ namespace SeaBattleClient
 
                 client.Send(Encoding.UTF8.GetBytes(s));
 
-                client.Receive(resp);
+                Receive(state);
+                //client.Receive(resp);
             });
 
             string response = Encoding.UTF8.GetString(resp);
@@ -326,6 +327,47 @@ namespace SeaBattleClient
                         rectangle.Fill = new SolidColorBrush(Colors.Black);
                     }
                 }
+            }
+        }
+
+        private static void Receive(StateObject state)
+        {
+            try
+            {
+                Socket client = state.workSocket;
+                // Begin receiving the data from the remote device.  
+                client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
+            } catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+        }
+
+        private static void ReceiveCallback1(IAsyncResult ar)
+        {
+            try
+            {
+                // Retrieve the state object and the client socket   
+                // from the asynchronous state object.  
+                // Retrieve the state object and the client socket   
+                // from the asynchronous state object.  
+                StateObject state = (StateObject)ar.AsyncState;
+                Socket client = state.workSocket;
+
+                // Read data from the remote device.  
+                int bytesRead = client.EndReceive(ar);
+
+                state.sb.Append(Encoding.UTF8.GetString(state.buffer, 0, bytesRead));
+                // All the data has arrived; put it in response.  
+                if (state.sb.Length > 1)
+                {
+                    response = state.sb.ToString();
+                }
+
+                pingDone.Set();
+            } catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
             }
         }
     }
