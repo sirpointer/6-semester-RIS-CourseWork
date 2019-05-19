@@ -78,7 +78,7 @@ namespace SeaBattleClassLibrary.Game
             if (location.IsUnset)
                 throw new ArgumentException("По данной позиции нельзя стрелять", nameof(location));
 
-            if (!HitsField[location.X, location.Y])
+            if (HitsField[location.X, location.Y])
                 throw new ArgumentException("По данной позиции нельзя стрелять", nameof(location));
 
             foreach (Ship ship in Ships)

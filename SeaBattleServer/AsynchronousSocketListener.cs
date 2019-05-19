@@ -154,15 +154,15 @@ namespace SeaBattleServer
             GameSession session = null;
             lock (sessions)
             {
-                session = sessions.Find(x => x.SessionName == game.GameName);
+                session = sessions.Find(x => x.Player1?.PlayerSocket == handler || x.Player2?.PlayerSocket == handler);
             }
 
-            Player player = session.Player1.Name != game.PlayerName ? session.Player1 : session.Player2;
+            Player player = session.Player1.PlayerSocket != handler ? session.Player1 : session.Player2;
             Ship ship = player.GameField.Shot(shotLocation);
             BeginSendSaveConnect(player.PlayerSocket, AnswerHandler.GetShotResultMessage(shotLocation));
             BeginReceive(player.PlayerSocket);
 
-            player = session.Player1.Name == game.PlayerName ? session.Player1 : session.Player2;
+            player = session.Player1.PlayerSocket == handler ? session.Player1 : session.Player2;
             BeginSendSaveConnect(player.PlayerSocket, AnswerHandler.GetShotResultMessage(ship, shotLocation));
 
             session.WhoseTurn = player;
