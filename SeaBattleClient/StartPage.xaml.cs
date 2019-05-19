@@ -152,8 +152,10 @@ namespace SeaBattleClient
                 client.BeginConnect(remoteEP, new AsyncCallback(ConnectCallback), state);
                 pingDone.WaitOne();
                 return remoteEP;
-            } catch
+            }
+            catch (Exception e)
             {
+                Debug.WriteLine(e);
                 return null;
             }
         }
