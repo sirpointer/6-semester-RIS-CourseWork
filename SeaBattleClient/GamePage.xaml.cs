@@ -73,7 +73,7 @@ namespace SeaBattleClient
 
                 byte[] resp = new byte[1024];
 
-
+                //добавить надпись ждите хода
 
                 Task.Run(() =>
                 {
@@ -84,6 +84,7 @@ namespace SeaBattleClient
 
                     StateObject state = new StateObject();
                     state.workSocket = client;
+                    state.obj = EnemyGameField;
 
                     client.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None, new AsyncCallback(ReceiveCallback), state);
                 });
@@ -210,12 +211,16 @@ namespace SeaBattleClient
 
                 string s = jObject.ToString() + JsonStructInfo.EndOfMessage;
 
+                //Send(state, s);
                 client.Send(Encoding.UTF8.GetBytes(s));
+                pingDone.Set();
 
-                client.Receive(resp);
+                Receive(state);
+                pingDone.WaitOne();
+                //client.Receive(resp);
             });
 
-            string response = Encoding.UTF8.GetString(resp);
+            //string response = Encoding.UTF8.GetString(resp);
 
             
         }
@@ -276,6 +281,7 @@ namespace SeaBattleClient
                 }
 
                 enemyGameField.Shot(location, shotResult, ship);
+                pingDone.Reset();
             }
             catch (Exception e)
             {
@@ -326,6 +332,54 @@ namespace SeaBattleClient
                         rectangle.Fill = new SolidColorBrush(Colors.Black);
                     }
                 }
+            }
+        }
+
+        private static void Send(StateObject state, String data)
+        {
+            Socket client = state.workSocket;
+            // Convert the string data to byte data using ASCII encoding.  
+            byte[] byteData = Encoding.UTF8.GetBytes(data);
+
+            // Begin sending the data to the remote device.  
+            client.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), state);
+        }
+
+
+        private static StateObject stateObject = new StateObject();
+
+        private static void SendCallback(IAsyncResult ar)
+        {
+            try
+            {
+                // Retrieve the socket from the state object.  
+                StateObject state = (StateObject)ar.AsyncState;
+                Socket client = state.workSocket;
+
+                // Complete sending the data to the remote device.  
+                int bytesSent = client.EndSend(ar);
+                Console.WriteLine("Sent {0} bytes to server.", bytesSent);
+
+                // Signal that all bytes have been sent.  
+                stateObject = state;
+                Receive(state);
+
+            } catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+        }
+
+        private static void Receive(StateObject state)
+        {
+            try
+            {
+                Socket client = state.workSocket;
+                // Begin receiving the data from the remote device.  
+                client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
+            } catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
             }
         }
     }

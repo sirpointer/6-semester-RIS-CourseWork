@@ -454,6 +454,7 @@ namespace SeaBattleClient
         {
             progressRign.IsActive = true;
             btnStartGame.IsEnabled = false;
+            FieldGrid.IsTapEnabled = false;
             IPEndPoint remoteEP = Player.IPEndPoint;
 
             List<Ship> ships = new List<Ship>(10);
@@ -490,6 +491,7 @@ namespace SeaBattleClient
             WaitOtherPlayer(socket);
             progressRign.IsActive = false;
             btnStartGame.IsEnabled = true;
+            FieldGrid.IsTapEnabled = true;
         }
 
         private void WaitOtherPlayer(Socket socket)
