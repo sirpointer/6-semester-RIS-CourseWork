@@ -42,7 +42,7 @@ namespace SeaBattleClient
         Player player = null;
         private Color backColor;
 
-        public EnemyGameField EnemyGameField = new EnemyGameField();
+        public static EnemyGameField EnemyGameField = new EnemyGameField();
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
@@ -92,31 +92,36 @@ namespace SeaBattleClient
 
         }
 
-        private void EnemyGameField_EnemyShot(object sender, EnemyShotEventArgs e)
+        private async void EnemyGameField_EnemyShot(object sender, EnemyShotEventArgs e)
         {
-            Rectangle rectangle = new Rectangle();
-            Player2Grid.Children.Add(rectangle);
-            Grid.SetColumn(rectangle, e.Hits[0].X);
-            Grid.SetRow(rectangle, e.Hits[0].Y);
-
-            if (e.ShotResult == Game.ShotResult.Miss) //промах
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
-                rectangle.Fill = new SolidColorBrush(Colors.Black);
-            }
-            if (e.ShotResult == Game.ShotResult.Damage) //ранил
-            {
+                Rectangle rectangle = new Rectangle();
+                Player2Grid.Children.Add(rectangle);
+                Grid.SetColumn(rectangle, e.Hits[0].X);
+                Grid.SetRow(rectangle, e.Hits[0].Y);
 
-                SetImage("ms-appx:///Assets/Ships/hurt.jpg", 1, e.Hits[0].X, e.Hits[0].Y, Player2Grid);
-            }
-            if (e.ShotResult == Game.ShotResult.Kill) //убил
-            {
-                //Location loc = new Location(1, 1);
-                Ship s = (Ship)e.Ship.Clone();//new Ship(100, ShipClass.TwoDeck, Game.Orientation.Horizontal, loc);
-                ClientShip ship = new ClientShip(s.Id, s.ShipClass, s.Orientation, s.Location); // сюда передается кораблик
+                if (e.ShotResult == Game.ShotResult.Miss) //промах
+                {
+                    rectangle.Fill = new SolidColorBrush(Colors.Black);
+                }
+                if (e.ShotResult == Game.ShotResult.Damage) //ранил
+                {
 
-                KillShip(ship);
-                SetImage(ship.Source, (int)ship.ShipClass, ship.Location.Y, ship.Location.X, Player2Grid);
-            }
+                    SetImage("ms-appx:///Assets/Ships/hurt.jpg", 1, e.Hits[0].X, e.Hits[0].Y, Player2Grid);
+                }
+                if (e.ShotResult == Game.ShotResult.Kill) //убил
+                {
+                    //Location loc = new Location(1, 1);
+                    Ship s = (Ship)e.Ship.Clone();//new Ship(100, ShipClass.TwoDeck, Game.Orientation.Horizontal, loc);
+                    ClientShip ship = new ClientShip(s.Id, s.ShipClass, s.Orientation, s.Location); // сюда передается кораблик
+
+                    KillShip(ship);
+                    SetImage(ship.Source, (int)ship.ShipClass, ship.Location.Y, ship.Location.X, Player2Grid);
+                }
+            });
+
+            
         }
 
         public static async Task<Location> AwaitReceive(Socket socket)
@@ -204,6 +209,7 @@ namespace SeaBattleClient
 
                 StateObject state = new StateObject();
                 state.workSocket = client;
+                //state.obj = EnemyGameField;
 
                 JObject jObject = new JObject();
                 jObject.Add(JsonStructInfo.Type, Request.EnumTypeToString(Request.RequestTypes.Shot));
@@ -211,11 +217,11 @@ namespace SeaBattleClient
 
                 string s = jObject.ToString() + JsonStructInfo.EndOfMessage;
 
-                //Send(state, s);
-                client.Send(Encoding.UTF8.GetBytes(s));
-                pingDone.Set();
+                Send(state, s);
+                //client.Send(Encoding.UTF8.GetBytes(s));
+                //pingDone.Set();
 
-                Receive(state);
+                //Receive(state);
                 pingDone.WaitOne();
                 //client.Receive(resp);
             });
@@ -280,7 +286,7 @@ namespace SeaBattleClient
                         Game.ShotResult.Damage : Game.ShotResult.Kill;
                 }
 
-                enemyGameField.Shot(location, shotResult, ship);
+                EnemyGameField.Shot(location, shotResult, ship);
                 pingDone.Reset();
             }
             catch (Exception e)
