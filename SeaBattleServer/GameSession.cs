@@ -23,6 +23,8 @@ namespace SeaBattleServer
 
         public Player WhoseTurn { get; set; } = null;
 
+        public bool CanGo { get; set; } = true;
+
         public bool GameStarted => Player1 != null && Player2 != null ? true : false;
     }
 }

@@ -62,6 +62,7 @@ namespace SeaBattleServer
             }
             catch (JsonReaderException e)
             {
+                Console.WriteLine(jsonRequest);
                 Console.WriteLine(e);
                 return null;
             }
@@ -87,6 +88,7 @@ namespace SeaBattleServer
             }
             catch (JsonReaderException e)
             {
+                Console.WriteLine(jsonRequest);
                 Console.WriteLine(e);
                 return null;
             }
