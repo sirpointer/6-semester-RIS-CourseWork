@@ -149,6 +149,7 @@ namespace SeaBattleServer
             }
         }
 
+
         private static void Shot(Socket handler, BeginGame game, Location shotLocation)
         {
             GameSession session = null;
@@ -157,18 +158,35 @@ namespace SeaBattleServer
                 session = sessions.Find(x => x.Player1?.IPEndPoint == handler.RemoteEndPoint || x.Player2?.IPEndPoint == handler.RemoteEndPoint);
             }
 
-            Player player = session.Player1.IPEndPoint != handler.RemoteEndPoint ? session.Player1 : session.Player2;
-            Ship ship = player.GameField.Shot(shotLocation);
-            BeginSendSaveConnect(player.PlayerSocket, AnswerHandler.GetShotResultMessage(shotLocation));
-            Socket p1Socket = player.PlayerSocket;
+            if (!session.CanGo)
+            {
+                //BeginReceive(handler);
+                return;
+            }
 
-            player = session.Player1.IPEndPoint == handler.RemoteEndPoint ? session.Player1 : session.Player2;
-            BeginSendSaveConnect(player.PlayerSocket, AnswerHandler.GetShotResultMessage(ship, shotLocation));
+            session.CanGo = false;
 
-            BeginReceive(p1Socket);
+            Player player1 = session.Player1.IPEndPoint == handler.RemoteEndPoint ? session.Player1 : session.Player2;
+            Player player2 = session.Player1.IPEndPoint != handler.RemoteEndPoint ? session.Player1 : session.Player2;
 
-            session.WhoseTurn = player;
+            Ship ship = player2.GameField.Shot(shotLocation);
+
+            string message = AnswerHandler.GetShotResultMessage(ship, shotLocation);
+            byte[] data = Encoding.UTF8.GetBytes(message);
+            int bytesSent = player1.PlayerSocket.Send(data, 0, data.Length, SocketFlags.None);
+            Console.WriteLine($"Sent {bytesSent} bytes to {player1.PlayerSocket.RemoteEndPoint.ToString()}.\n");
+
+            message = AnswerHandler.GetShotResultMessage(shotLocation);
+            data = Encoding.UTF8.GetBytes(message);
+            bytesSent = player2.PlayerSocket.Send(data, 0, data.Length, SocketFlags.None);
+            Console.WriteLine($"Sent {bytesSent} bytes to {player2.PlayerSocket.RemoteEndPoint.ToString()}.\n");
+
+            session.WhoseTurn = player2;
+            session.CanGo = true;
+
+            BeginReceive(player2.PlayerSocket);
         }
+
 
         private static void SetField(Socket handler, GameField gameField)
         {
