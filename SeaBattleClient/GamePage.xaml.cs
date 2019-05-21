@@ -43,6 +43,7 @@ namespace SeaBattleClient
         private Color backColor;
 
         public static EnemyGameField EnemyGameField = new EnemyGameField();
+        public static GameField MyGameField;
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
@@ -51,6 +52,9 @@ namespace SeaBattleClient
                 player = e.Parameter as Player;
 
             EnemyGameField.EnemyShot += EnemyGameField_EnemyShot;
+
+            MyGameField = player.GameField;
+            MyGameField.ShotMyField += MyGameField_ShotMyField;
 
             //заполнить поле первого игрока
             CreateField(Player1Grid);
@@ -65,10 +69,10 @@ namespace SeaBattleClient
             CreateField(Player2Grid);
             FillFieldWithRectangle(Player2Grid, true);
 
-
-
             if (Model.CanShot == false)
             {
+                tbWait.Visibility = Visibility.Visible;
+
                 Socket socket = Model.PlayerSocket;
 
                 byte[] resp = new byte[1024];
@@ -80,7 +84,7 @@ namespace SeaBattleClient
                     pingDone.Reset();
 
                     // Create a TCP/IP socket.  
-                    Socket client = socket;//new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                    Socket client = socket;
 
                     StateObject state = new StateObject();
                     state.workSocket = client;
@@ -88,11 +92,59 @@ namespace SeaBattleClient
 
                     client.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None, new AsyncCallback(ReceiveCallback), state);
                 });
-            }
+            } else
+            {
+                tbWait.Visibility = Visibility.Collapsed;
+                tbGo.Visibility = Visibility.Visible;
 
+                StateObject state = new StateObject();
+                state.workSocket = Model.PlayerSocket;
+
+                Model.PlayerSocket.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None, new AsyncCallback(ReceiveCallbackEnemyShot), state);
+            }
         }
 
-        private async void EnemyGameField_EnemyShot(object sender, EnemyShotEventArgs e)
+        private async void MyGameField_ShotMyField(object sender, ShotEventArgs e)
+        {
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                Rectangle rectangle = new Rectangle();
+                Player1Grid.Children.Add(rectangle);
+                Grid.SetColumn(rectangle, e.Hits[0].X);
+                Grid.SetRow(rectangle, e.Hits[0].Y);
+
+                if (e.ShotResult == Game.ShotResult.Miss) //промах
+                {
+                    rectangle.Fill = new SolidColorBrush(Colors.Black);
+                }
+                if (e.ShotResult == Game.ShotResult.Damage) //ранил
+                {
+
+                    SetImage("ms-appx:///Assets/Ships/hurt.jpg", 1, e.Hits[0].X, e.Hits[0].Y, Player1Grid);
+                }
+                if (e.ShotResult == Game.ShotResult.Kill) //убил
+                {
+                    //Location loc = new Location(1, 1);
+                    Ship s = (Ship)e.Ship.Clone();//new Ship(100, ShipClass.TwoDeck, Game.Orientation.Horizontal, loc);
+                    ClientShip ship = new ClientShip(s.Id, s.ShipClass, s.Orientation, s.Location); // сюда передается кораблик
+                    
+                    KillShip(ship);
+                    SetImage("ms-appx:///Assets/Ships/hurt.jpg", (int)ship.ShipClass, ship.Location.Y, ship.Location.X, Player1Grid);
+                }
+
+                foreach(Location loc in e.Hits)
+                {
+
+                }
+            });
+            tbWait.Visibility = Visibility.Collapsed;
+            tbGo.Visibility = Visibility.Visible;
+
+            Model.CanShot = false;
+        }
+
+        //выстрел по противнику
+        private async void EnemyGameField_EnemyShot(object sender, ShotEventArgs e)
         {
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
@@ -120,8 +172,10 @@ namespace SeaBattleClient
                     SetImage(ship.Source, (int)ship.ShipClass, ship.Location.Y, ship.Location.X, Player2Grid);
                 }
             });
+            tbWait.Visibility = Visibility.Visible;
+            tbGo.Visibility = Visibility.Collapsed;
 
-            
+            Model.CanShot = false;
         }
 
         public static async Task<Location> AwaitReceive(Socket socket)
@@ -174,10 +228,26 @@ namespace SeaBattleClient
                     rectangle.VerticalAlignment = VerticalAlignment.Stretch;
                     Grid.SetRow(rectangle, i);
                     Grid.SetColumn(rectangle, j);
-                    if(mine)
+                    if (mine)
+                    {
                         rectangle.Tapped += Rectangle_Tapped;
+                        rectangle.PointerEntered += Rectangle_PointerEntered;
+                        rectangle.PointerExited += Rectangle_PointerExited;
+                    }
                 }
             }
+        }
+
+        private void Rectangle_PointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            Rectangle rec = sender as Rectangle;
+            rec.Fill = new SolidColorBrush(Colors.White);
+        }
+
+        private void Rectangle_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            Rectangle rec = sender as Rectangle;
+            rec.Fill = new SolidColorBrush(Colors.Red);
         }
 
         private void CreateField(Grid grid)
@@ -191,6 +261,11 @@ namespace SeaBattleClient
 
         private async void Rectangle_Tapped(object sender, TappedRoutedEventArgs e)
         {
+            if (Model.CanShot==false)
+            {
+                return;
+            }
+
             Rectangle rec = sender as Rectangle;
             int col = Grid.GetColumn(rec);
             int row = Grid.GetRow(rec);
@@ -232,6 +307,51 @@ namespace SeaBattleClient
         }
 
         public static string response = string.Empty;
+
+        private static void ReceiveCallbackEnemyShot(IAsyncResult ar)
+        {
+            try
+            {
+                StateObject state = (StateObject)ar.AsyncState;
+                Socket client = state.workSocket;
+
+                int bytesRead = client.EndReceive(ar);
+
+                state.sb.Append(Encoding.UTF8.GetString(state.buffer, 0, bytesRead));
+                // All the data has arrived; put it in response.  
+                if (state.sb.Length > 1)
+                {
+                    response = state.sb.ToString();
+                }
+
+                response = response.Remove(response.LastIndexOf(JsonStructInfo.EndOfMessage));
+
+                JObject jObject = null;
+
+                Answer.AnswerTypes type = Answer.AnswerTypes.ShotOfTheEnemy;
+                SeaBattleClassLibrary.DataProvider.ShotResult.ShotResultType result = SeaBattleClassLibrary.DataProvider.ShotResult.ShotResultType.Miss;
+
+                try
+                {
+                    jObject = JObject.Parse(response);
+                } catch (JsonReaderException e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                type = Answer.JsonTypeToEnum((string)jObject[JsonStructInfo.Type]);
+                result = SeaBattleClassLibrary.DataProvider.ShotResult.JsonTypeToEnum((string)jObject[JsonStructInfo.Result]);
+                
+                Location location = Serializer<Location>.GetSerializedObject((string)jObject[JsonStructInfo.Content]);
+
+                MyGameField.Shot(location);
+                pingDone.Reset();
+            } 
+            catch(Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+        }
 
         private static void ReceiveCallback(IAsyncResult ar)
         {

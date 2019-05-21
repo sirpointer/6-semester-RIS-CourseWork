@@ -73,6 +73,13 @@ namespace SeaBattleClassLibrary.Game
 
         }
 
+        public event EventHandler<ShotEventArgs> ShotMyField;
+
+        private void OnShotMyField(object sender, ShotEventArgs e)
+        {
+            ShotMyField?.Invoke(sender, e);
+        }
+
         public Ship Shot(Location location)
         {
             if (location.IsUnset)
@@ -81,15 +88,52 @@ namespace SeaBattleClassLibrary.Game
             if (HitsField[location.X, location.Y])
                 throw new ArgumentException("По данной позиции нельзя стрелять", nameof(location));
 
+            Ship target = null;
+
             foreach (Ship ship in Ships)
+            {
                 if (ship.Shot(location))
                 {
                     HitsField[location.X, location.Y] = true;
 
-                    return ship;
+                    target = ship;
+                    break;
+                }
+            }
+
+            List<Location> hits = new List<Location>();
+            ShotResult shotResult = ShotResult.Miss;
+
+
+            if (target == null)
+            {
+
+                hits.Add(location.Clone() as Location);
+            }
+            else if (target.IsDead)
+            {
+                for (int x = target.Location.X - 1; x <= target.Location.X + target.ShipWidth; x++)
+                {
+                    for (int y = target.Location.Y - 1; y <= target.Location.Y + target.ShipHeight; y++)
+                    {
+                        if (x < 10 && y < 10 && x > -1 && y > -1)
+                        {
+                            hits.Add(new Location(x, y));
+                        }
+                    }
                 }
 
-            return null;
+                shotResult = ShotResult.Kill;
+            } 
+            else
+            {
+                hits.Add(location.Clone() as Location);
+                shotResult = ShotResult.Damage;
+            }
+
+            OnShotMyField(this, new ShotEventArgs(hits, shotResult, target.Clone() as Ship));
+
+            return target;
         }
 
         #region Set Ship Location
@@ -211,9 +255,9 @@ namespace SeaBattleClassLibrary.Game
 
     public class EnemyGameField : Field
     {
-        public event EventHandler<EnemyShotEventArgs> EnemyShot;
+        public event EventHandler<ShotEventArgs> EnemyShot;
 
-        private void OnEnemyShot(object sender, EnemyShotEventArgs e)
+        private void OnEnemyShot(object sender, ShotEventArgs e)
         {
             EnemyShot?.Invoke(sender, e);
         }
@@ -252,14 +296,14 @@ namespace SeaBattleClassLibrary.Game
                 HitsField[hit.X, hit.Y] = true;
             }
 
-            OnEnemyShot(this, new EnemyShotEventArgs(hits, shotResult, ship));
+            OnEnemyShot(this, new ShotEventArgs(hits, shotResult, ship));
         }
     }
 
 
-    public class EnemyShotEventArgs : EventArgs
+    public class ShotEventArgs : EventArgs
     {
-        public EnemyShotEventArgs(List<Location> hits, ShotResult shotResult, Ship ship)
+        public ShotEventArgs(List<Location> hits, ShotResult shotResult, Ship ship)
         {
             Ship = ship;
             Hits = hits;

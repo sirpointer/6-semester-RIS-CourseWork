@@ -7,11 +7,28 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="{ThemeResource SystemControlAcrylicWindowBrush}">
-
+    
     <Grid>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Grid Name="Player1Grid" Width="300" Height="300" Margin="30"></Grid>
-            <Grid Name="Player2Grid" Width="300" Height="300" Margin="30"></Grid>
+        <ProgressRing Name="progressRing"></ProgressRing>
+        <Rectangle>
+            <Rectangle.Triggers>
+                <EventTrigger >
+                    <BeginStoryboard>
+                        <Storyboard x:Name="PointerEnter">
+                            <!-- Animate the background of the canvas to green over 4 seconds. -->
+                            <ColorAnimation To="Green"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Rectangle.Triggers>
+        </Rectangle>
+        <StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid Name="Player1Grid" Width="300" Height="300" Margin="30"></Grid>
+                <Grid Name="Player2Grid" Width="300" Height="300" Margin="30"></Grid>
+            </StackPanel>
+            <TextBlock Name="tbGo" Visibility="Collapsed">Ваш ход</TextBlock>
+            <TextBlock Name="tbWait" Visibility="Collapsed">Ожидайте хода противника</TextBlock>
         </StackPanel>
     </Grid>
 </Page>
