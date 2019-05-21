@@ -204,13 +204,21 @@ namespace SeaBattleServer
             
             if (secondPlayer.GameField != null && player.GameField != null)
             {
-                BeginSendSaveConnect(player.PlayerSocket, AnswerHandler.GetGameReadyMessage(true));
-                game.WhoseTurn = player;
+                string message = AnswerHandler.GetGameReadyMessage(true);
+                byte[] data = Encoding.UTF8.GetBytes(message);
+                int bytesSent = secondPlayer.PlayerSocket.Send(data, 0, data.Length, SocketFlags.None);
+                Console.WriteLine($"Sent {bytesSent} bytes to {secondPlayer.PlayerSocket.RemoteEndPoint.ToString()}.\n{message}\n");
+
+
+                message = AnswerHandler.GetGameReadyMessage(false);
+                data = Encoding.UTF8.GetBytes(message);
+                bytesSent = player.PlayerSocket.Send(data, 0, data.Length, SocketFlags.None);
+                Console.WriteLine($"Sent {bytesSent} bytes to {player.PlayerSocket.RemoteEndPoint.ToString()}.\n{message}\n");
                 
-                BeginSendSaveConnect(secondPlayer.PlayerSocket, AnswerHandler.GetGameReadyMessage(false));
+                game.WhoseTurn = secondPlayer;
 
                 // Ждать выстрела от player.
-                BeginReceive(player.PlayerSocket);
+                BeginReceive(secondPlayer.PlayerSocket);
             }
             else
             {
