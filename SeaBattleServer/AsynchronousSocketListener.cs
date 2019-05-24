@@ -178,12 +178,12 @@ namespace SeaBattleServer
             string message = AnswerHandler.GetShotResultMessage(ship, shotLocation);
             byte[] data = Encoding.UTF8.GetBytes(message);
             int bytesSent = player1.PlayerSocket.Send(data, 0, data.Length, SocketFlags.None);
-            Console.WriteLine($"Sent {bytesSent} bytes to {player1.PlayerSocket.RemoteEndPoint.ToString()}.\n");
+            Console.WriteLine($"Sent {bytesSent} bytes to {player1.PlayerSocket.RemoteEndPoint.ToString()}.\n{message}\n\n");
 
             message = AnswerHandler.GetShotResultMessage(shotLocation);
-            data = Encoding.UTF8.GetBytes(message);
-            bytesSent = player2.PlayerSocket.Send(data, 0, data.Length, SocketFlags.None);
-            Console.WriteLine($"Sent {bytesSent} bytes to {player2.PlayerSocket.RemoteEndPoint.ToString()}.\n");
+            byte[] d = Encoding.UTF8.GetBytes(message);
+            bytesSent = player2.PlayerSocket.Send(d, 0, d.Length, SocketFlags.None);
+            Console.WriteLine($"Sent {bytesSent} bytes to {player2.PlayerSocket.RemoteEndPoint.ToString()}.\n{message}\n\n");
 
             if (ship == null)
             {
