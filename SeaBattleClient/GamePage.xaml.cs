@@ -142,9 +142,9 @@ namespace SeaBattleClient
             {
                 tbWait.Visibility = Visibility.Collapsed;
                 tbGo.Visibility = Visibility.Visible;
+                Model.CanShot = true;
             });
 
-            Model.CanShot = true;
         }
 
         //выстрел по противнику
@@ -183,9 +183,9 @@ namespace SeaBattleClient
             {
                 tbWait.Visibility = Visibility.Visible;
                 tbGo.Visibility = Visibility.Collapsed;
+                Model.CanShot = false;
             });
 
-            Model.CanShot = false;
         }
 
         public static async Task<Location> AwaitReceive(Socket socket)
