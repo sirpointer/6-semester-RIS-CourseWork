@@ -131,7 +131,7 @@ namespace SeaBattleClassLibrary.Game
                 shotResult = ShotResult.Damage;
             }
 
-            OnShotMyField(this, new ShotEventArgs(hits, shotResult, target.Clone() as Ship));
+            OnShotMyField(this, new ShotEventArgs(hits, shotResult, target != null ? target.Clone() as Ship : null));
 
             return target;
         }
