@@ -151,7 +151,7 @@ namespace SeaBattleClient
                 {
                     StateObject state = new StateObject();
                     state.workSocket = Model.PlayerSocket;
-                    state.obj = EnemyGameField;
+                    state.obj = MyGameField;
 
                     Model.PlayerSocket.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None, new AsyncCallback(ReceiveCallbackEnemyShot), state);
 
@@ -211,6 +211,13 @@ namespace SeaBattleClient
                 {
                     tbWait.Visibility = Visibility.Visible;
                     tbGo.Visibility = Visibility.Collapsed;
+
+                    StateObject state = new StateObject();
+                    state.workSocket = Model.PlayerSocket;
+                    state.obj = MyGameField;
+
+                    Model.PlayerSocket.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None, new AsyncCallback(ReceiveCallbackEnemyShot), state);
+
                 }   //Model.CanShot = false;
 
 
@@ -221,7 +228,7 @@ namespace SeaBattleClient
 
         }
 
-        public static async Task<Location> AwaitReceive(Socket socket)
+        /*public static async Task<Location> AwaitReceive(Socket socket)
         {
             byte[] resp = new byte[1024];
             await new Task(() => socket.Receive(resp));
@@ -229,7 +236,7 @@ namespace SeaBattleClient
             Location location = new Location();
 
             return location;
-        }
+        }*/
 
 
         public void SetImage(string source, int lenth, int x, int y, Grid grid)
@@ -403,7 +410,7 @@ namespace SeaBattleClient
             }
         }
 
-        //удар по врагу
+        /// удар по врагу
         private static void ReceiveCallbackMyShot(IAsyncResult ar)
         {
             try
@@ -554,7 +561,8 @@ namespace SeaBattleClient
                 Socket client = state.workSocket;
                 // Begin receiving the data from the remote device.  
                 client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallbackMyShot), state);
-            } catch (Exception e)
+            } 
+            catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
             }
