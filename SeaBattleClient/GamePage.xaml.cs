@@ -117,13 +117,14 @@ namespace SeaBattleClient
                 if (e.ShotResult == Game.ShotResult.Miss) //промах
                 {
                     rectangle.Fill = new SolidColorBrush(Colors.Black);
+                    Model.CanShot = true;
                     
                 }
                 if (e.ShotResult == Game.ShotResult.Damage) //ранил
                 {
 
                     SetImage("ms-appx:///Assets/Ships/hurt.jpg", 1, e.Hits[0].X, e.Hits[0].Y, Player1Grid);
-                    //Model.CanShot = true;
+                    Model.CanShot = false;
                 }
                 if (e.ShotResult == Game.ShotResult.Kill) //убил
                 {
@@ -133,17 +134,21 @@ namespace SeaBattleClient
                     
                     KillShip(ship);
                     SetImage("ms-appx:///Assets/Ships/hurt.jpg", (int)ship.ShipClass, ship.Location.Y, ship.Location.X, Player1Grid);
-                    //Model.CanShot = true;
+                    Model.CanShot = false;
                 }
                 
             });
 
-            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            if (Model.CanShot == true)
             {
-                tbWait.Visibility = Visibility.Collapsed;
-                tbGo.Visibility = Visibility.Visible;
-                Model.CanShot = true;
-            });
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    tbWait.Visibility = Visibility.Collapsed;
+                    tbGo.Visibility = Visibility.Visible;
+                    //Model.CanShot = true;
+                });
+            }
+            
 
         }
 
@@ -179,13 +184,21 @@ namespace SeaBattleClient
                     Model.CanShot = true;
                 }
             });
+
+            if (Model.CanShot == false)
+            {
+                await AwaitEnemyView();
+            }
+        }
+
+        private async Task AwaitEnemyView()
+        {
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
                 tbWait.Visibility = Visibility.Visible;
                 tbGo.Visibility = Visibility.Collapsed;
-                Model.CanShot = false;
+                //Model.CanShot = false;
             });
-
         }
 
         public static async Task<Location> AwaitReceive(Socket socket)
@@ -209,7 +222,8 @@ namespace SeaBattleClient
             image.HorizontalAlignment = HorizontalAlignment.Stretch;
             image.VerticalAlignment = VerticalAlignment.Stretch;
             grid.Children.Add(image);
-
+            var index = (uint)grid.Children.IndexOf(image);
+            grid.Children.Move(index, (uint)grid.Children.Count - 1);
 
             Grid.SetColumnSpan(image, lenth);
             Grid.SetRow(image, y);
@@ -346,20 +360,19 @@ namespace SeaBattleClient
                 JObject jObject = null;
 
                 Answer.AnswerTypes type = Answer.AnswerTypes.ShotOfTheEnemy;
-                SeaBattleClassLibrary.DataProvider.ShotResult.ShotResultType result = SeaBattleClassLibrary.DataProvider.ShotResult.ShotResultType.Miss;
+                //SeaBattleClassLibrary.DataProvider.ShotResult.ShotResultType result = SeaBattleClassLibrary.DataProvider.ShotResult.ShotResultType.Miss;
 
                 try
                 {
                     jObject = JObject.Parse(response);
-                } catch (JsonReaderException e)
+                } 
+                catch (JsonReaderException e)
                 {
                     Console.WriteLine(e);
                 }
 
                 type = Answer.JsonTypeToEnum((string)jObject[JsonStructInfo.Type]);
-                result = SeaBattleClassLibrary.DataProvider.ShotResult.JsonTypeToEnum((string)jObject[JsonStructInfo.Result]);
-                
-                Location location = Serializer<Location>.GetSerializedObject((string)jObject[JsonStructInfo.Content]);
+                Location location = Serializer<Location>.GetSerializedObject((string)jObject[JsonStructInfo.Result]);
 
                 MyGameField.Shot(location);
                 pingDone.Reset();
