@@ -42,7 +42,7 @@ namespace SeaBattleClient
         Player player = null;
 
         private Color backColor = Colors.CornflowerBlue;
-        public Color killColor = Colors.BlanchedAlmond;
+        public Color killColor = Colors.Firebrick;
 
         public static EnemyGameField EnemyGameField = new EnemyGameField();
         public static GameField MyGameField;
@@ -527,7 +527,7 @@ namespace SeaBattleClient
             if (Model.CanShot == true)
             {
                 Rectangle rec = sender as Rectangle;
-                rec.Fill = new SolidColorBrush(Colors.White);
+                rec.Fill = new SolidColorBrush(backColor);
             }
         }
 
