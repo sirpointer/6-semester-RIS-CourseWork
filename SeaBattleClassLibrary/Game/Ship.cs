@@ -249,7 +249,7 @@ namespace SeaBattleClassLibrary.Game
             get => x;
             set
             {
-                if (value > Size || value < -1)
+                if (value >= Size || value < -1)
                     throw new ArgumentOutOfRangeException(nameof(X), $"Значение должно лежать в диапозоне от -1 до {Size}");
 
                 x = value;
@@ -263,7 +263,7 @@ namespace SeaBattleClassLibrary.Game
             get => y;
             set
             {
-                if (value > Size || value < -1)
+                if (value >= Size || value < -1)
                     throw new ArgumentOutOfRangeException(nameof(Y), $"Значение должно лежать в диапозоне от -1 до {Size}");
 
                 y = value;

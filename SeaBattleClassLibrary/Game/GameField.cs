@@ -109,7 +109,6 @@ namespace SeaBattleClassLibrary.Game
 
             if (target == null)
             {
-
                 hits.Add(location.Clone() as Location);
             }
             else if (target.IsDead)
