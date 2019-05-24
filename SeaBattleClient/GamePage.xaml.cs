@@ -105,6 +105,7 @@ namespace SeaBattleClient
             }
         }
 
+        //выстрел по мне
         private async void MyGameField_ShotMyField(object sender, ShotEventArgs e)
         {
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
@@ -133,7 +134,7 @@ namespace SeaBattleClient
                     ClientShip ship = new ClientShip(s.Id, s.ShipClass, s.Orientation, s.Location); // сюда передается кораблик
                     
                     KillShip(ship);
-                    SetImage("ms-appx:///Assets/Ships/hurt.jpg", (int)ship.ShipClass, ship.Location.Y, ship.Location.X, Player1Grid);
+                    SetImage("ms-appx:///Assets/Ships/hurt.jpg", (int)ship.ShipClass, ship.Location.X, ship.Location.Y, Player1Grid);
                     Model.CanShot = false;
                 }
                 
@@ -145,7 +146,17 @@ namespace SeaBattleClient
                 {
                     tbWait.Visibility = Visibility.Collapsed;
                     tbGo.Visibility = Visibility.Visible;
+                } 
+                else
+                {
+                    StateObject state = new StateObject();
+                    state.workSocket = Model.PlayerSocket;
+                    state.obj = EnemyGameField;
+
+                    Model.PlayerSocket.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None, new AsyncCallback(ReceiveCallbackEnemyShot), state);
+
                 }
+
                 //Model.CanShot = true;
             });
         }
@@ -170,6 +181,9 @@ namespace SeaBattleClient
 
                     SetImage("ms-appx:///Assets/Ships/hurt.jpg", 1, e.Hits[0].X, e.Hits[0].Y, Player2Grid);
                     Model.CanShot = true;
+
+
+
                 }
                 if (e.ShotResult == Game.ShotResult.Kill) //убил
                 {
@@ -178,7 +192,7 @@ namespace SeaBattleClient
                     ClientShip ship = new ClientShip(s.Id, s.ShipClass, s.Orientation, s.Location); // сюда передается кораблик
 
                     KillShip(ship);
-                    SetImage(ship.Source, (int)ship.ShipClass, ship.Location.Y, ship.Location.X, Player2Grid);
+                    SetImage(ship.Source, (int)ship.ShipClass, ship.Location.X, ship.Location.Y, Player2Grid);
                     Model.CanShot = true;
                 }
             });
@@ -198,7 +212,13 @@ namespace SeaBattleClient
                     tbWait.Visibility = Visibility.Visible;
                     tbGo.Visibility = Visibility.Collapsed;
                 }   //Model.CanShot = false;
+
+
+
+
             });
+
+
         }
 
         public static async Task<Location> AwaitReceive(Socket socket)
