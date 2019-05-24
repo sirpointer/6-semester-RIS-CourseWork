@@ -181,8 +181,9 @@ namespace SeaBattleServer
             Console.WriteLine($"Sent {bytesSent} bytes to {player1.PlayerSocket.RemoteEndPoint.ToString()}.\n{message}\n\n");
 
             message = AnswerHandler.GetShotResultMessage(shotLocation);
-            byte[] d = Encoding.UTF8.GetBytes(message);
-            bytesSent = player2.PlayerSocket.Send(d, 0, d.Length, SocketFlags.None);
+            data = null;
+            data = Encoding.UTF8.GetBytes(message);
+            bytesSent = player2.PlayerSocket.Send(data, 0, data.Length, SocketFlags.None);
             Console.WriteLine($"Sent {bytesSent} bytes to {player2.PlayerSocket.RemoteEndPoint.ToString()}.\n{message}\n\n");
 
             if (ship == null)
