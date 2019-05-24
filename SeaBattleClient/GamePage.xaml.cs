@@ -68,7 +68,7 @@ namespace SeaBattleClient
                 else if (e.ShotResult == Game.ShotResult.Damage) //ранил
                 {
 
-                    SetImage("ms-appx:///Assets/Ships/hurt.jpg", 1, e.Hits[0].X, e.Hits[0].Y, Player1Grid);
+                    SetImage("ms-appx:///Assets/Ships/hurt.jpg", 1, 1, e.Hits[0].X, e.Hits[0].Y, Player1Grid);
                     Model.CanShot = false;
                 }
                 else if (e.ShotResult == Game.ShotResult.Kill) //убил
@@ -77,7 +77,7 @@ namespace SeaBattleClient
                     ClientShip ship = new ClientShip(s.Id, s.ShipClass, s.Orientation, s.Location); // сюда передается кораблик
                     
                     KillShip(ship, Player1Grid);
-                    SetImage("ms-appx:///Assets/Ships/hurt.jpg", (int)ship.ShipClass, ship.Location.X, ship.Location.Y, Player1Grid);
+                    SetImage("ms-appx:///Assets/Ships/hurt.jpg", ship.ShipWidth, ship.ShipHeight, ship.Location.X, ship.Location.Y, Player1Grid);
                     Model.CanShot = false;
                 }
             });
@@ -119,7 +119,7 @@ namespace SeaBattleClient
                 }
                 else if (e.ShotResult == Game.ShotResult.Damage) //ранил
                 {
-                    SetImage("ms-appx:///Assets/Ships/hurt.jpg", 1, e.Hits[0].X, e.Hits[0].Y, Player2Grid);
+                    SetImage("ms-appx:///Assets/Ships/hurt.jpg", 1, 1, e.Hits[0].X, e.Hits[0].Y, Player2Grid);
                     Model.CanShot = true;
                 }
                 else if (e.ShotResult == Game.ShotResult.Kill) //убил
@@ -129,7 +129,7 @@ namespace SeaBattleClient
                     ClientShip ship = new ClientShip(s.Id, s.ShipClass, s.Orientation, s.Location); // сюда передается кораблик
 
                     KillShip(ship, Player2Grid);
-                    SetImage(ship.Source, (int)ship.ShipClass, ship.Location.X, ship.Location.Y, Player2Grid);
+                    SetImage(ship.Source, ship.ShipWidth, ship.ShipHeight, ship.Location.X, ship.Location.Y, Player2Grid);
                     Model.CanShot = true;
                 }
             });
@@ -409,7 +409,7 @@ namespace SeaBattleClient
 
             foreach (ClientShip ship in Model.GameField.Ships)
             {
-                SetImage(ship.Source, (int)ship.ShipClass, ship.Location.X, ship.Location.Y, Player1Grid);
+                SetImage(ship.Source, ship.ShipWidth, ship.ShipHeight, ship.Location.X, ship.Location.Y, Player1Grid);
             }
 
             //заполнить поле второго игрока
@@ -472,7 +472,7 @@ namespace SeaBattleClient
             }
         }
 
-        public void SetImage(string source, int lenth, int x, int y, Grid grid)
+        public void SetImage(string source, int width, int height, int x, int y, Grid grid)
         {
             Image image = new Image();
             BitmapImage bitmapImage = new BitmapImage();
@@ -486,7 +486,8 @@ namespace SeaBattleClient
             var index = (uint)grid.Children.IndexOf(image);
             grid.Children.Move(index, (uint)grid.Children.Count - 1);
 
-            Grid.SetColumnSpan(image, lenth);
+            Grid.SetColumnSpan(image, width);
+            Grid.SetRowSpan(image, height);
             Grid.SetRow(image, y);
             Grid.SetColumn(image, x);
         }
