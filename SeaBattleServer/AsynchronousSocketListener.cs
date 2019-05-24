@@ -160,14 +160,18 @@ namespace SeaBattleServer
 
             if (!session.CanGo)
             {
-                //BeginReceive(handler);
+                BeginReceive(handler);
                 return;
             }
 
-            session.CanGo = false;
 
             Player player1 = session.Player1.IPEndPoint == handler.RemoteEndPoint ? session.Player1 : session.Player2;
             Player player2 = session.Player1.IPEndPoint != handler.RemoteEndPoint ? session.Player1 : session.Player2;
+
+            if (session.WhoseTurn.IPEndPoint != handler.RemoteEndPoint)
+                return;
+
+            session.CanGo = false;
 
             Ship ship = player2.GameField.Shot(shotLocation);
 
@@ -181,10 +185,19 @@ namespace SeaBattleServer
             bytesSent = player2.PlayerSocket.Send(data, 0, data.Length, SocketFlags.None);
             Console.WriteLine($"Sent {bytesSent} bytes to {player2.PlayerSocket.RemoteEndPoint.ToString()}.\n");
 
-            session.WhoseTurn = player2;
+            if (ship == null)
+            {
+                session.WhoseTurn = player2;
+                BeginReceive(player2.PlayerSocket);
+            }
+            else
+            {
+                session.WhoseTurn = player1;
+                BeginReceive(player1.PlayerSocket);
+            }
+
             session.CanGo = true;
 
-            BeginReceive(player2.PlayerSocket);
         }
 
 
