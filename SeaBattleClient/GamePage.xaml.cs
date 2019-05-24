@@ -90,9 +90,10 @@ namespace SeaBattleClient
                     state.workSocket = client;
                     state.obj = EnemyGameField;
 
-                    client.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None, new AsyncCallback(ReceiveCallback), state);
+                    client.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None, new AsyncCallback(ReceiveCallbackEnemyShot), state);
                 });
-            } else
+            } 
+            else
             {
                 tbWait.Visibility = Visibility.Collapsed;
                 tbGo.Visibility = Visibility.Visible;
@@ -100,7 +101,7 @@ namespace SeaBattleClient
                 StateObject state = new StateObject();
                 state.workSocket = Model.PlayerSocket;
 
-                Model.PlayerSocket.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None, new AsyncCallback(ReceiveCallbackEnemyShot), state);
+                Model.PlayerSocket.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None, new AsyncCallback(ReceiveCallbackMyShot), state);
             }
         }
 
@@ -136,8 +137,12 @@ namespace SeaBattleClient
                 }
                 
             });
-            tbWait.Visibility = Visibility.Collapsed;
-            tbGo.Visibility = Visibility.Visible;
+
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                tbWait.Visibility = Visibility.Collapsed;
+                tbGo.Visibility = Visibility.Visible;
+            });
 
             Model.CanShot = true;
         }
@@ -174,10 +179,13 @@ namespace SeaBattleClient
                     Model.CanShot = true;
                 }
             });
-            tbWait.Visibility = Visibility.Visible;
-            tbGo.Visibility = Visibility.Collapsed;
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                tbWait.Visibility = Visibility.Visible;
+                tbGo.Visibility = Visibility.Collapsed;
+            });
 
-            //Model.CanShot = false;
+            Model.CanShot = false;
         }
 
         public static async Task<Location> AwaitReceive(Socket socket)
@@ -316,6 +324,7 @@ namespace SeaBattleClient
 
         public static string response = string.Empty;
 
+        //удар по мне
         private static void ReceiveCallbackEnemyShot(IAsyncResult ar)
         {
             try
@@ -361,7 +370,8 @@ namespace SeaBattleClient
             }
         }
 
-        private static void ReceiveCallback(IAsyncResult ar)
+        //удар по врагу
+        private static void ReceiveCallbackMyShot(IAsyncResult ar)
         {
             try
             {
@@ -510,7 +520,7 @@ namespace SeaBattleClient
             {
                 Socket client = state.workSocket;
                 // Begin receiving the data from the remote device.  
-                client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
+                client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallbackMyShot), state);
             } catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
