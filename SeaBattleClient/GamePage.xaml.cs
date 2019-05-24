@@ -40,7 +40,9 @@ namespace SeaBattleClient
         }
 
         Player player = null;
-        private Color backColor = Colors.White;
+
+        private Color backColor = Colors.CornflowerBlue;
+        public Color killColor = Colors.BlanchedAlmond;
 
         public static EnemyGameField EnemyGameField = new EnemyGameField();
         public static GameField MyGameField;
@@ -61,7 +63,7 @@ namespace SeaBattleClient
 
                 if (e.ShotResult == Game.ShotResult.Miss) //промах
                 {
-                    rectangle.Fill = new SolidColorBrush(Colors.Black);
+                    rectangle.Fill = new SolidColorBrush(killColor);
                     Model.CanShot = true;
                     
                 }
@@ -114,7 +116,7 @@ namespace SeaBattleClient
 
                 if (e.ShotResult == Game.ShotResult.Miss) //промах
                 {
-                    rectangle.Fill = new SolidColorBrush(Colors.Black);
+                    rectangle.Fill = new SolidColorBrush(killColor);
                     Model.CanShot = false;
                 }
                 else if (e.ShotResult == Game.ShotResult.Damage) //ранил
@@ -466,7 +468,7 @@ namespace SeaBattleClient
                         Grid.SetColumn(rectangle, i);
                         Grid.SetRow(rectangle, j);
 
-                        rectangle.Fill = new SolidColorBrush(Colors.Black);
+                        rectangle.Fill = new SolidColorBrush(killColor);
                     }
                 }
             }
