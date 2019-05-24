@@ -9,14 +9,14 @@
     Background="{ThemeResource SystemControlAcrylicWindowBrush}">
     
     <Grid>
-        <ProgressRing Name="progressRing"></ProgressRing>
+        <ProgressRing Name="progressRing" Width="300" Height="300"></ProgressRing>
         <StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Grid Name="Player1Grid" Width="300" Height="300" Margin="30"></Grid>
                 <Grid Name="Player2Grid" Width="300" Height="300" Margin="30"></Grid>
             </StackPanel>
-            <TextBlock Name="tbGo" Visibility="Collapsed">Ваш ход</TextBlock>
-            <TextBlock Name="tbWait" Visibility="Collapsed">Ожидайте хода противника</TextBlock>
+            <TextBlock Name="tbGo" Visibility="Collapsed" FontSize="24">Ваш ход</TextBlock>
+            <TextBlock Name="tbWait" Visibility="Collapsed" FontSize="24">Ожидайте хода противника</TextBlock>
         </StackPanel>
     </Grid>
 </Page>

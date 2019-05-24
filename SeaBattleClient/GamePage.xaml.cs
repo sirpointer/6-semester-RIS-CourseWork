@@ -40,7 +40,9 @@ namespace SeaBattleClient
         }
 
         Player player = null;
-        private Color backColor = Colors.White;
+
+        private Color backColor = Colors.CornflowerBlue;
+        public Color killColor = Colors.BlanchedAlmond;
 
         public static EnemyGameField EnemyGameField = new EnemyGameField();
         public static GameField MyGameField;
@@ -61,14 +63,14 @@ namespace SeaBattleClient
 
                 if (e.ShotResult == Game.ShotResult.Miss) //промах
                 {
-                    rectangle.Fill = new SolidColorBrush(Colors.Black);
+                    rectangle.Fill = new SolidColorBrush(killColor);
                     Model.CanShot = true;
                     
                 }
                 else if (e.ShotResult == Game.ShotResult.Damage) //ранил
                 {
 
-                    SetImage("ms-appx:///Assets/Ships/hurt.jpg", 1, e.Hits[0].X, e.Hits[0].Y, Player1Grid);
+                    SetImage("ms-appx:///Assets/Ships/hurt.jpg", 1, 1, e.Hits[0].X, e.Hits[0].Y, Player1Grid);
                     Model.CanShot = false;
                 }
                 else if (e.ShotResult == Game.ShotResult.Kill) //убил
@@ -77,7 +79,7 @@ namespace SeaBattleClient
                     ClientShip ship = new ClientShip(s.Id, s.ShipClass, s.Orientation, s.Location); // сюда передается кораблик
                     
                     KillShip(ship, Player1Grid);
-                    SetImage("ms-appx:///Assets/Ships/hurt.jpg", (int)ship.ShipClass, ship.Location.X, ship.Location.Y, Player1Grid);
+                    SetImage("ms-appx:///Assets/Ships/hurt.jpg", ship.ShipWidth, ship.ShipHeight, ship.Location.X, ship.Location.Y, Player1Grid);
                     Model.CanShot = false;
                 }
             });
@@ -88,6 +90,7 @@ namespace SeaBattleClient
                 {
                     tbWait.Visibility = Visibility.Collapsed;
                     tbGo.Visibility = Visibility.Visible;
+                    progressRing.IsActive = false;
                 }
                 else
                 {
@@ -114,12 +117,12 @@ namespace SeaBattleClient
 
                 if (e.ShotResult == Game.ShotResult.Miss) //промах
                 {
-                    rectangle.Fill = new SolidColorBrush(Colors.Black);
+                    rectangle.Fill = new SolidColorBrush(killColor);
                     Model.CanShot = false;
                 }
                 else if (e.ShotResult == Game.ShotResult.Damage) //ранил
                 {
-                    SetImage("ms-appx:///Assets/Ships/hurt.jpg", 1, e.Hits[0].X, e.Hits[0].Y, Player2Grid);
+                    SetImage("ms-appx:///Assets/Ships/hurt.jpg", 1, 1, e.Hits[0].X, e.Hits[0].Y, Player2Grid);
                     Model.CanShot = true;
                 }
                 else if (e.ShotResult == Game.ShotResult.Kill) //убил
@@ -129,7 +132,7 @@ namespace SeaBattleClient
                     ClientShip ship = new ClientShip(s.Id, s.ShipClass, s.Orientation, s.Location); // сюда передается кораблик
 
                     KillShip(ship, Player2Grid);
-                    SetImage(ship.Source, (int)ship.ShipClass, ship.Location.X, ship.Location.Y, Player2Grid);
+                    SetImage(ship.Source, ship.ShipWidth, ship.ShipHeight, ship.Location.X, ship.Location.Y, Player2Grid);
                     Model.CanShot = true;
                 }
             });
@@ -145,6 +148,7 @@ namespace SeaBattleClient
                 {
                     tbWait.Visibility = Visibility.Visible;
                     tbGo.Visibility = Visibility.Collapsed;
+                    progressRing.IsActive = true;
 
                     StateObject state = new StateObject();
                     state.workSocket = Model.PlayerSocket;
@@ -409,7 +413,7 @@ namespace SeaBattleClient
 
             foreach (ClientShip ship in Model.GameField.Ships)
             {
-                SetImage(ship.Source, (int)ship.ShipClass, ship.Location.X, ship.Location.Y, Player1Grid);
+                SetImage(ship.Source, ship.ShipWidth, ship.ShipHeight, ship.Location.X, ship.Location.Y, Player1Grid);
             }
 
             //заполнить поле второго игрока
@@ -443,6 +447,7 @@ namespace SeaBattleClient
             {
                 tbWait.Visibility = Visibility.Collapsed;
                 tbGo.Visibility = Visibility.Visible;
+                progressRing.IsActive = false;
 
                 StateObject state = new StateObject();
                 state.workSocket = Model.PlayerSocket;
@@ -466,13 +471,13 @@ namespace SeaBattleClient
                         Grid.SetColumn(rectangle, i);
                         Grid.SetRow(rectangle, j);
 
-                        rectangle.Fill = new SolidColorBrush(Colors.Black);
+                        rectangle.Fill = new SolidColorBrush(killColor);
                     }
                 }
             }
         }
 
-        public void SetImage(string source, int lenth, int x, int y, Grid grid)
+        public void SetImage(string source, int width, int height, int x, int y, Grid grid)
         {
             Image image = new Image();
             BitmapImage bitmapImage = new BitmapImage();
@@ -481,11 +486,13 @@ namespace SeaBattleClient
             image.Source = bitmapImage;
             image.HorizontalAlignment = HorizontalAlignment.Stretch;
             image.VerticalAlignment = VerticalAlignment.Stretch;
+            image.Stretch = Stretch.Fill;
             grid.Children.Add(image);
             var index = (uint)grid.Children.IndexOf(image);
             grid.Children.Move(index, (uint)grid.Children.Count - 1);
 
-            Grid.SetColumnSpan(image, lenth);
+            Grid.SetColumnSpan(image, width);
+            Grid.SetRowSpan(image, height);
             Grid.SetRow(image, y);
             Grid.SetColumn(image, x);
         }
