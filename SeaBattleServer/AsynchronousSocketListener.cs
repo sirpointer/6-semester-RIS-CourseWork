@@ -197,7 +197,6 @@ namespace SeaBattleServer
             }
 
             session.CanGo = true;
-
         }
 
 
