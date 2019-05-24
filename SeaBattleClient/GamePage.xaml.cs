@@ -40,7 +40,7 @@ namespace SeaBattleClient
         }
 
         Player player = null;
-        private Color backColor;
+        private Color backColor = Colors.White;
 
         public static EnemyGameField EnemyGameField = new EnemyGameField();
         public static GameField MyGameField;
