@@ -137,12 +137,13 @@ namespace SeaBattleClient
             {
                 IPEndPoint remoteEP;
                 pingDone.Reset();
-                IPHostEntry ipHostInfo = Dns.GetHostEntry(ip);
-                IPAddress ipAddress = ipHostInfo.AddressList.Where(x => x.AddressFamily == AddressFamily.InterNetwork).Last();
-                remoteEP = new IPEndPoint(ipAddress, port);
+                //IPHostEntry ipHostInfo = Dns.GetHostEntry(ip);
+                //IPAddress ipAddress = ipHostInfo.AddressList.Where(x => x.AddressFamily == AddressFamily.InterNetwork).Last();
+                System.Net.IPAddress addr = System.Net.IPAddress.Parse(ip);
+                remoteEP = new IPEndPoint(addr, port);
 
                 // Create a TCP/IP socket.  
-                Socket client = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                Socket client = new Socket(addr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
                 StateObject state = new StateObject();
                 state.workSocket = client;

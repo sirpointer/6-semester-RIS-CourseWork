@@ -116,11 +116,13 @@ namespace SeaBattleClient
                 if (e.ShotResult == Game.ShotResult.Miss) //промах
                 {
                     rectangle.Fill = new SolidColorBrush(Colors.Black);
+                    
                 }
                 if (e.ShotResult == Game.ShotResult.Damage) //ранил
                 {
 
                     SetImage("ms-appx:///Assets/Ships/hurt.jpg", 1, e.Hits[0].X, e.Hits[0].Y, Player1Grid);
+                    //Model.CanShot = true;
                 }
                 if (e.ShotResult == Game.ShotResult.Kill) //убил
                 {
@@ -130,17 +132,14 @@ namespace SeaBattleClient
                     
                     KillShip(ship);
                     SetImage("ms-appx:///Assets/Ships/hurt.jpg", (int)ship.ShipClass, ship.Location.Y, ship.Location.X, Player1Grid);
+                    //Model.CanShot = true;
                 }
-
-                foreach(Location loc in e.Hits)
-                {
-
-                }
+                
             });
             tbWait.Visibility = Visibility.Collapsed;
             tbGo.Visibility = Visibility.Visible;
 
-            Model.CanShot = false;
+            Model.CanShot = true;
         }
 
         //выстрел по противнику
@@ -156,11 +155,13 @@ namespace SeaBattleClient
                 if (e.ShotResult == Game.ShotResult.Miss) //промах
                 {
                     rectangle.Fill = new SolidColorBrush(Colors.Black);
+                    Model.CanShot = false;
                 }
                 if (e.ShotResult == Game.ShotResult.Damage) //ранил
                 {
 
                     SetImage("ms-appx:///Assets/Ships/hurt.jpg", 1, e.Hits[0].X, e.Hits[0].Y, Player2Grid);
+                    Model.CanShot = true;
                 }
                 if (e.ShotResult == Game.ShotResult.Kill) //убил
                 {
@@ -170,12 +171,13 @@ namespace SeaBattleClient
 
                     KillShip(ship);
                     SetImage(ship.Source, (int)ship.ShipClass, ship.Location.Y, ship.Location.X, Player2Grid);
+                    Model.CanShot = true;
                 }
             });
             tbWait.Visibility = Visibility.Visible;
             tbGo.Visibility = Visibility.Collapsed;
 
-            Model.CanShot = false;
+            //Model.CanShot = false;
         }
 
         public static async Task<Location> AwaitReceive(Socket socket)
