@@ -139,17 +139,15 @@ namespace SeaBattleClient
                 
             });
 
-            if (Model.CanShot == true)
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                if (Model.CanShot == true)
                 {
                     tbWait.Visibility = Visibility.Collapsed;
                     tbGo.Visibility = Visibility.Visible;
-                    //Model.CanShot = true;
-                });
-            }
-            
-
+                }
+                //Model.CanShot = true;
+            });
         }
 
         //выстрел по противнику
@@ -185,19 +183,21 @@ namespace SeaBattleClient
                 }
             });
 
-            if (Model.CanShot == false)
-            {
-                await AwaitEnemyView();
-            }
+            
+            await AwaitEnemyView();
+            
         }
 
         private async Task AwaitEnemyView()
         {
+
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
-                tbWait.Visibility = Visibility.Visible;
-                tbGo.Visibility = Visibility.Collapsed;
-                //Model.CanShot = false;
+                if (Model.CanShot == false)
+                {
+                    tbWait.Visibility = Visibility.Visible;
+                    tbGo.Visibility = Visibility.Collapsed;
+                }   //Model.CanShot = false;
             });
         }
 
