@@ -481,6 +481,7 @@ namespace SeaBattleClient
             image.Source = bitmapImage;
             image.HorizontalAlignment = HorizontalAlignment.Stretch;
             image.VerticalAlignment = VerticalAlignment.Stretch;
+            image.Stretch = Stretch.Fill;
             grid.Children.Add(image);
             var index = (uint)grid.Children.IndexOf(image);
             grid.Children.Move(index, (uint)grid.Children.Count - 1);
