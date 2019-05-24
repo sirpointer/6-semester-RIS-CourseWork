@@ -90,6 +90,7 @@ namespace SeaBattleClient
                 {
                     tbWait.Visibility = Visibility.Collapsed;
                     tbGo.Visibility = Visibility.Visible;
+                    progressRing.IsActive = false;
                 }
                 else
                 {
@@ -147,6 +148,7 @@ namespace SeaBattleClient
                 {
                     tbWait.Visibility = Visibility.Visible;
                     tbGo.Visibility = Visibility.Collapsed;
+                    progressRing.IsActive = true;
 
                     StateObject state = new StateObject();
                     state.workSocket = Model.PlayerSocket;
@@ -445,6 +447,7 @@ namespace SeaBattleClient
             {
                 tbWait.Visibility = Visibility.Collapsed;
                 tbGo.Visibility = Visibility.Visible;
+                progressRing.IsActive = false;
 
                 StateObject state = new StateObject();
                 state.workSocket = Model.PlayerSocket;
