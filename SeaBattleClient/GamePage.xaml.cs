@@ -242,14 +242,20 @@ namespace SeaBattleClient
 
         private void Rectangle_PointerExited(object sender, PointerRoutedEventArgs e)
         {
-            Rectangle rec = sender as Rectangle;
-            rec.Fill = new SolidColorBrush(Colors.White);
+            if (Model.CanShot == true)
+            {
+                Rectangle rec = sender as Rectangle;
+                rec.Fill = new SolidColorBrush(Colors.White);
+            }
         }
 
         private void Rectangle_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
-            Rectangle rec = sender as Rectangle;
-            rec.Fill = new SolidColorBrush(Colors.Red);
+            if (Model.CanShot == true)
+            {
+                Rectangle rec = sender as Rectangle;
+                rec.Fill = new SolidColorBrush(Colors.Red);
+            }
         }
 
         private void CreateField(Grid grid)
