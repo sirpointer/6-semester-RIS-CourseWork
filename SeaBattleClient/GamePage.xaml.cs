@@ -133,7 +133,7 @@ namespace SeaBattleClient
                     Ship s = (Ship)e.Ship.Clone();//new Ship(100, ShipClass.TwoDeck, Game.Orientation.Horizontal, loc);
                     ClientShip ship = new ClientShip(s.Id, s.ShipClass, s.Orientation, s.Location); // сюда передается кораблик
                     
-                    KillShip(ship);
+                    KillShip(ship, Player1Grid);
                     SetImage("ms-appx:///Assets/Ships/hurt.jpg", (int)ship.ShipClass, ship.Location.X, ship.Location.Y, Player1Grid);
                     Model.CanShot = false;
                 }
@@ -191,7 +191,7 @@ namespace SeaBattleClient
                     Ship s = (Ship)e.Ship.Clone();//new Ship(100, ShipClass.TwoDeck, Game.Orientation.Horizontal, loc);
                     ClientShip ship = new ClientShip(s.Id, s.ShipClass, s.Orientation, s.Location); // сюда передается кораблик
 
-                    KillShip(ship);
+                    KillShip(ship, Player2Grid);
                     SetImage(ship.Source, (int)ship.ShipClass, ship.Location.X, ship.Location.Y, Player2Grid);
                     Model.CanShot = true;
                 }
@@ -493,19 +493,19 @@ namespace SeaBattleClient
             }
         }
 
-        public void KillShip(Ship ship)
+        public void KillShip(Ship ship, Grid grid)
         {
-            for (int i = ship.Location.X-1; i <= ship.Location.X+ship.ShipWidth; i++)
+            for (int i = ship.Location.X - 1; i <= ship.Location.X + ship.ShipWidth; i++)
             {
-                for(int j=ship.Location.Y-1; j <= ship.Location.Y + ship.ShipHeight; j++)
+                for (int j = ship.Location.Y - 1; j <= ship.Location.Y + ship.ShipHeight; j++)
                 {
-                    if(i<10 && j < 10 && i>-1 && j>-1)
+                    if (i < 10 && j < 10 && i > -1 && j > -1)
                     {
                         Rectangle rectangle = new Rectangle();
-                        Player2Grid.Children.Add(rectangle);
+                        grid.Children.Add(rectangle);
                         Grid.SetColumn(rectangle, i);
                         Grid.SetRow(rectangle, j);
-                        
+
                         rectangle.Fill = new SolidColorBrush(Colors.Black);
                     }
                 }
