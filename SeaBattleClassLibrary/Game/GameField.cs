@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace SeaBattleClassLibrary.Game
 {
+    [DebuggerDisplay("{Ships}")]
     public abstract class Field : NotifyPropertyChanged
     {
         /// <summary>
@@ -270,28 +272,28 @@ namespace SeaBattleClassLibrary.Game
 
             switch (shotResult)
             {
-            case ShotResult.Miss:
-                hits.Add((Location)location.Clone());
-                break;
-            case ShotResult.Damage:
-                hits.Add((Location)location.Clone());
-                break;
-            case ShotResult.Kill:
-                for (int x = ship.Location.X - 1; x <= ship.Location.X + ship.ShipWidth; x++)
-                {
-                    for (int y = ship.Location.Y - 1; y <= ship.Location.Y + ship.ShipHeight; y++)
+                case ShotResult.Miss:
+                    hits.Add((Location)location.Clone());
+                    break;
+                case ShotResult.Damage:
+                    hits.Add((Location)location.Clone());
+                    break;
+                case ShotResult.Kill:
+                    for (int x = ship.Location.X - 1; x <= ship.Location.X + ship.ShipWidth; x++)
                     {
-                        if (x < 10 && y < 10 && x>-1 && y>-1)
+                        for (int y = ship.Location.Y - 1; y <= ship.Location.Y + ship.ShipHeight; y++)
                         {
-                            hits.Add(new Location(x, y));
+                            if (x < 10 && y < 10 && x > -1 && y > -1)
+                            {
+                                hits.Add(new Location(x, y));
+                            }
                         }
                     }
-                }
-                Ships.Add((Ship)ship.Clone());
-                break;
+                    Ships.Add((Ship)ship.Clone());
+                    break;
             }
 
-            foreach(var hit in hits)
+            foreach (var hit in hits)
             {
                 HitsField[hit.X, hit.Y] = true;
             }

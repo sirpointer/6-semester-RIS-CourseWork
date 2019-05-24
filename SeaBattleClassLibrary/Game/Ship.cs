@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 
 namespace SeaBattleClassLibrary.Game
 {
     [DataContract(Name = "ship")]
+    [DebuggerDisplay("X={Location.X} Y={Location.Y}, ShipClass={ShipClass}, Orientation={Orientation}, Hits={Hits}")]
     public class Ship : NotifyPropertyChanged, ICloneable
     {
         [DataMember(Name = "id")]
@@ -198,6 +200,7 @@ namespace SeaBattleClassLibrary.Game
 
 
     [DataContract(Name = "location")]
+    [DebuggerDisplay("X={X}, Y={Y}")]
     public class Location : NotifyPropertyChanged, IEquatable<Location>, ICloneable
     {
         private int x;
