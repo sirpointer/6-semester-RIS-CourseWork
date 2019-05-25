@@ -7,9 +7,10 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="{ThemeResource SystemControlAcrylicWindowBrush}">
-    
+
+    <Canvas>
     <Grid>
-        <ProgressRing Name="progressRing" Width="300" Height="300"></ProgressRing>
+        <ProgressRing Name="progressRing" Canvas.ZIndex="3" Width="300" Height="300"></ProgressRing>
         <StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Grid Name="Player1Grid" Width="300" Height="300" Margin="30"></Grid>
@@ -19,4 +20,5 @@
             <TextBlock Name="tbWait" Visibility="Collapsed" FontSize="24">Ожидайте хода противника</TextBlock>
         </StackPanel>
     </Grid>
+    </Canvas>
 </Page>

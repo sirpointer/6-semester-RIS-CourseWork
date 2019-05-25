@@ -47,11 +47,14 @@ namespace SeaBattleClient
 
         Player player = null;
 
+        /// <summary>
+        /// Переход на данную страницу.
+        /// </summary>
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
             if (e.Parameter != null)
-                player=e.Parameter as Player;
+                player = e.Parameter as Player;
         }
 
         public StartPage()
@@ -60,12 +63,22 @@ namespace SeaBattleClient
             progresRing.IsActive = false;
         }
 
+        /// <summary>
+        /// Порт сервера.
+        /// </summary>
         private const int port = 11000;
+
         // The response from the remote device.  
         private static String response = String.Empty;
 
+        /// <summary>
+        /// Управление потоком.
+        /// </summary>
         public static ManualResetEvent pingDone = new ManualResetEvent(false);
 
+        /// <summary>
+        /// Создать игру.
+        /// </summary>
         private async void BtnCreateGame_Click(object sender, RoutedEventArgs e)
         {
             string ip = tbInputIP.Text.Trim();
@@ -93,6 +106,9 @@ namespace SeaBattleClient
             }
         }
 
+        /// <summary>
+        /// Присоединиться к игре.
+        /// </summary>
         private async void BtnJoinGame_Click(object sender, RoutedEventArgs e)
         {
             string ip = tbInputIP.Text.Trim();
@@ -113,8 +129,6 @@ namespace SeaBattleClient
                     return;
                 }
 
-
-
                 Model.IPEndPoint = remoteEP;
                 ElementEnable(true);
 
@@ -122,6 +136,9 @@ namespace SeaBattleClient
             }
         }
 
+        /// <summary>
+        /// Блокировать/активировать элементы управления на странице.
+        /// </summary>
         private void ElementEnable(bool enabled)
         {
             progresRing.IsActive = !enabled;
@@ -131,144 +148,178 @@ namespace SeaBattleClient
             tbInputIP.IsEnabled = enabled;
         }
 
+        /// <summary>
+        /// Попытка установить соединение с сервером.
+        /// </summary>
+        /// <param name="ip">ip адрес сервера.</param>
         private IPEndPoint ConnectServer(string ip)
         {
             try
             {
                 IPEndPoint remoteEP;
                 pingDone.Reset();
-                //IPHostEntry ipHostInfo = Dns.GetHostEntry(ip);
-                //IPAddress ipAddress = ipHostInfo.AddressList.Where(x => x.AddressFamily == AddressFamily.InterNetwork).Last();
                 System.Net.IPAddress addr = System.Net.IPAddress.Parse(ip);
                 remoteEP = new IPEndPoint(addr, port);
 
-                // Create a TCP/IP socket.  
                 Socket client = new Socket(addr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
                 StateObject state = new StateObject();
                 state.workSocket = client;
                 state.obj = this;
-
-                // Connect to the remote endpoint.  
+                
                 client.BeginConnect(remoteEP, new AsyncCallback(ConnectCallback), state);
                 pingDone.WaitOne();
                 return remoteEP;
             }
             catch (Exception e)
             {
+                (Parent as Frame).Navigate(typeof(ErrorPage));
                 Debug.WriteLine(e);
                 return null;
             }
         }
 
-        private static void ConnectCallback(IAsyncResult ar)  ///////////////////////////////////////////
+        /// <summary>
+        /// Установка соединения.
+        /// </summary>
+        /// <param name="ar"></param>
+        private static async void ConnectCallback(IAsyncResult ar)
         {
+            Frame parent = null;
+            StartPage page = null;
             try
-            {
-                // Retrieve the socket from the state object.  
+            {  
                 StateObject state = (StateObject)ar.AsyncState;
                 Socket client = state.workSocket;
 
-                // Complete the connection.  
+                page = (StartPage)state.obj;
+
+                await page.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => {
+                    parent = page.Parent as Frame;
+                });
+ 
                 client.EndConnect(ar);
-
+                int a = 0;
+                int i = 9 / a;
                 Debug.WriteLine("Socket connected to {0}", client.RemoteEndPoint.ToString());
-
-
+                
                 JObject jObject = new JObject();
                 jObject.Add(JsonStructInfo.Type, Request.EnumTypeToString(Request.RequestTypes.Ping));
                 jObject.Add(JsonStructInfo.Result, "");
 
                 string s = jObject.ToString() + JsonStructInfo.EndOfMessage;
-
-                // Send test data to the remote device.  
+  
                 Send(state, s);
             }
             catch (Exception e)
             {
+                GoToErrorPage(page);
                 Debug.WriteLine(e.ToString());
-                //(Parent as Frame).Navigate(typeof(ErrorPage));
+                return;
             }
         }
 
-        private static void Send(StateObject state, String data) ////////////////////////////////////
+        /// <summary>
+        /// Переход на страницу ошибки.
+        /// </summary>
+        public static async void GoToErrorPage(Page page)
         {
+            await page.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                ((Frame)((StartPage)page).Parent).Navigate(typeof(ErrorPage));
+            });
+        }
+
+        /// <summary>
+        /// Отправка сообщения на сервер.
+        /// </summary>
+        private static void Send(StateObject state, String data)
+        {
+            StartPage page = null;
             try
             {
-
                 Socket client = state.workSocket;
-                // Convert the string data to byte data using ASCII encoding.  
-                byte[] byteData = Encoding.UTF8.GetBytes(data);
+                page = (StartPage)state.obj;
 
-                // Begin sending the data to the remote device.  
+                byte[] byteData = Encoding.UTF8.GetBytes(data);
+                
                 client.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), state);
-            } catch
+            }
+            catch(Exception e)
             {
-                //(Parent as Frame).Navigate(typeof(ErrorPage));
+                GoToErrorPage(page);
+                Debug.WriteLine(e.ToString());
+                return;
             }
 
         }
 
+        /// <summary>
+        /// Сообщение доставлено.
+        /// </summary>
         private static void SendCallback(IAsyncResult ar)
         {
+            StartPage page = null;
             try
             {
-                // Retrieve the socket from the state object.  
                 StateObject state = (StateObject)ar.AsyncState;
                 Socket client = state.workSocket;
-
-                // Complete sending the data to the remote device.  
+                page = (StartPage)state.obj;
                 int bytesSent = client.EndSend(ar);
                 Debug.WriteLine("Sent {0} bytes to server.", bytesSent);
-
-                // Signal that all bytes have been sent.  
+                
                 Receive(state);
-
             }
             catch (Exception e)
             {
                 Debug.WriteLine(e.ToString());
+                GoToErrorPage(page);
+                return;
             }
         }
 
+        /// <summary>
+        /// Начать ожидание сообщения от сервера.
+        /// </summary>
         private static void Receive(StateObject state)
         {
+            StartPage page = null;
             try
             {
                 Socket client = state.workSocket;
-                // Begin receiving the data from the remote device.  
+                page = (StartPage)state.obj;
                 client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
             }
             catch (Exception e)
             {
+                GoToErrorPage(page);
                 Debug.WriteLine(e.ToString());
+                return;
             }
         }
 
+        /// <summary>
+        /// Получение сообщения.
+        /// </summary>
         private static void ReceiveCallback(IAsyncResult ar)
         {
+            StartPage page = null;
             try
             {
-                // Retrieve the state object and the client socket   
-                // from the asynchronous state object.  
                 StateObject state = (StateObject)ar.AsyncState;
                 Socket client = state.workSocket;
-                StartPage startPage = state.obj as StartPage;
+                page = (StartPage)state.obj;
 
-                // Read data from the remote device.  
                 int bytesRead = client.EndReceive(ar);
 
                 if (bytesRead > 0)
                 {
-                    // There might be more data, so store the data received so far.  
                     state.sb.Append(Encoding.UTF8.GetString(state.buffer, 0, bytesRead));
-
-                    // Get the rest of the data.  
+                    
                     client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
                 }
                 else
                 {
-                    // All the data has arrived; put it in response.  
                     if (state.sb.Length > 1)
                     {
                         response = state.sb.ToString();
@@ -282,7 +333,9 @@ namespace SeaBattleClient
             }
             catch (Exception e)
             {
+                GoToErrorPage(page);
                 Debug.WriteLine(e.ToString());
+                return;
             }
         }
     }
