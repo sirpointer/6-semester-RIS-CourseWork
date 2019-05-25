@@ -163,8 +163,8 @@ namespace SeaBattleClassLibrary.Game
             {
                 for (int y = 0; y < ShipHeight && hitLocation.Y + y < Location.Size; y++)
                 {
-                    hitLocation.X += x;
-                    hitLocation.Y += y;
+                    hitLocation.X = Location.X + x;
+                    hitLocation.Y = Location.Y + y;
 
                     if (hitLocation.Equals(location))
                     {
