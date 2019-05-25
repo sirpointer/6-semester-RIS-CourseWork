@@ -507,13 +507,22 @@ namespace SeaBattleClient
                 Player.CanShot = result == Answer.AnswerTypes.Yes ? true : false;
                 (Parent as Frame).Navigate(typeof(GamePage), Player);
             } 
-            else
+            else if (dataType == Answer.AnswerTypes.Ok)
             {
                 pingDone.Reset();
                 Receive(so);
                 pingDone.WaitOne();
                 WaitOtherPlayer(socket);
             }
+            else
+            {
+                Timer timer = new Timer(new TimerCallback(TryStart), Player.PlayerSocket, 0, 5);
+            }
+        }
+
+        private void TryStart(object state)
+        {
+
         }
 
         private static void ConnectCallback(IAsyncResult ar)
