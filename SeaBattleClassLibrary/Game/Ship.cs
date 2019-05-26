@@ -5,6 +5,9 @@ using System.Runtime.Serialization;
 
 namespace SeaBattleClassLibrary.Game
 {
+    /// <summary>
+    /// Представляет корабль.
+    /// </summary>
     [DataContract(Name = "ship")]
     [DebuggerDisplay("X={Location.X} Y={Location.Y}, ShipClass={ShipClass}, Orientation={Orientation}, Hits={Hits}")]
     public class Ship : NotifyPropertyChanged, ICloneable

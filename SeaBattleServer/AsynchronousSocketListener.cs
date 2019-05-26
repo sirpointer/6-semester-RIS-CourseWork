@@ -158,6 +158,12 @@ namespace SeaBattleServer
                 session = sessions.Find(x => x.Player1?.IPEndPoint == handler.RemoteEndPoint || x.Player2?.IPEndPoint == handler.RemoteEndPoint);
             }
 
+            if (session == null)
+            {
+                handler?.Shutdown(SocketShutdown.Both);
+                handler?.Close();
+            }
+
             if (!session.CanGo)
             {
                 BeginReceive(handler);
@@ -188,7 +194,15 @@ namespace SeaBattleServer
 
             if (player2.GameField.IsGameOver)
             {
-#warning !!
+                player1?.PlayerSocket?.Shutdown(SocketShutdown.Both);
+                player1?.PlayerSocket?.Close();
+                player2?.PlayerSocket?.Shutdown(SocketShutdown.Both);
+                player2?.PlayerSocket?.Close();
+
+                lock (sessions)
+                {
+                    sessions.Remove(session);
+                }
             }
 
             if (ship == null)
@@ -350,22 +364,14 @@ namespace SeaBattleServer
         /// </summary>
         private static void SendOk(Socket handler, bool closeSocket = false)
         {
-            try
-            {
-                string data = AnswerHandler.GetOkMessage();
-                byte[] byteData = Encoding.UTF8.GetBytes(data);
-                Console.WriteLine($"Sending: {data}");
+            string data = AnswerHandler.GetOkMessage();
+            byte[] byteData = Encoding.UTF8.GetBytes(data);
+            Console.WriteLine($"Sending: {data}");
 
-                if (closeSocket)
-                    handler.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), handler);
-                else
-                    handler.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallbackSaveConnect), handler);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                handler?.Close();
-            }
+            if (closeSocket)
+                handler.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), handler);
+            else
+                handler.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallbackSaveConnect), handler);
         }
 
         /// <summary>
@@ -409,6 +415,7 @@ namespace SeaBattleServer
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
+                handler?.Shutdown(SocketShutdown.Both);
                 handler?.Close();
             }
         }
@@ -419,16 +426,8 @@ namespace SeaBattleServer
         /// <param name="socket"></param>
         private static void BeginReceive(Socket socket)
         {
-            try
-            {
-                StateObject state = new StateObject() { workSocket = socket };
-                socket.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None, new AsyncCallback(ReadCallback), state);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                socket?.Close();
-            }
+            StateObject state = new StateObject() { workSocket = socket };
+            socket.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None, new AsyncCallback(ReadCallback), state);
         }
 
         /// <summary>
@@ -449,16 +448,8 @@ namespace SeaBattleServer
         /// <param name="message">Сообщение.</param>
         private static void BeginSend(Socket socket, string message)
         {
-            try
-            {
-                byte[] data = Encoding.UTF8.GetBytes(message);
-                socket.BeginSend(data, 0, data.Length, SocketFlags.None, new AsyncCallback(SendCallback), socket);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                socket?.Close();
-            }
+            byte[] data = Encoding.UTF8.GetBytes(message);
+            socket.BeginSend(data, 0, data.Length, SocketFlags.None, new AsyncCallback(SendCallback), socket);
         }
 
         static void Main(string[] args)

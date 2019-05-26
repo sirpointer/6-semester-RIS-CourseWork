@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace SeaBattleServer
 {
+    /// <summary>
+    /// Представляет игровую сесиию.
+    /// </summary>
     [DebuggerDisplay("{SessionName}\n{Player1}\n{Player2}")]
     internal class GameSession
     {

@@ -5,6 +5,9 @@ using System.Linq;
 
 namespace SeaBattleClassLibrary.Game
 {
+    /// <summary>
+    /// Представляет базовый класс для игрового поля. Является абстрактным.
+    /// </summary>
     [DebuggerDisplay("{Ships[0]\nShips[1]\nShips[2]\nShips[3]\nShips[4]\n" +
         "Ships[5]\nShips[6]\nShips[7]\nShips[8]\nShips[9]\n}")]
     public abstract class Field : NotifyPropertyChanged
@@ -41,6 +44,9 @@ namespace SeaBattleClassLibrary.Game
             Ships.Capacity = 10;
         }
 
+        /// <summary>
+        /// Окончена ли игра.
+        /// </summary>
         public bool IsGameOver
         {
             get
@@ -57,15 +63,16 @@ namespace SeaBattleClassLibrary.Game
                 return false;
             }
         }
-
-
-        public Field()
+        
+        protected Field()
         {
             Ships = new List<Ship>(10);
         }
     }
 
-
+    /// <summary>
+    /// Представляет игровое поле, где известны все корабли.
+    /// </summary>
     public class GameField : Field
     {
         public GameField() : base()
@@ -165,8 +172,8 @@ namespace SeaBattleClassLibrary.Game
         /// <summary>
         /// Задает новое расположение кораблю, проверяя не накладывается ли он на другие.
         /// </summary>
-        /// <param name="ship"></param>
-        /// <param name="location"></param>
+        /// <param name="ship">Корабль который необходимо установить.</param>
+        /// <param name="location">Позиция куда должен встать корабль.</param>
         /// <returns>True если расположение задано, false если нет.</returns>
         public bool SetShipLocation(Ship ship, Location location)
         {
@@ -201,7 +208,7 @@ namespace SeaBattleClassLibrary.Game
         /// </summary>
         /// <param name="targetShip">Корабль, который следует расположить на поле.</param>
         /// <param name="anotherShip">Корабль, который уже лежит на поле.</param>
-        /// <returns></returns>
+        /// <returns>true - если не накладывется, иначе false.</returns>
         private bool CheckOverlay(Ship targetShip, Ship anotherShip)
         {
             int left = (anotherShip.Location.X - 1) >= 0 ? (anotherShip.Location.X - 1) : anotherShip.Location.X;
@@ -250,7 +257,7 @@ namespace SeaBattleClassLibrary.Game
         /// Проверяет не попадает ли <paramref name="targetLocation"/> на позиции в диапозоне 
         /// от <paramref name="leftUp"/> до <paramref name="right"/> и <paramref name="down"/>
         /// </summary>
-        /// <param name="targetLocation"></param>
+        /// <param name="targetLocation">Позиция которую нужно проверить.</param>
         /// <param name="leftUp">Левый верхняя позиция.</param>
         /// <param name="right">На сколько позиция лежит вправо.</param>
         /// <param name="down">На сколько позиция лежит вниз.</param>
@@ -277,8 +284,15 @@ namespace SeaBattleClassLibrary.Game
         #endregion
     }
 
+    /// <summary>
+    /// Представляет игровое поле, где корабли неизвестны.
+    /// Вражеское поле.
+    /// </summary>
     public class EnemyGameField : Field
     {
+        /// <summary>
+        /// Происходит, когда был произведен выстрел по полю.
+        /// </summary>
         public event EventHandler<ShotEventArgs> EnemyShot;
 
         private void OnEnemyShot(object sender, ShotEventArgs e)
@@ -288,6 +302,12 @@ namespace SeaBattleClassLibrary.Game
 
         public EnemyGameField() : base() { }
 
+        /// <summary>
+        /// Выстрел по полю.
+        /// </summary>
+        /// <param name="location">Позиция выстрела.</param>
+        /// <param name="shotResult">Результат выстрела.</param>
+        /// <param name="ship">Корабль по которому был произведен выстрел.</param>
         public void Shot(Location location, ShotResult shotResult, Ship ship)
         {
             List<Location> hits = new List<Location>();
@@ -329,7 +349,9 @@ namespace SeaBattleClassLibrary.Game
         }
     }
 
-
+    /// <summary>
+    /// Представляет данные о выстреле.
+    /// </summary>
     public class ShotEventArgs : EventArgs
     {
         public ShotEventArgs(List<Location> hits, ShotResult shotResult, Ship ship)
@@ -339,17 +361,40 @@ namespace SeaBattleClassLibrary.Game
             ShotResult = shotResult;
         }
 
+        /// <summary>
+        /// Позиции, которые затронул выстел.
+        /// </summary>
         public List<Location> Hits { get; }
         
+        /// <summary>
+        /// Результат выстрела.
+        /// </summary>
         public ShotResult ShotResult { get; }
 
+        /// <summary>
+        /// Корабль, по которому был произведен выстрел.
+        /// </summary>
         public Ship Ship { get; }
     }
 
+    /// <summary>
+    /// Результат выстрела по полю.
+    /// </summary>
     public enum ShotResult
     {
+        /// <summary>
+        /// Убил.
+        /// </summary>
         Kill,
+
+        /// <summary>
+        /// Промах.
+        /// </summary>
         Miss,
+
+        /// <summary>
+        /// Попал.
+        /// </summary>
         Damage
     }
 
