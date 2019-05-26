@@ -47,8 +47,6 @@ namespace SeaBattleClient
         public static EnemyGameField EnemyGameField = new EnemyGameField();
         public static GameField MyGameField;
 
-
-
         /// <summary>
         /// Выстрел по мне.
         /// </summary>
@@ -83,6 +81,12 @@ namespace SeaBattleClient
                     Model.CanShot = false;
                 }
             });
+
+            if (MyGameField.IsGameOver)
+            {
+                tbGameResult.Text = "Вы проиграли";
+                btnStartNewGame.Visibility = Visibility.Visible;
+            }
 
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
@@ -127,16 +131,21 @@ namespace SeaBattleClient
                 }
                 else if (e.ShotResult == Game.ShotResult.Kill) //убил
                 {
-                    //Location loc = new Location(1, 1);
-                    Ship s = (Ship)e.Ship.Clone();//new Ship(100, ShipClass.TwoDeck, Game.Orientation.Horizontal, loc);
-                    ClientShip ship = new ClientShip(s.Id, s.ShipClass, s.Orientation, s.Location); // сюда передается кораблик
+                    Ship s = (Ship)e.Ship.Clone();
+                    ClientShip ship = new ClientShip(s.Id, s.ShipClass, s.Orientation, s.Location);
 
                     KillShip(ship, Player2Grid);
                     SetImage(ship.Source, ship.ShipWidth, ship.ShipHeight, ship.Location.X, ship.Location.Y, Player2Grid);
                     Model.CanShot = true;
                 }
             });
-            
+
+            if (EnemyGameField.IsGameOver)
+            {
+                tbGameResult.Text = "Вы победили";
+                btnStartNewGame.Visibility = Visibility.Visible;
+            }
+
             await AwaitEnemyView();
         }
 
@@ -187,7 +196,6 @@ namespace SeaBattleClient
 
                 StateObject state = new StateObject();
                 state.workSocket = client;
-                //state.obj = EnemyGameField;
 
                 JObject jObject = new JObject();
                 jObject.Add(JsonStructInfo.Type, Request.EnumTypeToString(Request.RequestTypes.Shot));
@@ -323,8 +331,6 @@ namespace SeaBattleClient
             }
         }
 
-
-
         private static void Send(StateObject state, String data)
         {
             Socket client = state.workSocket;
@@ -333,8 +339,7 @@ namespace SeaBattleClient
             
             client.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), state);
         }
-
-
+        
         private static StateObject stateObject = new StateObject();
 
         private static void SendCallback(IAsyncResult ar)
@@ -356,10 +361,7 @@ namespace SeaBattleClient
                 Console.WriteLine(e.ToString());
             }
         }
-
         
-
-
         public static Answer.AnswerTypes GetAnswerType(string jsonRequest)
         {
             JObject jObject;
@@ -387,8 +389,7 @@ namespace SeaBattleClient
                 return Answer.AnswerTypes.Error;
             }
         }
-
-
+        
         #region init
 
         public GamePage()
@@ -427,8 +428,6 @@ namespace SeaBattleClient
                 Socket socket = Model.PlayerSocket;
 
                 byte[] resp = new byte[1024];
-
-                //добавить надпись ждите хода
 
                 Task.Run(() =>
                 {
@@ -550,5 +549,10 @@ namespace SeaBattleClient
         }
 
         #endregion
+
+        private void BtnStartNewGame_Click(object sender, RoutedEventArgs e)
+        {
+            (Parent as Frame).Navigate(typeof(StartPage));
+        }
     }
 }
