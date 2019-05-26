@@ -46,10 +46,36 @@ namespace SeaBattleClient
             this.InitializeComponent();
         }
 
+        /// <summary>
+        /// Отменить создание игры
+        /// </summary>
+        private void BtnCancle_Click(object sender, RoutedEventArgs e)
+        {
+            Frame frame = (Parent as Frame);
+            if (frame.CanGoBack)
+                frame.GoBack();
+        }
+
         public static ManualResetEvent pingDone = new ManualResetEvent(false);
         public static string playerName = String.Empty;
         public static string gameName = string.Empty;
 
+        /// <summary>
+        /// Блокировка элементов
+        /// </summary>
+        private void ElementEnable(bool enabled)
+        {
+            progresRing.IsActive = !enabled;
+
+            btnCancle.IsEnabled = enabled;
+            btnStartGame.IsEnabled = enabled;
+            tbGameName.IsEnabled = enabled;
+            tbPlayerName.IsEnabled = enabled;
+        }
+
+        /// <summary>
+        /// Начать игру
+        /// </summary>
         private async void BtnStartGame_Click(object sender, RoutedEventArgs e)
         {
             playerName = tbPlayerName.Text.Trim();
@@ -84,23 +110,9 @@ namespace SeaBattleClient
             }
         }
 
-        private void ElementEnable(bool enabled)
-        {
-            progresRing.IsActive = !enabled;
-
-            btnCancle.IsEnabled = enabled;
-            btnStartGame.IsEnabled = enabled;
-            tbGameName.IsEnabled = enabled;
-            tbPlayerName.IsEnabled = enabled;
-        }
-
-        private void BtnCancle_Click(object sender, RoutedEventArgs e)
-        {
-            Frame frame = (Parent as Frame);
-            if (frame.CanGoBack)
-                frame.GoBack();
-        }
-
+        /// <summary>
+        /// попытка соединения
+        /// </summary>
         private static void ConnectCallback(IAsyncResult ar)
         {
             try
@@ -131,6 +143,9 @@ namespace SeaBattleClient
             }
         }
 
+        /// <summary>
+        /// Отправка сообщения на сервер.
+        /// </summary>
         private static void Send(StateObject state, String data)
         {
             Socket client = state.workSocket;
@@ -141,6 +156,9 @@ namespace SeaBattleClient
             client.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), state);
         }
 
+        /// <summary>
+        /// Сообщение доставлено.
+        /// </summary>
         private static void SendCallback(IAsyncResult ar)
         {
             try
@@ -163,6 +181,9 @@ namespace SeaBattleClient
             }
         }
 
+        /// <summary>
+        /// Начать ожидание сообщения от сервера.
+        /// </summary>
         private static void Receive(StateObject state)
         {
             try
@@ -176,14 +197,13 @@ namespace SeaBattleClient
             }
         }
 
+        /// <summary>
+        /// Получение ответа от сервера
+        /// </summary>
         private static void ReceiveCallback(IAsyncResult ar)
         {
             try
-            {
-                // Retrieve the state object and the client socket   
-                // from the asynchronous state object.  
-                // Retrieve the state object and the client socket   
-                // from the asynchronous state object.  
+            { 
                 StateObject state = (StateObject)ar.AsyncState;
                 Socket client = state.workSocket;
 

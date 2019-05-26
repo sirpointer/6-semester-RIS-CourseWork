@@ -71,6 +71,18 @@ namespace SeaBattleClient
         public static ManualResetEvent pingDone = new ManualResetEvent(false);
 
         /// <summary>
+        /// Блокировать/активировать элементы управления на странице.
+        /// </summary>
+        private void ElementEnable(bool enabled)
+        {
+            progresRing.IsActive = !enabled;
+
+            btnCreateGame.IsEnabled = enabled;
+            btnJoinGame.IsEnabled = enabled;
+            tbInputIP.IsEnabled = enabled;
+        }
+
+        /// <summary>
         /// Создать игру.
         /// </summary>
         private async void BtnCreateGame_Click(object sender, RoutedEventArgs e)
@@ -131,18 +143,6 @@ namespace SeaBattleClient
         }
 
         /// <summary>
-        /// Блокировать/активировать элементы управления на странице.
-        /// </summary>
-        private void ElementEnable(bool enabled)
-        {
-            progresRing.IsActive = !enabled;
-
-            btnCreateGame.IsEnabled = enabled;
-            btnJoinGame.IsEnabled = enabled;
-            tbInputIP.IsEnabled = enabled;
-        }
-
-        /// <summary>
         /// Попытка установить соединение с сервером.
         /// </summary>
         /// <param name="ip">ip адрес сервера.</param>
@@ -172,6 +172,8 @@ namespace SeaBattleClient
                 return null;
             }
         }
+
+        #region ConnectServer
 
         /// <summary>
         /// Установка соединения.
@@ -209,17 +211,6 @@ namespace SeaBattleClient
                 Debug.WriteLine(e.ToString());
                 return;
             }
-        }
-
-        /// <summary>
-        /// Переход на страницу ошибки.
-        /// </summary>
-        public static async void GoToErrorPage(Page page)
-        {
-            await page.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-            {
-                MainPage.MainFrame?.Navigate(typeof(ErrorPage));
-            });
         }
 
         /// <summary>
@@ -329,6 +320,19 @@ namespace SeaBattleClient
                 Debug.WriteLine(e.ToString());
                 return;
             }
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Переход на страницу ошибки.
+        /// </summary>
+        public static async void GoToErrorPage(Page page)
+        {
+            await page.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                MainPage.MainFrame?.Navigate(typeof(ErrorPage));
+            });
         }
     }
 }

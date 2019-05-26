@@ -55,7 +55,6 @@ namespace SeaBattleClient
         /// <summary>
         /// Переход на данную страницу.
         /// </summary>
-        /// <param name="e"></param>
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
@@ -101,8 +100,6 @@ namespace SeaBattleClient
         /// <summary>
         /// Возвращает тело запроса.
         /// </summary>
-        /// <param name="jsonRequest"></param>
-        /// <returns></returns>
         public static string GetJsonRequestResult(string jsonRequest)
         {
             JObject jObject;
@@ -128,6 +125,9 @@ namespace SeaBattleClient
             }
         }
 
+        /// <summary>
+        /// Возвращает тип ответа
+        /// </summary>
         public static Answer.AnswerTypes GetAnswerType(string jsonRequest)
         {
             JObject jObject;
@@ -159,6 +159,81 @@ namespace SeaBattleClient
             this.InitializeComponent();
         }
 
+
+        private void BtnCancle_Click(object sender, RoutedEventArgs e)
+        {
+            Frame frame = (Parent as Frame);
+            if (frame.CanGoBack)
+                frame.GoBack();
+        }
+
+        /// <summary>
+        /// Выбор игры
+        /// </summary>
+        private async void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ElementEnabled(true);
+
+            IPEndPoint remoteEP = Model.IPEndPoint;
+            var a = e.AddedItems.ToList();
+
+            string s = ((e.AddedItems.ToList()[0] as StackPanel).Children[0] as TextBlock).Text;
+            string gameName = s.Substring(6, s.IndexOf('\n') - 6);
+            Socket socket = null;
+
+            await Task.Run(() =>
+            {
+                pingDone.Reset();
+
+                // Create a TCP/IP socket.  
+                Socket client = new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+                StateObject state = new StateObject();
+                state.workSocket = client;
+                state.obj = gameName;
+                socket = client;
+
+                // Connect to the remote endpoint.  
+                client.BeginConnect(remoteEP, new AsyncCallback(ConnectCallback1), state);
+                pingDone.WaitOne();
+            });
+
+            Model.PlayerSocket = socket;
+            Answer.AnswerTypes dataType = GetAnswerType(response);
+
+            if (dataType == Answer.AnswerTypes.Ok)
+            {
+                MainPage.MainFrame?.Navigate(typeof(BeginPage), Model);
+            }
+
+            ElementEnabled(false);
+        }
+
+        /// <summary>
+        /// блокировка элементов
+        /// </summary>
+        private void ElementEnabled(bool enable)
+        {
+            progressRing.IsActive = enable;
+            btnCancle.IsEnabled = !enable;
+        }
+
+        /// <summary>
+        /// Переход на страницу ошибки.
+        /// </summary>
+        public static async void GoToErrorPage(Page page)
+        {
+            await page.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                MainPage.MainFrame?.Navigate(typeof(ErrorPage));
+            });
+        }
+
+        #region GetListGame
+
+        /// <summary>
+        /// попытка соединения
+        /// </summary>
         private static void ConnectCallback(IAsyncResult ar)
         {
             JoinGamePage page = null;
@@ -191,16 +266,8 @@ namespace SeaBattleClient
         }
 
         /// <summary>
-        /// Переход на страницу ошибки.
+        /// Отправка сообщения на сервер.
         /// </summary>
-        public static async void GoToErrorPage(Page page)
-        {
-            await page.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-            {
-                MainPage.MainFrame?.Navigate(typeof(ErrorPage));
-            });
-        }
-
         private static void Send(StateObject state, String data)
         {
             JoinGamePage page = null;
@@ -222,6 +289,9 @@ namespace SeaBattleClient
             }
         }
 
+        /// <summary>
+        /// Сообщение доставлено.
+        /// </summary>
         private static async void SendCallback(IAsyncResult ar)
         {
             Frame parent = null;
@@ -253,6 +323,9 @@ namespace SeaBattleClient
             }
         }
 
+        /// <summary>
+        /// Начать ожидание сообщения от сервера.
+        /// </summary>
         private static void Receive(StateObject state)
         {
             try
@@ -266,6 +339,9 @@ namespace SeaBattleClient
             }
         }
 
+        /// <summary>
+        /// Получение ответа от сервера
+        /// </summary>
         private static async void ReceiveCallback(IAsyncResult ar)
         {
             Frame parent = null;
@@ -280,7 +356,8 @@ namespace SeaBattleClient
 
                 page = (JoinGamePage)state.obj;
 
-                await page.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => {
+                await page.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
                     parent = page.Parent as Frame;
                 });
                 // Read data from the remote device.  
@@ -304,63 +381,25 @@ namespace SeaBattleClient
 
                     client.Shutdown(SocketShutdown.Both);
                     client.Close();
-                    
+
                     pingDone.Set();
                 }
-            } 
-            catch (Exception e)
+            } catch (Exception e)
             {
                 GoToErrorPage(page);
                 Debug.WriteLine(e.ToString());
                 return;
             }
-        }        
-
-        private async void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ElementEnabled(true);
-
-            IPEndPoint remoteEP = Model.IPEndPoint;
-            var a = e.AddedItems.ToList();
-
-            string s = ((e.AddedItems.ToList()[0] as StackPanel).Children[0] as TextBlock).Text;
-            string gameName = s.Substring(6, s.IndexOf('\n') - 6);
-            Socket socket = null;
-
-            await Task.Run(() =>
-            {
-                pingDone.Reset();
-
-                // Create a TCP/IP socket.  
-                Socket client = new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
-                StateObject state = new StateObject();
-                state.workSocket = client;
-                state.obj = gameName;
-                socket = client;
-                
-                // Connect to the remote endpoint.  
-                client.BeginConnect(remoteEP, new AsyncCallback(ConnectCallback1), state);
-                pingDone.WaitOne();
-            });
-
-            Model.PlayerSocket = socket;
-            Answer.AnswerTypes dataType = GetAnswerType(response);
-
-            if (dataType == Answer.AnswerTypes.Ok)
-            {
-                MainPage.MainFrame?.Navigate(typeof(BeginPage), Model);
-            }
-
-            ElementEnabled(false);
         }
 
-        private void ElementEnabled(bool enable)
-        {
-            progressRing.IsActive = enable;
-            btnCancle.IsEnabled = !enable;
-        }
+        #endregion
 
+
+        #region StartGame
+
+        /// <summary>
+        /// попытка соединения
+        /// </summary>
         private static void ConnectCallback1(IAsyncResult ar)
         {
             try
@@ -401,6 +440,9 @@ namespace SeaBattleClient
             client.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback1), state);
         }
 
+        /// <summary>
+        /// Сообщение доставлено.
+        /// </summary>
         private static void SendCallback1(IAsyncResult ar)
         {
             try
@@ -423,6 +465,9 @@ namespace SeaBattleClient
             }
         }
 
+        /// <summary>
+        /// Начать ожидание сообщения от сервера.
+        /// </summary>
         private static void Receive1(StateObject state)
         {
             try
@@ -437,6 +482,9 @@ namespace SeaBattleClient
             }
         }
 
+        /// <summary>
+        /// Получение ответа от сервера
+        /// </summary>
         private static void ReceiveCallback1(IAsyncResult ar)
         {
             try
@@ -466,11 +514,6 @@ namespace SeaBattleClient
             }
         }
 
-        private void BtnCancle_Click(object sender, RoutedEventArgs e)
-        {
-            Frame frame = (Parent as Frame);
-            if (frame.CanGoBack)
-                frame.GoBack();
-        }
+        #endregion
     }
 }

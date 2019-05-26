@@ -98,6 +98,8 @@ namespace SeaBattleClient
             FillFieldWithRectangle();
         }
 
+        #region Field
+
         private void FillFieldWithRectangle()
         {
             for (int i = 0; i < FieldGrid.RowDefinitions.Count; i++)
@@ -123,6 +125,22 @@ namespace SeaBattleClient
                 FieldGrid.ColumnDefinitions.Add(new ColumnDefinition());
             }
         }
+
+        /// <summary>
+        /// Убирание подсветки
+        /// </summary>
+        private void FillBackField()
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                Rectangle rect = (Rectangle)FieldGrid.Children[i];
+                rect.Fill = new SolidColorBrush(backColor);
+            }
+        }
+
+        #endregion
+
+        #region Events
 
         /// <summary>
         /// для определения координат
@@ -200,21 +218,11 @@ namespace SeaBattleClient
                                             }
                                         }
                                     }
-                                    
                                 }
                             }
                         }
                     }
                 }
-            }
-        }
-
-        private void FillBackField()
-        {
-            for (int i = 0; i < 100; i++)
-            {
-                Rectangle rect = (Rectangle)FieldGrid.Children[i];
-                rect.Fill = new SolidColorBrush(backColor);
             }
         }
 
@@ -283,8 +291,9 @@ namespace SeaBattleClient
                         Canvas.SetTop(image, 0);
                         ship.Location = new Location();
                     }
-                } else
-                { //эта херня полностью дублирует методы при срывании
+                } 
+                else
+                {
                     if (ship.Location.X == -1 || ship.Location.Y == -1 || ship.Location.X + ship.ShipWidth >= 10 || ship.Location.Y + ship.ShipHeight >= 10)
                     {
                         Canvas.SetLeft(image, 0);
@@ -316,7 +325,7 @@ namespace SeaBattleClient
                 Canvas.SetTop(image, 0);
                 ship.Location = new Location();
             }
-            //при отпускании снимает подсветку с поля
+
             FillBackField();
         }
 
@@ -357,6 +366,9 @@ namespace SeaBattleClient
             Canvas.SetZIndex(image, 2);
         }
         
+        /// <summary>
+        /// Переворачивание картинки
+        /// </summary>
         private void Image1_RightTapped(object sender, RightTappedRoutedEventArgs e)
         {
             Image image = sender as Image;
@@ -444,30 +456,25 @@ namespace SeaBattleClient
             }
         }
 
+        #endregion
+
+        #region ConnectServer
 
         public static ManualResetEvent pingDone = new ManualResetEvent(false);
 
-        // The response from the remote device.  
         private static String response = String.Empty;
         private static StateObject stateObject = new StateObject();
 
+        /// <summary>
+        /// Начало игры
+        /// </summary>
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
-            //foreach(var imag in canvas.Children)
-            //{
-            //    if (imag is Image)
-            //    {
-            //        if (Canvas.GetZIndex(imag) != 4) { }
-            //            //return;
-            //    }
-            //}
-
             foreach (var ship in Model.Ships)
             {
                 if (!ship.IsSet)
                     return;
             }
-
 
             progressRing.IsActive = true;
             btnStartGame.IsEnabled = false;
@@ -486,7 +493,7 @@ namespace SeaBattleClient
                 pingDone.Reset();
 
                 // Create a TCP/IP socket.  
-                Socket client = socket;//new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                Socket client = socket;
 
                 StateObject state = new StateObject();
                 state.workSocket = client;
@@ -497,11 +504,9 @@ namespace SeaBattleClient
                 jObject.Add(JsonStructInfo.Result, state.obj.ToString());
 
                 string s = jObject.ToString() + JsonStructInfo.EndOfMessage;
-
-                // Send test data to the remote device.  
+                
                 Send(state, s);
-
-                // Connect to the remote endpoint.  
+                
                 pingDone.WaitOne();
             });
 
@@ -535,47 +540,13 @@ namespace SeaBattleClient
             }
         }
 
-        public async void TryStartGameAsync(object ob)
-        {
-            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-             {
-                 IPEndPoint remoteEP = Player.IPEndPoint;
-
-                 List<Ship> ships = new List<Ship>(10);
-                 foreach (ClientShip ship in Model.Ships)
-                     ships.Add(ship.Clone() as Ship);
-
-                 string fieldGame = Serializer<List<Ship>>.Serialize(ships);
-                 Socket socket = Player.PlayerSocket;
-
-                 pingDone.Reset();
-
-                // Create a TCP/IP socket.  
-                Socket client = socket;//new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
-                StateObject state = new StateObject();
-                 state.workSocket = client;
-                 state.obj = fieldGame;
-
-                 JObject jObject = new JObject();
-                 jObject.Add(JsonStructInfo.Type, Request.EnumTypeToString(Request.RequestTypes.SetField));
-                 jObject.Add(JsonStructInfo.Result, state.obj.ToString());
-
-                 string s = jObject.ToString() + JsonStructInfo.EndOfMessage;
-
-                // Send test data to the remote device.  
-                Send(state, s);
-
-                // Connect to the remote endpoint.  
-                pingDone.WaitOne();
-             });
-        }
-
+        /// <summary>
+        /// попытка соединения
+        /// </summary>
         private static void ConnectCallback(IAsyncResult ar)
         {
             try
             {
-                // Retrieve the socket from the state object.  
                 StateObject state = (StateObject)ar.AsyncState;
                 
                 Socket client = state.workSocket;
@@ -601,6 +572,9 @@ namespace SeaBattleClient
             }
         }
 
+        /// <summary>
+        /// Отправка сообщения на сервер.
+        /// </summary>
         private static void Send(StateObject state, String data)
         {
             Socket client = state.workSocket;
@@ -611,6 +585,9 @@ namespace SeaBattleClient
             client.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), state);
         }
 
+        /// <summary>
+        /// Сообщение доставлено.
+        /// </summary>
         private static void SendCallback(IAsyncResult ar)
         {
             try
@@ -633,6 +610,9 @@ namespace SeaBattleClient
             }
         }
 
+        /// <summary>
+        /// Начать ожидание сообщения от сервера.
+        /// </summary>
         private static void Receive(StateObject state)
         {
             try
@@ -646,14 +626,13 @@ namespace SeaBattleClient
             }
         }
 
+        /// <summary>
+        /// Получение ответа от сервера
+        /// </summary>
         private static void ReceiveCallback(IAsyncResult ar)
         {
             try
             {
-                // Retrieve the state object and the client socket   
-                // from the asynchronous state object.  
-                // Retrieve the state object and the client socket   
-                // from the asynchronous state object.  
                 StateObject state = (StateObject)ar.AsyncState;
                 Socket client = state.workSocket;
 
@@ -674,5 +653,6 @@ namespace SeaBattleClient
                 Console.WriteLine(e.ToString());
             }
         }
+        #endregion
     }
 }
