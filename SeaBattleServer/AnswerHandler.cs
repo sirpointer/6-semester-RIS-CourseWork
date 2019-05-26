@@ -90,5 +90,17 @@ namespace SeaBattleServer
 
             return jObject.ToString() + JsonStructInfo.EndOfMessage;
         }
+
+        public static string AwaitSecondPlayer()
+        {
+            Answer.AnswerTypes type = Answer.AnswerTypes.No;
+            string typeStr = Answer.EnumTypeToString(type);
+
+            JObject jObject = new JObject();
+            jObject.Add(JsonStructInfo.Type, typeStr);
+            jObject.Add(JsonStructInfo.Result, "");
+
+            return jObject.ToString() + JsonStructInfo.EndOfMessage;
+        }
     }
 }

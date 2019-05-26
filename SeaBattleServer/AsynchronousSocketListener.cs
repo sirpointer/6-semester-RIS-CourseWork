@@ -186,6 +186,11 @@ namespace SeaBattleServer
             bytesSent = player2.PlayerSocket.Send(data, 0, data.Length, SocketFlags.None);
             Console.WriteLine($"Sent {bytesSent} bytes to {player2.PlayerSocket.RemoteEndPoint.ToString()}.\n{message}\n\n");
 
+            if (player2.GameField.IsGameOver)
+            {
+#warning !!
+            }
+
             if (ship == null)
             {
                 session.WhoseTurn = player2;
@@ -215,7 +220,15 @@ namespace SeaBattleServer
 
             player.GameField = gameField;
             
-            if (secondPlayer.GameField != null && player.GameField != null)
+            // если второй игрок не присоединился
+            if (secondPlayer == null)
+            {
+                string message = AnswerHandler.AwaitSecondPlayer();
+                byte[] data = Encoding.UTF8.GetBytes(message);
+                int bytesSent = player.PlayerSocket.Send(data, 0, data.Length, SocketFlags.None);
+                Console.WriteLine($"Sent {bytesSent} bytes to {secondPlayer.PlayerSocket.RemoteEndPoint.ToString()}.\n{message}\n");
+            }
+            else if (secondPlayer.GameField != null && player.GameField != null)
             {
                 string message = AnswerHandler.GetGameReadyMessage(true);
                 byte[] data = Encoding.UTF8.GetBytes(message);
@@ -332,44 +345,62 @@ namespace SeaBattleServer
                 handler.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallbackSaveConnect), handler);
         }
 
+        /// <summary>
+        /// Отправить Ок.
+        /// </summary>
         private static void SendOk(Socket handler, bool closeSocket = false)
-        {
-            string data = AnswerHandler.GetOkMessage();
-            byte[] byteData = Encoding.UTF8.GetBytes(data);
-            Console.WriteLine($"Sending: {data}");
-
-            if (closeSocket)
-                handler.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), handler);
-            else
-                handler.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallbackSaveConnect), handler);
-        }
-
-        private static void SendCallback(IAsyncResult ar)
         {
             try
             {
-                // Retrieve the socket from the state object.  
-                Socket handler = (Socket)ar.AsyncState;
+                string data = AnswerHandler.GetOkMessage();
+                byte[] byteData = Encoding.UTF8.GetBytes(data);
+                Console.WriteLine($"Sending: {data}");
 
-                // Complete sending the data to the remote device.  
+                if (closeSocket)
+                    handler.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), handler);
+                else
+                    handler.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallbackSaveConnect), handler);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                handler?.Close();
+            }
+        }
+
+        /// <summary>
+        /// Вызывается после отправки сообщения. Закрывает соединение.
+        /// </summary>
+        private static void SendCallback(IAsyncResult ar)
+        {
+            Socket handler = null;
+            try
+            {
+                handler = (Socket)ar.AsyncState;
+
                 int bytesSent = handler.EndSend(ar);
-                Console.WriteLine("Sent {0} bytes to client.", bytesSent);
-                Console.WriteLine();
-
+                Console.WriteLine("Sent {0} bytes to client.\n", bytesSent);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            finally
+            {
                 handler.Shutdown(SocketShutdown.Both);
                 handler.Close();
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
         }
 
+        /// <summary>
+        /// Вызывается после отправки сообщения. Не закрывает соединение.
+        /// </summary>
         private static void SendCallbackSaveConnect(IAsyncResult ar)
         {
+            Socket handler = null;
             try
             {
-                Socket handler = (Socket)ar.AsyncState;
+                handler = (Socket)ar.AsyncState;
 
                 int bytesSent = handler.EndSend(ar);
                 Console.WriteLine("Sent {0} bytes to client.", bytesSent);
@@ -378,6 +409,7 @@ namespace SeaBattleServer
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
+                handler?.Close();
             }
         }
 
@@ -387,26 +419,58 @@ namespace SeaBattleServer
         /// <param name="socket"></param>
         private static void BeginReceive(Socket socket)
         {
-            StateObject state = new StateObject() { workSocket = socket };
-            socket.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None, new AsyncCallback(ReadCallback), state);
+            try
+            {
+                StateObject state = new StateObject() { workSocket = socket };
+                socket.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None, new AsyncCallback(ReadCallback), state);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                socket?.Close();
+            }
         }
 
-
+        /// <summary>
+        /// Асинхронно отправляет данные на подключенный Socket. Оставляет соединение открытым.
+        /// </summary>
+        /// <param name="socket">Socket на который нужно отправить данные.</param>
+        /// <param name="message">Сообщение.</param>
         private static void BeginSendSaveConnect(Socket socket, string message)
         {
             byte[] data = Encoding.UTF8.GetBytes(message);
             socket.BeginSend(data, 0, data.Length, SocketFlags.None, new AsyncCallback(SendCallbackSaveConnect), socket);
         }
 
+        /// <summary>
+        /// Асинхронно отправляет данные на подключенный Socket. Закрывает соединение после отправки.
+        /// </summary>
+        /// <param name="socket">Socket на который нужно отправить данные.</param>
+        /// <param name="message">Сообщение.</param>
         private static void BeginSend(Socket socket, string message)
         {
-            byte[] data = Encoding.UTF8.GetBytes(message);
-            socket.BeginSend(data, 0, data.Length, SocketFlags.None, new AsyncCallback(SendCallback), socket);
+            try
+            {
+                byte[] data = Encoding.UTF8.GetBytes(message);
+                socket.BeginSend(data, 0, data.Length, SocketFlags.None, new AsyncCallback(SendCallback), socket);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                socket?.Close();
+            }
         }
 
         static void Main(string[] args)
         {
-            StartListening();
+            try
+            {
+                StartListening();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
     }
 }

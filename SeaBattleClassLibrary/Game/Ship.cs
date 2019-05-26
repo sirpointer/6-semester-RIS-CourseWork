@@ -9,6 +9,9 @@ namespace SeaBattleClassLibrary.Game
     [DebuggerDisplay("X={Location.X} Y={Location.Y}, ShipClass={ShipClass}, Orientation={Orientation}, Hits={Hits}")]
     public class Ship : NotifyPropertyChanged, ICloneable
     {
+        /// <summary>
+        /// Уникальный идентификатор корабля на поле.
+        /// </summary>
         [DataMember(Name = "id")]
         public readonly int Id;
 
@@ -141,6 +144,9 @@ namespace SeaBattleClassLibrary.Game
             }
         }
 
+        /// <summary>
+        /// Лежит ли данная координата на корабле.
+        /// </summary>
         public bool ContainLocation(Location location)
         {
             for (int x = Location.X; x <= RightLocation.X; x++)
@@ -155,6 +161,10 @@ namespace SeaBattleClassLibrary.Game
             return false;
         }
 
+        /// <summary>
+        /// Выстрел по кораблю.
+        /// </summary>
+        /// <returns>true если было попадание, false если нет.</returns>
         public bool Shot(Location location)
         {
             Location hitLocation = Location.Clone() as Location;
@@ -186,19 +196,39 @@ namespace SeaBattleClassLibrary.Game
     /// </summary>
     public enum ShipClass
     {
+        /// <summary>
+        /// Однопалубный.
+        /// </summary>
         OneDeck = 1,
+
+        /// <summary>
+        /// Двухпалубный.
+        /// </summary>
         TwoDeck = 2,
+
+        /// <summary>
+        /// Трехпалубный.
+        /// </summary>
         ThreeDeck = 3,
+
+        /// <summary>
+        /// Четырехпалубный.
+        /// </summary>
         FourDeck = 4
     }
 
+    /// <summary>
+    /// Ориентация корабля на поле.
+    /// </summary>
     public enum Orientation
     {
         Horizontal = 0,
         Vertical = 1
     }
 
-
+    /// <summary>
+    /// Предствляет позицию корабля на поле.
+    /// </summary>
     [DataContract(Name = "location")]
     [DebuggerDisplay("X={X}, Y={Y}")]
     public class Location : NotifyPropertyChanged, IEquatable<Location>, ICloneable
@@ -210,19 +240,17 @@ namespace SeaBattleClassLibrary.Game
         /// Размер поля.
         /// </summary>
         [DataMember(Name = "size")]
-        public readonly int Size;
+        public const int Size = 10;
 
         /// <summary>
         /// Позиция корабля на поле.
         /// Если X или Y равно -1, то корабль не на поле.
         /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="size"></param>
+        /// <param name="x">X.</param>
+        /// <param name="y">Y.</param>
+        /// <param name="check">Если координаты могут выходить за допустимые пределы, то они станут равны -1.</param>
         public Location(int x = -1, int y = -1, bool check = false)
         {
-            Size = 10;
-
             if (x > Size || x < -1)
             {
                 if (check)
@@ -271,10 +299,22 @@ namespace SeaBattleClassLibrary.Game
             }
         }
 
+        /// <summary>
+        /// Корабль вне поля.
+        /// </summary>
         public bool IsUnset => (Y == -1 || X == -1) ? true : false;
 
+        /// <summary>
+        /// Корабль на поле.
+        /// </summary>
         public bool IsSet => !IsUnset;
 
+        /// <summary>
+        /// Попытка задать координаты корабля.
+        /// </summary>
+        /// <param name="x">X.</param>
+        /// <param name="y">Y.</param>
+        /// <returns>Если координаты вне допустимого диапозона, то они не задаются и возвращается false.</returns>
         public bool TrySet(int x, int y)
         {
             if (x >= -1 && x < Size && y >= -1 && y < Size)

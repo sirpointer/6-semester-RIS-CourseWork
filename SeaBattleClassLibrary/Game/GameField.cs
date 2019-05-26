@@ -1,21 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SeaBattleClassLibrary.Game
 {
-    [DebuggerDisplay("{Ships}")]
+    [DebuggerDisplay("{Ships[0]\nShips[1]\nShips[2]\nShips[3]\nShips[4]\n" +
+        "Ships[5]\nShips[6]\nShips[7]\nShips[8]\nShips[9]\n}")]
     public abstract class Field : NotifyPropertyChanged
     {
         /// <summary>
         /// Попадания на поле (места куда уже нельзя бить).
         /// </summary>
-        public bool[,] HitsField = new bool[10, 10]; // Надо что-то по интереснее придумать, это как то тупо.
+        public bool[,] HitsField = new bool[10, 10];
 
         /// <summary>
         /// Корабли на поле.
@@ -43,6 +40,24 @@ namespace SeaBattleClassLibrary.Game
             Ships = ships;
             Ships.Capacity = 10;
         }
+
+        public bool IsGameOver
+        {
+            get
+            {
+                if (Ships.Count == 10)
+                {
+                    foreach (var ship in Ships)
+                    {
+                        if (!ship.IsDead)
+                            return false;
+                    }
+                    return true;
+                }
+                return false;
+            }
+        }
+
 
         public Field()
         {
@@ -75,6 +90,9 @@ namespace SeaBattleClassLibrary.Game
 
         }
 
+        /// <summary>
+        /// Происходит, когда произведен выстрел по полю.
+        /// </summary>
         public event EventHandler<ShotEventArgs> ShotMyField;
 
         private void OnShotMyField(object sender, ShotEventArgs e)
@@ -82,6 +100,11 @@ namespace SeaBattleClassLibrary.Game
             ShotMyField?.Invoke(sender, e);
         }
 
+        /// <summary>
+        /// Выстрел по полю.
+        /// </summary>
+        /// <param name="location"></param>
+        /// <returns>Возвращается корабль, по которому попали. null если был промах.</returns>
         public Ship Shot(Location location)
         {
             if (location.IsUnset)
@@ -288,7 +311,12 @@ namespace SeaBattleClassLibrary.Game
                             }
                         }
                     }
-                    Ships.Add((Ship)ship.Clone());
+
+                    Ship s = (Ship)ship.Clone();
+                    for (int i = 0; i < s.Hits.Length; i++)
+                        s.Hits[i] = true;
+
+                    Ships.Add(s);
                     break;
             }
 
