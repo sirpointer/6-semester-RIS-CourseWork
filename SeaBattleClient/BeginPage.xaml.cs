@@ -517,11 +517,17 @@ namespace SeaBattleClient
             else
             {
                 tbWait.Visibility = Visibility.Visible;
-                Timer timer = new Timer(new TimerCallback(TryStart), null, 0, 5);
+
+                System.Timers.Timer timer = new System.Timers.Timer();
+                timer.Interval = 5000;
+                timer.Elapsed += Timer_Elapsed;
+                timer.AutoReset = false;
+                timer.Enabled = true;
+                //Timer timer = new Timer(new TimerCallback(TryStart), null, 0, 5);
             }
         }
 
-        private void TryStart(object @object)
+        private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             IPEndPoint remoteEP = Player.IPEndPoint;
 
