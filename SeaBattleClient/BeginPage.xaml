@@ -28,7 +28,7 @@
 
             <Button Name="btnStartGame" HorizontalAlignment="Left" Canvas.Left="395" Canvas.Top="80" VerticalAlignment="Top" Click="Button_Click">Start game</Button>
 
-            <ProgressRing Name="progressRign" Canvas.ZIndex="32" Height="300" Width="300" HorizontalAlignment="Center" VerticalAlignment="Center"></ProgressRing>
+            <ProgressRing Name="progressRing" Canvas.ZIndex="32" Height="300" Width="300" HorizontalAlignment="Center" VerticalAlignment="Center"></ProgressRing>
 
             <TextBlock Name="tbWait" FontSize="30" Visibility="Collapsed">Ждите второго игрока</TextBlock>
         </Canvas>
