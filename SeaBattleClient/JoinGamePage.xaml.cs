@@ -163,14 +163,14 @@ namespace SeaBattleClient
         {
 
             Frame parent = null;
-            StartPage page = null;
+            JoinGamePage page = null;
             try
             { 
                 StateObject state = (StateObject)ar.AsyncState;
                 Socket client = state.workSocket;
 
 
-                page = (StartPage)state.obj;
+                page = (JoinGamePage)state.obj;
 
                 await page.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => {
                     parent = page.Parent as Frame;
@@ -203,18 +203,18 @@ namespace SeaBattleClient
         {
             await page.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
-                ((Frame)((StartPage)page).Parent).Navigate(typeof(ErrorPage));
+                ((Frame)((JoinGamePage)page).Parent).Navigate(typeof(ErrorPage));
             });
         }
 
         private static void Send(StateObject state, String data)
         {
-            StartPage page = null;
+            JoinGamePage page = null;
             try
             {
                 Socket client = state.workSocket;
 
-                page = (StartPage)state.obj;
+                page = (JoinGamePage)state.obj;
 
                 byte[] byteData = Encoding.UTF8.GetBytes(data);
             
@@ -238,7 +238,7 @@ namespace SeaBattleClient
                 StateObject state = (StateObject)ar.AsyncState;
                 Socket client = state.workSocket;
                 
-                page = (StartPage)state.obj;
+                page = (JoinGamePage)state.obj;
 
                 await page.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => {
                     parent = page.Parent as Frame;
@@ -280,7 +280,7 @@ namespace SeaBattleClient
                 // from the asynchronous state object.  
                 StateObject state = (StateObject)ar.AsyncState;
                 Socket client = state.workSocket;
-                StartPage startPage = state.obj as StartPage;
+                JoinGamePage startPage = state.obj as JoinGamePage;
 
                 // Read data from the remote device.  
                 int bytesRead = client.EndReceive(ar);

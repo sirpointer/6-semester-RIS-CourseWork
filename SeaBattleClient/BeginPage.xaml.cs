@@ -517,47 +517,46 @@ namespace SeaBattleClient
             else
             {
                 tbWait.Visibility = Visibility.Visible;
+                btnStartGame.IsEnabled = false;
 
-                System.Timers.Timer timer = new System.Timers.Timer();
-                timer.Interval = 5000;
-                timer.Elapsed += Timer_Elapsed;
-                timer.AutoReset = false;
-                timer.Enabled = true;
-                //Timer timer = new Timer(new TimerCallback(TryStart), null, 0, 5);
+                System.Threading.Timer tim = new Timer(new TimerCallback(TryStartGame), null, 5000, Timeout.Infinite);
             }
         }
 
-        private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        public async void TryStartGame(object ob)
         {
-            IPEndPoint remoteEP = Player.IPEndPoint;
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                IPEndPoint remoteEP = Player.IPEndPoint;
 
-            List<Ship> ships = new List<Ship>(10);
-            foreach (ClientShip ship in Model.Ships)
-                ships.Add(ship.Clone() as Ship);
+                List<Ship> ships = new List<Ship>(10);
+                foreach (ClientShip ship in Model.Ships)
+                    ships.Add(ship.Clone() as Ship);
 
-            string fieldGame = Serializer<List<Ship>>.SetSerializedObject(ships);
-            Socket socket = Player.PlayerSocket;
+                string fieldGame = Serializer<List<Ship>>.SetSerializedObject(ships);
+                Socket socket = Player.PlayerSocket;
 
-            pingDone.Reset();
+                pingDone.Reset();
 
-            // Create a TCP/IP socket.  
-            Socket client = socket;//new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                // Create a TCP/IP socket.  
+                Socket client = socket;//new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-            StateObject state = new StateObject();
-            state.workSocket = client;
-            state.obj = fieldGame;
+                StateObject state = new StateObject();
+                state.workSocket = client;
+                state.obj = fieldGame;
 
-            JObject jObject = new JObject();
-            jObject.Add(JsonStructInfo.Type, Request.EnumTypeToString(Request.RequestTypes.SetField));
-            jObject.Add(JsonStructInfo.Result, state.obj.ToString());
+                JObject jObject = new JObject();
+                jObject.Add(JsonStructInfo.Type, Request.EnumTypeToString(Request.RequestTypes.SetField));
+                jObject.Add(JsonStructInfo.Result, state.obj.ToString());
 
-            string s = jObject.ToString() + JsonStructInfo.EndOfMessage;
+                string s = jObject.ToString() + JsonStructInfo.EndOfMessage;
 
-            // Send test data to the remote device.  
-            Send(state, s);
+                // Send test data to the remote device.  
+                Send(state, s);
 
-            // Connect to the remote endpoint.  
-            pingDone.WaitOne();
+                // Connect to the remote endpoint.  
+                pingDone.WaitOne();
+            });
         }
 
         private static void ConnectCallback(IAsyncResult ar)
