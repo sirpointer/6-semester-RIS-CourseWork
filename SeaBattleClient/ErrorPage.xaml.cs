@@ -29,7 +29,7 @@ namespace SeaBattleClient
 
         private void BtnBackMain_Click(object sender, RoutedEventArgs e)
         {
-            (Parent as Frame).Navigate(typeof(MainPage));
+            MainPage.MainFrame?.Navigate(typeof(StartPage));
         }
     }
 }

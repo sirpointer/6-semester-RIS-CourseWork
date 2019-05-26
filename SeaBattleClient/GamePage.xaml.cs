@@ -558,7 +558,7 @@ namespace SeaBattleClient
 
         private void BtnStartNewGame_Click(object sender, RoutedEventArgs e)
         {
-            (Parent as Frame).Navigate(typeof(StartPage));
+            MainPage.MainFrame?.Navigate(typeof(StartPage));
         }
     }
 }

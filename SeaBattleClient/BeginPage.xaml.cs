@@ -175,7 +175,7 @@ namespace SeaBattleClient
                                     if(ship.Orientation == Game.Orientation.Horizontal)
                                     {
                                         int start = Convert.ToInt32(row.ToString() + column.ToString());
-                                        int end = start + ship.ShipWidth - 1;  // Convert.ToInt32(row.ToString() + colEnd.ToString());
+                                        int end = start + ship.ShipWidth - 1;
                                         if (start >= 0 && start < FieldGrid.Height && end >= 0 && end < FieldGrid.Width)
                                         {
                                             FillBackField();
@@ -188,7 +188,7 @@ namespace SeaBattleClient
                                     } else
                                     {
                                         int start = Convert.ToInt32(row.ToString() + (column).ToString());
-                                        int end = start + (ship.ShipHeight-1)*10;  // Convert.ToInt32(row.ToString() + colEnd.ToString());
+                                        int end = start + (ship.ShipHeight-1)*10;
                                         if (start >= 0 && start < FieldGrid.Height && end >= 0 && end < FieldGrid.Width)
                                         {
                                             FillBackField();
@@ -275,6 +275,7 @@ namespace SeaBattleClient
                     {
                         Canvas.SetLeft(image, X);
                         Canvas.SetTop(image, Y);
+                        Canvas.SetZIndex(image, 4);
 
                     } else
                     {
@@ -320,7 +321,6 @@ namespace SeaBattleClient
         }
 
         //при срывнии мыши
-        //если пронести над начальной картинкой, скинет ее в 0
         private void MyImage_PointerExited(object sender, PointerRoutedEventArgs e)
         {
             Image image = sender as Image;
@@ -335,6 +335,7 @@ namespace SeaBattleClient
                 Canvas.SetLeft(image, 0);
                 Canvas.SetTop(image, 0);
                 ship.Location = new Location();
+                Canvas.SetZIndex(image, 3);
 
                 FillBackField();
             } 
@@ -452,6 +453,22 @@ namespace SeaBattleClient
 
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
+            //foreach(var imag in canvas.Children)
+            //{
+            //    if (imag is Image)
+            //    {
+            //        if (Canvas.GetZIndex(imag) != 4) { }
+            //            //return;
+            //    }
+            //}
+
+            foreach (var ship in Model.Ships)
+            {
+                if (!ship.IsSet)
+                    return;
+            }
+
+
             progressRing.IsActive = true;
             btnStartGame.IsEnabled = false;
             FieldGrid.IsTapEnabled = false;
@@ -505,7 +522,7 @@ namespace SeaBattleClient
             {
                 Answer.AnswerTypes result = Answer.JsonTypeToEnum(GetJsonRequestResult(response));
                 Player.CanShot = result == Answer.AnswerTypes.Yes ? true : false;
-                (Parent as Frame).Navigate(typeof(GamePage), Player);
+                MainPage.MainFrame?.Navigate(typeof(GamePage), Player);
                 return;
             } 
             else

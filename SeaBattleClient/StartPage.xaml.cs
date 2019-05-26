@@ -47,6 +47,8 @@ namespace SeaBattleClient
             base.OnNavigatedTo(e);
             if (e.Parameter != null)
                 player = e.Parameter as Player;
+            else
+                player = new Player();
         }
 
         public StartPage()
@@ -75,7 +77,7 @@ namespace SeaBattleClient
         {
             string ip = tbInputIP.Text.Trim();
 
-            if(!string.IsNullOrEmpty(ip))
+            if (!string.IsNullOrEmpty(ip))
             {
                 IPEndPoint remoteEP = null;
                 ElementEnable(false);
@@ -87,14 +89,14 @@ namespace SeaBattleClient
 
                 if (remoteEP == null)
                 {
-                    (Parent as Frame).Navigate(typeof(ErrorPage));
+                    MainPage.MainFrame?.Navigate(typeof(ErrorPage));
                     return;
                 }
 
                 player.IPEndPoint = remoteEP;
                 ElementEnable(true);
 
-                (Parent as Frame).Navigate(typeof(CreateGamePage), player);
+                MainPage.MainFrame?.Navigate(typeof(CreateGamePage), player);
             }
         }
 
@@ -117,14 +119,14 @@ namespace SeaBattleClient
 
                 if (remoteEP == null)
                 {
-                    (Parent as Frame).Navigate(typeof(ErrorPage));
+                    MainPage.MainFrame?.Navigate(typeof(ErrorPage));
                     return;
                 }
 
                 player.IPEndPoint = remoteEP;
                 ElementEnable(true);
 
-                (Parent as Frame).Navigate(typeof(JoinGamePage), player);
+                MainPage.MainFrame?.Navigate(typeof(JoinGamePage), player);
             }
         }
 
@@ -165,7 +167,7 @@ namespace SeaBattleClient
             }
             catch (Exception e)
             {
-                (Parent as Frame).Navigate(typeof(ErrorPage));
+                MainPage.MainFrame?.Navigate(typeof(ErrorPage));
                 Debug.WriteLine(e);
                 return null;
             }
@@ -216,7 +218,7 @@ namespace SeaBattleClient
         {
             await page.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
-                ((Frame)((StartPage)page).Parent).Navigate(typeof(ErrorPage));
+                MainPage.MainFrame?.Navigate(typeof(ErrorPage));
             });
         }
 

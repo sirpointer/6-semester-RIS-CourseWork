@@ -159,10 +159,8 @@ namespace SeaBattleClient
             this.InitializeComponent();
         }
 
-        private static async void ConnectCallback(IAsyncResult ar)
+        private static void ConnectCallback(IAsyncResult ar)
         {
-
-            Frame parent = null;
             JoinGamePage page = null;
             try
             { 
@@ -171,10 +169,6 @@ namespace SeaBattleClient
 
 
                 page = (JoinGamePage)state.obj;
-
-                await page.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => {
-                    parent = page.Parent as Frame;
-                });
 
                 client.EndConnect(ar);
 
@@ -203,7 +197,7 @@ namespace SeaBattleClient
         {
             await page.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
-                ((Frame)((JoinGamePage)page).Parent).Navigate(typeof(ErrorPage));
+                MainPage.MainFrame?.Navigate(typeof(ErrorPage));
             });
         }
 
@@ -355,7 +349,7 @@ namespace SeaBattleClient
 
             if (dataType == Answer.AnswerTypes.Ok)
             {
-                (Parent as Frame).Navigate(typeof(BeginPage), Model);
+                MainPage.MainFrame?.Navigate(typeof(BeginPage), Model);
             }
 
             ElementEnabled(false);

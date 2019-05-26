@@ -10,9 +10,8 @@
 
     <Canvas>
     <Grid>
-        <ProgressRing Name="progressRing" Canvas.ZIndex="3" Width="300" Height="300"></ProgressRing>
-            <TextBlock Name="tbGameResult" FontSize="50" HorizontalAlignment="Center"  VerticalAlignment="Center"></TextBlock>
-        <StackPanel Canvas.ZIndex="2">
+            <ProgressRing Name="progressRing" Canvas.ZIndex="3" Width="300" Height="300"></ProgressRing>
+            <StackPanel Canvas.ZIndex="2">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Grid Name="Player1Grid" Width="300" Height="300" Margin="30"></Grid>
                 <Grid Name="Player2Grid" Width="300" Height="300" Margin="30"></Grid>
@@ -20,7 +19,10 @@
             <TextBlock Name="tbGo" Visibility="Collapsed" FontSize="24">Ваш ход</TextBlock>
             <TextBlock Name="tbWait" Visibility="Collapsed" FontSize="24">Ожидайте хода противника</TextBlock>
         </StackPanel>
-            <Button Name="btnStartNewGame" Visibility="Collapsed" Click="BtnStartNewGame_Click">Начать новую игру</Button>
+            <StackPanel>
+                <Button Name="btnStartNewGame" Canvas.ZIndex="5" Visibility="Collapsed" Click="BtnStartNewGame_Click">Начать новую игру</Button>
+                <TextBlock Name="tbGameResult" FontSize="50" Canvas.ZIndex="5" HorizontalAlignment="Center"  VerticalAlignment="Center"></TextBlock>
+            </StackPanel>
     </Grid>
     </Canvas>
 </Page>

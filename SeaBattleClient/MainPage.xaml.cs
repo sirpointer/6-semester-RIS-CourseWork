@@ -38,9 +38,14 @@ namespace SeaBattleClient
             }
         }
 
+        public static Frame MainFrame;
+
         public MainPage()
         {
             this.InitializeComponent();
+
+            MainFrame = MyFrame;
+
             this.DataContext = new Player();
 
             List<Ship> ships = new List<Ship>(10);

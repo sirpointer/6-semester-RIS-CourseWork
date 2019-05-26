@@ -80,7 +80,7 @@ namespace SeaBattleClient
                 Model.PlayerSocket = socket;
                 
                 ElementEnable(true);
-                (Parent as Frame).Navigate(typeof(BeginPage), Model);
+                MainPage.MainFrame?.Navigate(typeof(BeginPage), Model);
             }
         }
 
