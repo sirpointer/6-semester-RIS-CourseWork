@@ -42,7 +42,7 @@ namespace SeaBattleClient
         Player player = null;
 
         private Color backColor = Colors.CornflowerBlue;
-        public Color killColor = Colors.Firebrick;
+        public Color killColor = Colors.IndianRed;
 
         public static EnemyGameField EnemyGameField = new EnemyGameField();
         public static GameField MyGameField;
@@ -157,7 +157,7 @@ namespace SeaBattleClient
                 {
                     tbWait.Visibility = Visibility.Visible;
                     tbGo.Visibility = Visibility.Collapsed;
-                    progressRing.IsActive = true;
+                    //progressRing.IsActive = true;
 
                     StateObject state = new StateObject();
                     state.workSocket = Model.PlayerSocket;
@@ -178,7 +178,7 @@ namespace SeaBattleClient
             {
                 return;
             }
-
+             
             Rectangle rec = sender as Rectangle;
             int col = Grid.GetColumn(rec);
             int row = Grid.GetRow(rec);
@@ -523,15 +523,15 @@ namespace SeaBattleClient
 
         private void Rectangle_PointerExited(object sender, PointerRoutedEventArgs e)
         {
-            if (Model.CanShot == true)
-            {
-                Rectangle rec = sender as Rectangle;
-                rec.Fill = new SolidColorBrush(backColor);
-            }
+            Rectangle rec = sender as Rectangle;
+            rec.Fill = new SolidColorBrush(backColor);
         }
 
         private void Rectangle_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
+            if (Model.CanShot == false)
+                return;
+
             if (Model.CanShot == true)
             {
                 Rectangle rec = sender as Rectangle;

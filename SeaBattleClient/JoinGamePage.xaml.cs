@@ -272,8 +272,10 @@ namespace SeaBattleClient
             }
         }
 
-        private static void ReceiveCallback(IAsyncResult ar)
+        private static async void ReceiveCallback(IAsyncResult ar)
         {
+            Frame parent = null;
+            Page page = null;
             try
             {
                 // Retrieve the state object and the client socket   
@@ -282,6 +284,11 @@ namespace SeaBattleClient
                 Socket client = state.workSocket;
                 JoinGamePage startPage = state.obj as JoinGamePage;
 
+                page = (JoinGamePage)state.obj;
+
+                await page.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => {
+                    parent = page.Parent as Frame;
+                });
                 // Read data from the remote device.  
                 int bytesRead = client.EndReceive(ar);
 
@@ -309,7 +316,9 @@ namespace SeaBattleClient
             } 
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString());
+                GoToErrorPage(page);
+                Debug.WriteLine(e.ToString());
+                return;
             }
         }        
 

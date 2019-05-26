@@ -508,21 +508,12 @@ namespace SeaBattleClient
                 (Parent as Frame).Navigate(typeof(GamePage), Player);
                 return;
             } 
-            else if (dataType == Answer.AnswerTypes.Ok)
+            else
             {
                 pingDone.Reset();
                 Receive(so);
                 pingDone.WaitOne();
                 WaitOtherPlayer(socket);
-                return;
-            }
-            else
-            {
-                tbWait.Visibility = Visibility.Visible;
-                btnStartGame.Visibility = Visibility.Collapsed;
-                progressRing.IsActive = true;
-
-                System.Threading.Timer tim = new Timer(new TimerCallback(TryStartGameAsync), null, 5000, Timeout.Infinite);
                 return;
             }
         }
