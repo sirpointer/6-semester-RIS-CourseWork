@@ -461,7 +461,7 @@ namespace SeaBattleClient
             foreach (ClientShip ship in Model.Ships)
                 ships.Add(ship.Clone() as Ship);
 
-            string fieldGame = Serializer<List<Ship>>.SetSerializedObject(ships);
+            string fieldGame = Serializer<List<Ship>>.Serialize(ships);
             Socket socket = Player.PlayerSocket;
 
             await Task.Run(() =>
@@ -528,7 +528,7 @@ namespace SeaBattleClient
                  foreach (ClientShip ship in Model.Ships)
                      ships.Add(ship.Clone() as Ship);
 
-                 string fieldGame = Serializer<List<Ship>>.SetSerializedObject(ships);
+                 string fieldGame = Serializer<List<Ship>>.Serialize(ships);
                  Socket socket = Player.PlayerSocket;
 
                  pingDone.Reset();

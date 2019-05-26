@@ -89,6 +89,9 @@ namespace SeaBattleClassLibrary.DataProvider
         }
     }
 
+    /// <summary>
+    /// Представляет имя игры и имя игрока.
+    /// </summary>
     [DataContract]
     public class BeginGame
     {

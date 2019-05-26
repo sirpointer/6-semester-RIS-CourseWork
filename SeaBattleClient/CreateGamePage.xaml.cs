@@ -117,7 +117,7 @@ namespace SeaBattleClient
 
                 JObject jObject = new JObject();
                 jObject.Add(JsonStructInfo.Type, Request.EnumTypeToString(Request.RequestTypes.AddGame));
-                string message = Serializer<BeginGame>.SetSerializedObject(new BeginGame() { PlayerName = playerName, GameName = gameName });
+                string message = Serializer<BeginGame>.Serialize(new BeginGame() { PlayerName = playerName, GameName = gameName });
                 jObject.Add(JsonStructInfo.Result, message);
 
                 string s = jObject.ToString() + JsonStructInfo.EndOfMessage;

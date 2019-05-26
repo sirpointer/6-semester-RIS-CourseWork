@@ -4,9 +4,12 @@ using System.Text;
 
 namespace SeaBattleClassLibrary.DataProvider
 {
+    /// <summary>
+    /// Представляет статические методы для сериализации и десериализации объектов.
+    /// </summary>
     public static class Serializer<T> where T : class
     {
-        public static T GetSerializedObject(string json)
+        public static T Deserialize(string json)
         {
             MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(json));
             DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(T));
@@ -15,7 +18,7 @@ namespace SeaBattleClassLibrary.DataProvider
             return deserialized;
         }
 
-        public static string SetSerializedObject(T obj)
+        public static string Serialize(T obj)
         {
             MemoryStream ms = new MemoryStream();
             DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(T));

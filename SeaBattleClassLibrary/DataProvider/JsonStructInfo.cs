@@ -1,5 +1,4 @@
-﻿
-namespace SeaBattleClassLibrary.DataProvider
+﻿namespace SeaBattleClassLibrary.DataProvider
 {
     public class JsonStructInfo
     {

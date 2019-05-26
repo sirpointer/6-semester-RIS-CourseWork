@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using SeaBattleClassLibrary.DataProvider;
-using System.Runtime.Serialization.Json;
-using System.IO;
 using SeaBattleClassLibrary.Game;
 
 namespace SeaBattleServer
 {
-    internal class AnswerHandler
+    /// <summary>
+    /// Представляет статический класс для генерации ответов от сервера.
+    /// </summary>
+    internal static class AnswerHandler
     {
+        /// <summary>
+        /// Возвращает сообщение об ошибке (AnswerTypes.Error).
+        /// </summary>
         public static string GetErrorMessage()
         {
             JObject jObject = new JObject();
@@ -23,6 +22,9 @@ namespace SeaBattleServer
             return jObject.ToString() + JsonStructInfo.EndOfMessage;
         }
 
+        /// <summary>
+        /// Возвращает сообщение ("AnswerTypes.Ok").
+        /// </summary>
         public static string GetOkMessage()
         {
             JObject jObject = new JObject();
@@ -35,22 +37,23 @@ namespace SeaBattleServer
         /// <summary>
         /// Возвращает готовый JSON документ с информацией о позиции выстрела.
         /// </summary>
-        /// <param name="shotLocation"></param>
-        /// <returns></returns>
         public static string GetShotResultMessage(Location shotLocation)
         {
-            string location = Serializer<Location>.SetSerializedObject(shotLocation);
+            string location = Serializer<Location>.Serialize(shotLocation);
 
             JObject jObject = new JObject();
             jObject.Add(JsonStructInfo.Type, Answer.EnumTypeToString(Answer.AnswerTypes.ShotOfTheEnemy));
-            jObject.Add(JsonStructInfo.Result, Serializer<Location>.SetSerializedObject(shotLocation));
+            jObject.Add(JsonStructInfo.Result, Serializer<Location>.Serialize(shotLocation));
 
             return jObject.ToString() + JsonStructInfo.EndOfMessage;
         }
 
+        /// <summary>
+        /// Возвращает сообщение с доступными играми.
+        /// </summary>
         public static string GetGamesMessage(List<BeginGame> games)
         {
-            string message = Serializer<List<BeginGame>>.SetSerializedObject(games);
+            string message = Serializer<List<BeginGame>>.Serialize(games);
 
             JObject jObject = new JObject();
             jObject.Add(JsonStructInfo.Type, Answer.EnumTypeToString(Answer.AnswerTypes.Games));
@@ -59,6 +62,10 @@ namespace SeaBattleServer
             return jObject.ToString() + JsonStructInfo.EndOfMessage;
         }
 
+        /// <summary>
+        /// Возвращает сообщение о том, что игра сформирована (готова).
+        /// </summary>
+        /// <param name="yourTurn">Чей ход.</param>
         public static string GetGameReadyMessage(bool yourTurn)
         {
             JObject jObject = new JObject();
@@ -68,6 +75,11 @@ namespace SeaBattleServer
             return jObject.ToString() + JsonStructInfo.EndOfMessage;
         }
 
+        /// <summary>
+        /// Возвращает сообщение с результатом выстрела.
+        /// </summary>
+        /// <param name="ship">Корабль по которому попали.</param>
+        /// <param name="location">Позизия выстрела.</param>
         public static string GetShotResultMessage(Ship ship, Location location)
         {
             SeaBattleClassLibrary.DataProvider.ShotResult.ShotResultType type = SeaBattleClassLibrary.DataProvider.ShotResult.ShotResultType.Miss;
@@ -85,12 +97,15 @@ namespace SeaBattleServer
             JObject jObject = new JObject();
             jObject.Add(JsonStructInfo.Type, Answer.EnumTypeToString(Answer.AnswerTypes.ShotResult));
             jObject.Add(JsonStructInfo.Result, SeaBattleClassLibrary.DataProvider.ShotResult.EnumTypeToString(type));
-            jObject.Add(JsonStructInfo.AdditionalContent, Serializer<Ship>.SetSerializedObject(ship));
-            jObject.Add(JsonStructInfo.Content, Serializer<Location>.SetSerializedObject(location));
+            jObject.Add(JsonStructInfo.AdditionalContent, Serializer<Ship>.Serialize(ship));
+            jObject.Add(JsonStructInfo.Content, Serializer<Location>.Serialize(location));
 
             return jObject.ToString() + JsonStructInfo.EndOfMessage;
         }
 
+        /// <summary>
+        /// Возвращает сообщение об ожидании второго игрока.
+        /// </summary>
         public static string AwaitSecondPlayer()
         {
             Answer.AnswerTypes type = Answer.AnswerTypes.No;

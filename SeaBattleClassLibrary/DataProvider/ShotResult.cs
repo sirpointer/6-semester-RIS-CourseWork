@@ -5,7 +5,7 @@ namespace SeaBattleClassLibrary.DataProvider
     /// <summary>
     /// Типы попаданий.
     /// </summary>
-    public class ShotResult
+    public static class ShotResult
     {
         /// <summary>
         /// Типы попаданий.

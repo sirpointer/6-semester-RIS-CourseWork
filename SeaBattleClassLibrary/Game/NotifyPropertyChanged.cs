@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 
 namespace SeaBattleClassLibrary.Game
 {
-    [DataContractAttribute]
+    [DataContract]
     public abstract class NotifyPropertyChanged : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;

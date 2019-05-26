@@ -5,7 +5,7 @@ namespace SeaBattleClassLibrary.DataProvider
     /// <summary>
     /// Типы ответов от сервера.
     /// </summary>
-    public class Answer
+    public static class Answer
     {
         /// <summary>
         /// Типы ответов.

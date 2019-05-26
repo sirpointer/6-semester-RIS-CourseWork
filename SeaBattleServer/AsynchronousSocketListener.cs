@@ -5,7 +5,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using SeaBattleClassLibrary.DataProvider;
 using SeaBattleClassLibrary.Game;
 
@@ -28,7 +27,9 @@ namespace SeaBattleServer
             public StringBuilder sb = new StringBuilder();
         }
 
-        // Thread signal.
+        /// <summary>
+        /// Thread signal.
+        /// </summary>
         private static ManualResetEvent allDone = new ManualResetEvent(false);
 
         private static void StartListening()
@@ -39,9 +40,9 @@ namespace SeaBattleServer
             IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
             IPAddress ipAddress = ipHostInfo.AddressList.Where(x => x.AddressFamily == AddressFamily.InterNetwork).Last();
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
-            // Create a TCP/IP socket.
+
             Socket listener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            
+
             // Bind the socket to the local endpoint and listen for incoming connections.  
             try
             {
@@ -73,84 +74,112 @@ namespace SeaBattleServer
             Console.Read();
         }
 
+        /// <summary>
+        /// Установлено соединение.
+        /// </summary>
         private static void AcceptCallback(IAsyncResult ar)
         {
             // Signal the main thread to continue.
             allDone.Set();
 
-            // Get the socket that handles the client request.
-            Socket listener = (Socket)ar.AsyncState;
-            Socket handler = listener.EndAccept(ar);
+            Socket handler = null;
 
-            // Create the state object.
-            StateObject state = new StateObject();
-            state.workSocket = handler;
-            handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None, new AsyncCallback(ReadCallback), state);
-        }
-
-        private static void ReadCallback(IAsyncResult ar)
-        {
-            string content = string.Empty;
-
-            // Retrieve the state object and the handler socket from the asynchronous state object.
-            StateObject state = (StateObject)ar.AsyncState;
-            Socket handler = state.workSocket;
-
-            // Read data from the client socket.
-            int bytesRead = handler.EndReceive(ar);
-
-            if (bytesRead > 0)
+            try
             {
-                // There  might be more data, so store the data received so far.
-                state.sb.Append(Encoding.UTF8.GetString(state.buffer, 0, bytesRead));
+                // Get the socket that handles the client request.
+                Socket listener = (Socket)ar.AsyncState;
+                handler = listener.EndAccept(ar);
 
-                // Check for end-of-file tag. If it is not there, read more data.
-                content = state.sb.ToString();
-                if (content.IndexOf("<EOF>") > -1)
-                {
-                    // All the data has been read from the client. Display it on the console.
-                    Console.WriteLine("\nRead {0} bytes from socket. \n Data : {1}\n", content.Length, content);
-              
-                    content = content.Remove(content.LastIndexOf(JsonStructInfo.EndOfMessage));
-                    Request.RequestTypes dataType = RequestHandler.GetRequestType(content);
-                    string result = RequestHandler.GetJsonRequestResult(content);
-                    string additionalContent = RequestHandler.GetAdditionalContent(content);
-
-                    switch (dataType)
-                    {
-                        case Request.RequestTypes.Ping:
-                            SendOk(handler, true);
-                            break;
-                        case Request.RequestTypes.AddGame:
-                            AddGame(handler, RequestHandler.GetAddGameResult(result));
-                            break;
-                        case Request.RequestTypes.Shot:
-                            Shot(handler, RequestHandler.GetGame(additionalContent), RequestHandler.GetLocation(result));
-                            break;
-                        case Request.RequestTypes.SetField:
-                            SetField(handler, RequestHandler.GetGameFieldResult(result));
-                            break;
-                        case Request.RequestTypes.BadRequest:
-                            SendError(handler, true);
-                            break;
-                        case Request.RequestTypes.GetGames:
-                            GiveGames(handler);
-                            break;
-                        case Request.RequestTypes.JoinTheGame:
-                            JoinTheGame(handler, RequestHandler.GetJoinTheGameResult(result));
-                            break;
-                    }
-                }
-                else
-                {
-                    // Not all data received. Get more.
-                    handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
-                }
+                // Create the state object.
+                StateObject state = new StateObject();
+                state.workSocket = handler;
+                handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, SocketFlags.None, new AsyncCallback(ReadCallback), state);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                handler?.Close();
             }
         }
 
+        /// <summary>
+        /// Поступило сообщение.
+        /// </summary>
+        private static void ReadCallback(IAsyncResult ar)
+        {
+            Socket handler = null;
 
-        private static void Shot(Socket handler, BeginGame game, Location shotLocation)
+            try
+            {
+                string content = string.Empty;
+
+                // Retrieve the state object and the handler socket from the asynchronous state object.
+                StateObject state = (StateObject)ar.AsyncState;
+                handler = state.workSocket;
+
+                // Read data from the client socket.
+                int bytesRead = handler.EndReceive(ar);
+
+                if (bytesRead > 0)
+                {
+                    // There  might be more data, so store the data received so far.
+                    state.sb.Append(Encoding.UTF8.GetString(state.buffer, 0, bytesRead));
+
+                    // Check for end-of-file tag. If it is not there, read more data.
+                    content = state.sb.ToString();
+                    if (content.IndexOf("<EOF>") > -1)
+                    {
+                        // All the data has been read from the client. Display it on the console.
+                        Console.WriteLine("\nRead {0} bytes from socket. \n Data : {1}\n", content.Length, content);
+
+                        content = content.Remove(content.LastIndexOf(JsonStructInfo.EndOfMessage));
+                        Request.RequestTypes dataType = RequestHandler.GetRequestType(content);
+                        string result = RequestHandler.GetJsonRequestResult(content);
+
+                        switch (dataType)
+                        {
+                            case Request.RequestTypes.Ping:
+                                SendOk(handler, true);
+                                break;
+                            case Request.RequestTypes.AddGame:
+                                AddGame(handler, RequestHandler.GetAddGameResult(result));
+                                break;
+                            case Request.RequestTypes.Shot:
+                                Shot(handler, RequestHandler.GetLocation(result));
+                                break;
+                            case Request.RequestTypes.SetField:
+                                SetField(handler, RequestHandler.GetGameFieldResult(result));
+                                break;
+                            case Request.RequestTypes.BadRequest:
+                                SendError(handler, true);
+                                break;
+                            case Request.RequestTypes.GetGames:
+                                GiveGames(handler);
+                                break;
+                            case Request.RequestTypes.JoinTheGame:
+                                JoinTheGame(handler, RequestHandler.GetJoinTheGameResult(result));
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        // Not all data received. Get more.
+                        handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                handler?.Close();
+            }
+        }
+
+        /// <summary>
+        /// Произведен выстрел.
+        /// </summary>
+        /// <param name="shotLocation">Позиция выстрела.</param>
+        private static void Shot(Socket handler, Location shotLocation)
         {
             GameSession session = null;
             lock (sessions)
@@ -164,60 +193,74 @@ namespace SeaBattleServer
                 handler?.Close();
             }
 
-            if (!session.CanGo)
+            try
             {
-                BeginReceive(handler);
-                return;
+                if (!session.CanGo)
+                {
+                    BeginReceive(handler);
+                    return;
+                }
+
+                Player player1 = session.Player1.IPEndPoint == handler.RemoteEndPoint ? session.Player1 : session.Player2;
+                Player player2 = session.Player1.IPEndPoint != handler.RemoteEndPoint ? session.Player1 : session.Player2;
+
+                if (session.WhoseTurn.IPEndPoint != handler.RemoteEndPoint)
+                    return;
+
+                session.CanGo = false;
+
+                Ship ship = player2.GameField.Shot(shotLocation);
+
+                string message = AnswerHandler.GetShotResultMessage(ship, shotLocation);
+                byte[] data = Encoding.UTF8.GetBytes(message);
+                int bytesSent = player1.PlayerSocket.Send(data, 0, data.Length, SocketFlags.None);
+                Console.WriteLine($"Sent {bytesSent} bytes to {player1.PlayerSocket.RemoteEndPoint.ToString()}.\n{message}\n\n");
+
+                message = AnswerHandler.GetShotResultMessage(shotLocation);
+                data = null;
+                data = Encoding.UTF8.GetBytes(message);
+                bytesSent = player2.PlayerSocket.Send(data, 0, data.Length, SocketFlags.None);
+                Console.WriteLine($"Sent {bytesSent} bytes to {player2.PlayerSocket.RemoteEndPoint.ToString()}.\n{message}\n\n");
+
+                if (player2.GameField.IsGameOver)
+                {
+                    player1?.PlayerSocket?.Shutdown(SocketShutdown.Both);
+                    player1?.PlayerSocket?.Close();
+                    player2?.PlayerSocket?.Shutdown(SocketShutdown.Both);
+                    player2?.PlayerSocket?.Close();
+
+                    lock (sessions)
+                    {
+                        sessions.Remove(session);
+                    }
+                    return;
+                }
+
+                if (ship == null)
+                {
+                    session.WhoseTurn = player2;
+                    BeginReceive(player2.PlayerSocket);
+                }
+                else
+                {
+                    session.WhoseTurn = player1;
+                    BeginReceive(player1.PlayerSocket);
+                }
+
+                session.CanGo = true;
             }
-
-
-            Player player1 = session.Player1.IPEndPoint == handler.RemoteEndPoint ? session.Player1 : session.Player2;
-            Player player2 = session.Player1.IPEndPoint != handler.RemoteEndPoint ? session.Player1 : session.Player2;
-
-            if (session.WhoseTurn.IPEndPoint != handler.RemoteEndPoint)
-                return;
-
-            session.CanGo = false;
-
-            Ship ship = player2.GameField.Shot(shotLocation);
-
-            string message = AnswerHandler.GetShotResultMessage(ship, shotLocation);
-            byte[] data = Encoding.UTF8.GetBytes(message);
-            int bytesSent = player1.PlayerSocket.Send(data, 0, data.Length, SocketFlags.None);
-            Console.WriteLine($"Sent {bytesSent} bytes to {player1.PlayerSocket.RemoteEndPoint.ToString()}.\n{message}\n\n");
-
-            message = AnswerHandler.GetShotResultMessage(shotLocation);
-            data = null;
-            data = Encoding.UTF8.GetBytes(message);
-            bytesSent = player2.PlayerSocket.Send(data, 0, data.Length, SocketFlags.None);
-            Console.WriteLine($"Sent {bytesSent} bytes to {player2.PlayerSocket.RemoteEndPoint.ToString()}.\n{message}\n\n");
-
-            if (player2.GameField.IsGameOver)
+            catch (Exception e)
             {
-                player1?.PlayerSocket?.Shutdown(SocketShutdown.Both);
-                player1?.PlayerSocket?.Close();
-                player2?.PlayerSocket?.Shutdown(SocketShutdown.Both);
-                player2?.PlayerSocket?.Close();
-
                 lock (sessions)
                 {
                     sessions.Remove(session);
                 }
-                return;
-            }
 
-            if (ship == null)
-            {
-                session.WhoseTurn = player2;
-                BeginReceive(player2.PlayerSocket);
+                session?.Player1?.PlayerSocket?.Close();
+                session?.Player2?.PlayerSocket?.Close();
+                handler?.Close();
+                Console.WriteLine(e);
             }
-            else
-            {
-                session.WhoseTurn = player1;
-                BeginReceive(player1.PlayerSocket);
-            }
-
-            session.CanGo = true;
         }
 
         /// <summary>

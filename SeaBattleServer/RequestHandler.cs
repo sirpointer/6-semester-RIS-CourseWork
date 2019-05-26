@@ -1,10 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization.Json;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SeaBattleClassLibrary.DataProvider;
@@ -12,13 +7,15 @@ using SeaBattleClassLibrary.Game;
 
 namespace SeaBattleServer
 {
+    /// <summary>
+    /// Представляет статический класс для расшифровки полученных сообщений.
+    /// </summary>
     internal static class RequestHandler
     {
         /// <summary>
         /// Определяет тип запроса.
         /// </summary>
-        /// <param name="jsonRequest"></param>
-        /// <returns></returns>
+        /// <param name="jsonRequest">Запрос в JSON.</param>
         public static Request.RequestTypes GetRequestType(string jsonRequest)
         {
             JObject jObject;
@@ -50,8 +47,7 @@ namespace SeaBattleServer
         /// <summary>
         /// Возвращает тело запроса.
         /// </summary>
-        /// <param name="jsonRequest"></param>
-        /// <returns></returns>
+        /// <param name="jsonRequest">Запрос в JSON.</param>
         public static string GetJsonRequestResult(string jsonRequest)
         {
             JObject jObject;
@@ -78,37 +74,10 @@ namespace SeaBattleServer
             }
         }
 
-        public static string GetAdditionalContent(string jsonRequest)
-        {
-            JObject jObject;
-
-            try
-            {
-                jObject = JObject.Parse(jsonRequest);
-            }
-            catch (JsonReaderException e)
-            {
-                Console.WriteLine(jsonRequest);
-                Console.WriteLine(e);
-                return null;
-            }
-
-            if (jObject.ContainsKey(JsonStructInfo.AdditionalContent))
-            {
-                string result = (string)jObject[JsonStructInfo.AdditionalContent];
-                return result;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
         /// <summary>
         /// Десереализованный результат запроса AddGame.
         /// </summary>
-        /// <param name="jsonResult"></param>
-        /// <returns></returns>
+        /// <param name="jsonResult">Результат запроса в JSON.</param>
         public static BeginGame GetAddGameResult(string jsonResult)
         {
             if (string.IsNullOrWhiteSpace(jsonResult))
@@ -116,7 +85,7 @@ namespace SeaBattleServer
 
             try
             {
-                return Serializer<BeginGame>.GetSerializedObject(jsonResult);
+                return Serializer<BeginGame>.Deserialize(jsonResult);
             }
             catch (Exception e)
             {
@@ -128,18 +97,14 @@ namespace SeaBattleServer
         /// <summary>
         /// Десереализованный результат запроса AddGame.
         /// </summary>
-        /// <param name="jsonResult"></param>
-        /// <returns></returns>
         public static BeginGame GetJoinTheGameResult(string jsonResult)
         {
             return GetAddGameResult(jsonResult);
         }
 
-        public static BeginGame GetGame(string json)
-        {
-            return GetAddGameResult(json);
-        }
-
+        /// <summary>
+        /// Десереализует Location.
+        /// </summary>
         public static Location GetLocation(string json)
         {
             if (string.IsNullOrWhiteSpace(json))
@@ -147,7 +112,7 @@ namespace SeaBattleServer
 
             try
             {
-                return Serializer<Location>.GetSerializedObject(json);
+                return Serializer<Location>.Deserialize(json);
             }
             catch (Exception e)
             {
@@ -156,6 +121,9 @@ namespace SeaBattleServer
             }
         }
 
+        /// <summary>
+        /// Десереализует GameField.
+        /// </summary>
         public static GameField GetGameFieldResult(string jsonResult)
         {
             if (string.IsNullOrWhiteSpace(jsonResult))
@@ -163,7 +131,7 @@ namespace SeaBattleServer
 
             try
             {
-                List<Ship> ships = Serializer<List<Ship>>.GetSerializedObject(jsonResult);
+                List<Ship> ships = Serializer<List<Ship>>.Deserialize(jsonResult);
                 return new GameField(ships);
             }
             catch (Exception e)

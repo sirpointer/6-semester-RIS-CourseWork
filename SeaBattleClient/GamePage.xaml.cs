@@ -205,7 +205,7 @@ namespace SeaBattleClient
 
                 JObject jObject = new JObject();
                 jObject.Add(JsonStructInfo.Type, Request.EnumTypeToString(Request.RequestTypes.Shot));
-                jObject.Add(JsonStructInfo.Result, Serializer<Location>.SetSerializedObject(location));
+                jObject.Add(JsonStructInfo.Result, Serializer<Location>.Serialize(location));
 
                 string s = jObject.ToString() + JsonStructInfo.EndOfMessage;
 
@@ -252,7 +252,7 @@ namespace SeaBattleClient
                 }
 
                 type = Answer.JsonTypeToEnum((string)jObject[JsonStructInfo.Type]);
-                Location location = Serializer<Location>.GetSerializedObject((string)jObject[JsonStructInfo.Result]);
+                Location location = Serializer<Location>.Deserialize((string)jObject[JsonStructInfo.Result]);
 
                 MyGameField.Shot(location);
                 pingDone.Reset();
@@ -303,8 +303,8 @@ namespace SeaBattleClient
                 type = Answer.JsonTypeToEnum((string)jObject[JsonStructInfo.Type]);
                 result = SeaBattleClassLibrary.DataProvider.ShotResult.JsonTypeToEnum((string)jObject[JsonStructInfo.Result]);
                 ship = result == SeaBattleClassLibrary.DataProvider.ShotResult.ShotResultType.Kill ?
-                    Serializer<Ship>.GetSerializedObject((string)jObject[JsonStructInfo.AdditionalContent]) : null;
-                Location location = Serializer<Location>.GetSerializedObject((string)jObject[JsonStructInfo.Content]);
+                    Serializer<Ship>.Deserialize((string)jObject[JsonStructInfo.AdditionalContent]) : null;
+                Location location = Serializer<Location>.Deserialize((string)jObject[JsonStructInfo.Content]);
 
                 Game.ShotResult shotResult = Game.ShotResult.Miss;
 

@@ -82,7 +82,7 @@ namespace SeaBattleClient
                 pingDone.WaitOne();
 
                 string result = GetJsonRequestResult(response);
-                beginGames = Serializer<List<BeginGame>>.GetSerializedObject(result);
+                beginGames = Serializer<List<BeginGame>>.Deserialize(result);
             });
 
             listView.Items.Clear();
@@ -383,7 +383,7 @@ namespace SeaBattleClient
 
                 JObject jObject = new JObject();
                 jObject.Add(JsonStructInfo.Type, Request.EnumTypeToString(Request.RequestTypes.JoinTheGame));
-                string message = Serializer<BeginGame>.SetSerializedObject(new BeginGame() { GameName = state.obj.ToString() });
+                string message = Serializer<BeginGame>.Serialize(new BeginGame() { GameName = state.obj.ToString() });
                 jObject.Add(JsonStructInfo.Result, message);
 
                 string s = jObject.ToString() + JsonStructInfo.EndOfMessage;
