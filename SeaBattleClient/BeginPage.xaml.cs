@@ -516,13 +516,42 @@ namespace SeaBattleClient
             }
             else
             {
-                Timer timer = new Timer(new TimerCallback(TryStart), Player.PlayerSocket, 0, 5);
+                tbWait.Visibility = Visibility.Visible;
+                Timer timer = new Timer(new TimerCallback(TryStart), null, 0, 5);
             }
         }
 
-        private void TryStart(object state)
+        private void TryStart(object @object)
         {
+            IPEndPoint remoteEP = Player.IPEndPoint;
 
+            List<Ship> ships = new List<Ship>(10);
+            foreach (ClientShip ship in Model.Ships)
+                ships.Add(ship.Clone() as Ship);
+
+            string fieldGame = Serializer<List<Ship>>.SetSerializedObject(ships);
+            Socket socket = Player.PlayerSocket;
+
+            pingDone.Reset();
+
+            // Create a TCP/IP socket.  
+            Socket client = socket;//new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+            StateObject state = new StateObject();
+            state.workSocket = client;
+            state.obj = fieldGame;
+
+            JObject jObject = new JObject();
+            jObject.Add(JsonStructInfo.Type, Request.EnumTypeToString(Request.RequestTypes.SetField));
+            jObject.Add(JsonStructInfo.Result, state.obj.ToString());
+
+            string s = jObject.ToString() + JsonStructInfo.EndOfMessage;
+
+            // Send test data to the remote device.  
+            Send(state, s);
+
+            // Connect to the remote endpoint.  
+            pingDone.WaitOne();
         }
 
         private static void ConnectCallback(IAsyncResult ar)

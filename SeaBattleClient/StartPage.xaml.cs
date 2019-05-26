@@ -37,14 +37,6 @@ namespace SeaBattleClient
             public object obj = null;
         }
 
-        public Player Model
-        {
-            get
-            {
-                return this.DataContext as Player;
-            }
-        }
-
         Player player = null;
 
         /// <summary>
@@ -99,10 +91,10 @@ namespace SeaBattleClient
                     return;
                 }
 
-                Model.IPEndPoint = remoteEP;
+                player.IPEndPoint = remoteEP;
                 ElementEnable(true);
 
-                (Parent as Frame).Navigate(typeof(CreateGamePage), Model);
+                (Parent as Frame).Navigate(typeof(CreateGamePage), player);
             }
         }
 
@@ -129,10 +121,10 @@ namespace SeaBattleClient
                     return;
                 }
 
-                Model.IPEndPoint = remoteEP;
+                player.IPEndPoint = remoteEP;
                 ElementEnable(true);
 
-                (Parent as Frame).Navigate(typeof(JoinGamePage), Model);
+                (Parent as Frame).Navigate(typeof(JoinGamePage), player);
             }
         }
 
@@ -199,8 +191,6 @@ namespace SeaBattleClient
                 });
  
                 client.EndConnect(ar);
-                int a = 0;
-                int i = 9 / a;
                 Debug.WriteLine("Socket connected to {0}", client.RemoteEndPoint.ToString());
                 
                 JObject jObject = new JObject();

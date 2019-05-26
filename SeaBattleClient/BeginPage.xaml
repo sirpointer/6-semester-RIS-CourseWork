@@ -10,7 +10,7 @@
 
     <Grid>
 
-        <ProgressRing Name="progressRign" Height="300" Width="300"></ProgressRing>
+        
 
         <Canvas Name="canvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
             <Image Name="Image1" Canvas.ZIndex="3" Source="/Assets/Ships/1.jpg" Height="30" PointerMoved="MyImage_PointerMoved" PointerPressed="MyImage_PointerPressed" PointerReleased="MyImage_PointerReleased" PointerExited="MyImage_PointerExited" RightTapped="Image1_RightTapped"/>
@@ -27,6 +27,10 @@
             <Grid x:Name="FieldGrid" Canvas.ZIndex="1" Height="300" Width="300" Canvas.Left="0" Canvas.Top="70" ></Grid>
 
             <Button Name="btnStartGame" HorizontalAlignment="Left" Canvas.Left="395" Canvas.Top="80" VerticalAlignment="Top" Click="Button_Click">Start game</Button>
+
+            <ProgressRing Name="progressRign" Canvas.ZIndex="32" Height="300" Width="300" HorizontalAlignment="Center" VerticalAlignment="Center"></ProgressRing>
+
+            <TextBlock Name="tbWait" FontSize="30" Visibility="Collapsed">Ждите второго игрока</TextBlock>
         </Canvas>
     </Grid>
 </Page>

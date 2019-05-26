@@ -4,6 +4,7 @@ using SeaBattleClassLibrary.DataProvider;
 using SeaBattleClassLibrary.Game;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -44,14 +45,17 @@ namespace SeaBattleClient
 
             public object obj = null;
         }
-
-        // The response from the remote device.  
+        
         private static String response = String.Empty;
 
         Player player = null;
 
         public static ManualResetEvent pingDone = new ManualResetEvent(false);
 
+        /// <summary>
+        /// Переход на данную страницу.
+        /// </summary>
+        /// <param name="e"></param>
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
@@ -67,15 +71,13 @@ namespace SeaBattleClient
             await Task.Run(() =>
             {
                 pingDone.Reset();
-
-                // Create a TCP/IP socket.  
+  
                 Socket client = new Socket(remoteEP.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
                 StateObject state = new StateObject();
                 state.workSocket = client;
                 state.obj = this;
-
-                // Connect to the remote endpoint.  
+                
                 client.BeginConnect(remoteEP, new AsyncCallback(ConnectCallback), state);
                 pingDone.WaitOne();
 
@@ -157,53 +159,90 @@ namespace SeaBattleClient
             this.InitializeComponent();
         }
 
-        private static void ConnectCallback(IAsyncResult ar)
+        private static async void ConnectCallback(IAsyncResult ar)
         {
+
+            Frame parent = null;
+            StartPage page = null;
             try
-            {
-                // Retrieve the socket from the state object.  
+            { 
                 StateObject state = (StateObject)ar.AsyncState;
                 Socket client = state.workSocket;
 
-                // Complete the connection.  
+
+                page = (StartPage)state.obj;
+
+                await page.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => {
+                    parent = page.Parent as Frame;
+                });
+
                 client.EndConnect(ar);
 
                 Console.WriteLine("Socket connected to {0}", client.RemoteEndPoint.ToString());
-
-
+                
                 JObject jObject = new JObject();
                 jObject.Add(JsonStructInfo.Type, Request.EnumTypeToString(Request.RequestTypes.GetGames));
                 jObject.Add(JsonStructInfo.Result, "");
 
                 string s = jObject.ToString() + JsonStructInfo.EndOfMessage;
-
-                // Send test data to the remote device.  
+ 
                 Send(state, s);
             } 
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString());
+                GoToErrorPage(page);
+                Debug.WriteLine(e.ToString());
+                return;
             }
+        }
+
+        /// <summary>
+        /// Переход на страницу ошибки.
+        /// </summary>
+        public static async void GoToErrorPage(Page page)
+        {
+            await page.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                ((Frame)((StartPage)page).Parent).Navigate(typeof(ErrorPage));
+            });
         }
 
         private static void Send(StateObject state, String data)
         {
-            Socket client = state.workSocket;
-            // Convert the string data to byte data using ASCII encoding.  
-            byte[] byteData = Encoding.UTF8.GetBytes(data);
+            StartPage page = null;
+            try
+            {
+                Socket client = state.workSocket;
 
-            // Begin sending the data to the remote device.  
-            client.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), state);
+                page = (StartPage)state.obj;
+
+                byte[] byteData = Encoding.UTF8.GetBytes(data);
+            
+                client.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), state);
+            }
+            catch(Exception e)
+            {
+                GoToErrorPage(page);
+                Debug.WriteLine(e.ToString());
+                return;
+            }
         }
 
-        private static void SendCallback(IAsyncResult ar)
+        private static async void SendCallback(IAsyncResult ar)
         {
+            Frame parent = null;
+            Page page = null;
             try
             {
                 // Retrieve the socket from the state object.  
                 StateObject state = (StateObject)ar.AsyncState;
                 Socket client = state.workSocket;
+                
+                page = (StartPage)state.obj;
 
+                await page.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => {
+                    parent = page.Parent as Frame;
+                });
                 // Complete sending the data to the remote device.  
                 int bytesSent = client.EndSend(ar);
                 Console.WriteLine("Sent {0} bytes to server.", bytesSent);
@@ -214,7 +253,9 @@ namespace SeaBattleClient
             } 
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString());
+                GoToErrorPage(page);
+                Debug.WriteLine(e.ToString());
+                return;
             }
         }
 
