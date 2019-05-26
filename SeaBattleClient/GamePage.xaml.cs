@@ -84,8 +84,11 @@ namespace SeaBattleClient
 
             if (MyGameField.IsGameOver)
             {
-                tbGameResult.Text = "Вы проиграли";
-                btnStartNewGame.Visibility = Visibility.Visible;
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    tbGameResult.Text = "Вы проиграли";
+                    btnStartNewGame.Visibility = Visibility.Visible;
+                });
             }
 
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
@@ -142,8 +145,11 @@ namespace SeaBattleClient
 
             if (EnemyGameField.IsGameOver)
             {
-                tbGameResult.Text = "Вы победили";
-                btnStartNewGame.Visibility = Visibility.Visible;
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                {
+                    tbGameResult.Text = "Вы победили";
+                    btnStartNewGame.Visibility = Visibility.Visible;
+                });
             }
 
             await AwaitEnemyView();
