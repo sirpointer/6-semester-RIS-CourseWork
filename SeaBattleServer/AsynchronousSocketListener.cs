@@ -203,6 +203,7 @@ namespace SeaBattleServer
                 {
                     sessions.Remove(session);
                 }
+                return;
             }
 
             if (ship == null)
