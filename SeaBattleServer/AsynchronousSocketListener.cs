@@ -219,129 +219,189 @@ namespace SeaBattleServer
             session.CanGo = true;
         }
 
-
+        /// <summary>
+        /// Задать игровое поле.
+        /// </summary>
+        /// <param name="gameField">Игровое поле.</param>
         private static void SetField(Socket handler, GameField gameField)
         {
             GameSession game = null;
+            Player player = null;
+            Player secondPlayer = null;
 
-            lock (sessions)
+            try
             {
-                game = sessions.Find(x => x.Player1?.IPEndPoint == handler.RemoteEndPoint || x.Player2?.IPEndPoint == handler.RemoteEndPoint);
+                lock (sessions)
+                {
+                    game = sessions.Find(x => x.Player1?.IPEndPoint == handler.RemoteEndPoint || x.Player2?.IPEndPoint == handler.RemoteEndPoint);
+                }
+
+                player = game.Player1.IPEndPoint == handler.RemoteEndPoint ? game.Player1 : game.Player2;
+                secondPlayer = game.Player1.IPEndPoint != handler.RemoteEndPoint ? game.Player1 : game.Player2;
+
+                player.GameField = gameField;
+
+                // если второй игрок не присоединился
+                if (secondPlayer == null)
+                {
+                    string message = AnswerHandler.AwaitSecondPlayer();
+                    byte[] data = Encoding.UTF8.GetBytes(message);
+                    int bytesSent = player.PlayerSocket.Send(data, 0, data.Length, SocketFlags.None);
+                    Console.WriteLine($"Sent {bytesSent} bytes to {player.PlayerSocket.RemoteEndPoint.ToString()}.\n{message}\n");
+                }
+                // если оба игрока готовы.
+                else if (secondPlayer.GameField != null && player.GameField != null)
+                {
+                    string message = AnswerHandler.GetGameReadyMessage(true);
+                    byte[] data = Encoding.UTF8.GetBytes(message);
+                    int bytesSent = secondPlayer.PlayerSocket.Send(data, 0, data.Length, SocketFlags.None);
+                    Console.WriteLine($"Sent {bytesSent} bytes to {secondPlayer.PlayerSocket.RemoteEndPoint.ToString()}.\n{message}\n");
+
+
+                    message = AnswerHandler.GetGameReadyMessage(false);
+                    data = Encoding.UTF8.GetBytes(message);
+                    bytesSent = player.PlayerSocket.Send(data, 0, data.Length, SocketFlags.None);
+                    Console.WriteLine($"Sent {bytesSent} bytes to {player.PlayerSocket.RemoteEndPoint.ToString()}.\n{message}\n");
+
+                    game.WhoseTurn = secondPlayer;
+
+                    // Ждать выстрела от player.
+                    BeginReceive(secondPlayer.PlayerSocket);
+                }
             }
-
-            Player player = game.Player1.IPEndPoint == handler.RemoteEndPoint ? game.Player1 : game.Player2;
-            Player secondPlayer = game.Player1.IPEndPoint != handler.RemoteEndPoint ? game.Player1 : game.Player2;
-
-            player.GameField = gameField;
-            
-            // если второй игрок не присоединился
-            if (secondPlayer == null)
+            catch (Exception e)
             {
-                string message = AnswerHandler.AwaitSecondPlayer();
-                byte[] data = Encoding.UTF8.GetBytes(message);
-                int bytesSent = player.PlayerSocket.Send(data, 0, data.Length, SocketFlags.None);
-                Console.WriteLine($"Sent {bytesSent} bytes to {secondPlayer.PlayerSocket.RemoteEndPoint.ToString()}.\n{message}\n");
-            }
-            else if (secondPlayer.GameField != null && player.GameField != null)
-            {
-                string message = AnswerHandler.GetGameReadyMessage(true);
-                byte[] data = Encoding.UTF8.GetBytes(message);
-                int bytesSent = secondPlayer.PlayerSocket.Send(data, 0, data.Length, SocketFlags.None);
-                Console.WriteLine($"Sent {bytesSent} bytes to {secondPlayer.PlayerSocket.RemoteEndPoint.ToString()}.\n{message}\n");
+                Console.WriteLine(e);
 
+                lock (sessions)
+                {
+                    sessions.Remove(game);
+                }
 
-                message = AnswerHandler.GetGameReadyMessage(false);
-                data = Encoding.UTF8.GetBytes(message);
-                bytesSent = player.PlayerSocket.Send(data, 0, data.Length, SocketFlags.None);
-                Console.WriteLine($"Sent {bytesSent} bytes to {player.PlayerSocket.RemoteEndPoint.ToString()}.\n{message}\n");
-                
-                game.WhoseTurn = secondPlayer;
+                if (game != null)
+                {
+                    player?.PlayerSocket?.Close();
+                    secondPlayer?.PlayerSocket?.Close();
+                }
 
-                // Ждать выстрела от player.
-                BeginReceive(secondPlayer.PlayerSocket);
-            }
-            else
-            {
-                SendOk(handler);
+                handler?.Close();
             }
         }
 
+        /// <summary>
+        /// Добавить второго игрока в игру.
+        /// </summary>
+        /// <param name="beginGame">Информация о втором игроке и сессии к которой он хочет присоединиться.</param>
         private static void JoinTheGame(Socket handler, BeginGame beginGame)
         {
-            GameSession game = null;
-            lock (sessions)
+            try
             {
-                if (sessions.Any(x => x.SessionName.Equals(beginGame.GameName, StringComparison.OrdinalIgnoreCase)))
+                GameSession game = null;
+                lock (sessions)
                 {
-                    game = sessions.Find(x => x.SessionName == beginGame.GameName);
-                    game.Player2 = new Player(handler, beginGame.PlayerName);
+                    if (sessions.Any(x => x.SessionName.Equals(beginGame.GameName, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        game = sessions.Find(x => x.SessionName == beginGame.GameName);
+                        game.Player2 = new Player(handler, beginGame.PlayerName);
+                    }
+                }
+
+                if (game?.GameStarted ?? false)
+                {
+                    SendOk(handler, false);
+                    BeginReceive(handler);
+                }
+                else
+                {
+                    SendError(handler, true);
                 }
             }
-
-            if (game?.GameStarted ?? false)
+            catch (Exception e)
             {
-                SendOk(handler, false);
-                BeginReceive(handler);
-                //SendOk(game.Player1.PlayerSocket, false);
-            }
-            else
-            {
-                SendError(handler, true);
+                Console.WriteLine(e);
+                handler?.Close();
             }
         }
 
         /// <summary>
         /// Добавляет новую игру в sessions.
         /// </summary>
-        /// <param name="handler"></param>
-        /// <param name="beginGame"></param>
+        /// <param name="beginGame">Информация о сессии, которую неоходимо добавить.</param>
         private static void AddGame(Socket handler, BeginGame beginGame)
         {
-            if (beginGame == null)
-                SendError(handler, false);
-
             bool exist = false;
+            GameSession game = null;
 
-            lock (sessions)
+            try
             {
-                exist = sessions.Count(x => x.SessionName.Equals(beginGame.GameName, StringComparison.OrdinalIgnoreCase)) > 0 ? true : false;
-
-                if (!exist)
+                if (beginGame == null || beginGame?.GameName == null || beginGame?.PlayerName == null)
                 {
-                    GameSession game = new GameSession(beginGame.GameName);
-                    game.Player1 = new Player(handler, beginGame.PlayerName);
-                    sessions.Add(game);
+                    SendError(handler, false);
+                    return;
+                }
+
+                lock (sessions)
+                {
+                    exist = sessions.Count(x => x.SessionName.Equals(beginGame?.GameName, StringComparison.OrdinalIgnoreCase)) > 0 ? true : false;
+
+                    if (!exist)
+                    {
+                        game = new GameSession(beginGame.GameName);
+                        game.Player1 = new Player(handler, beginGame.PlayerName);
+                        sessions.Add(game);
+                    }
+                }
+
+                if (exist)
+                {
+                    SendError(handler, true);
+                }
+                else
+                {
+                    SendOk(handler, false);
+                    BeginReceive(handler);
                 }
             }
+            catch (Exception e)
+            {
+                lock (sessions)
+                {
+                    sessions.Remove(game);
+                }
 
-            if (exist)
-            {
-                SendError(handler, true);
-            }
-            else
-            {
-                SendOk(handler, false);
-                BeginReceive(handler);
+                Console.WriteLine(e);
+                handler?.Close();
             }
         }
 
+        /// <summary>
+        /// Получить доступные игры и отправить.
+        /// </summary>
         private static void GiveGames(Socket handler)
         {
-            List<BeginGame> bg = new List<BeginGame>();
-
-            lock (sessions)
+            try
             {
-                foreach (var game in sessions)
-                {
-                    if (!game.GameStarted)
-                        bg.Add(new BeginGame() { GameName = game.SessionName, PlayerName = game.Player1?.Name ?? game.Player2.Name });
-                }
-            }
+                List<BeginGame> bg = new List<BeginGame>();
 
-            string data = AnswerHandler.GetGamesMessage(bg);
-            byte[] byteData = Encoding.UTF8.GetBytes(data);
-            Console.WriteLine($"Sending: {data}");
-            handler.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), handler);
+                lock (sessions)
+                {
+                    foreach (var game in sessions)
+                    {
+                        if (!game.GameStarted)
+                            bg.Add(new BeginGame() { GameName = game.SessionName, PlayerName = game.Player1?.Name ?? game.Player2.Name });
+                    }
+                }
+
+                string data = AnswerHandler.GetGamesMessage(bg);
+                byte[] byteData = Encoding.UTF8.GetBytes(data);
+                Console.WriteLine($"Sending: {data}");
+                handler.BeginSend(byteData, 0, byteData.Length, 0, new AsyncCallback(SendCallback), handler);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                handler?.Close();
+            }
         }
 
         /// <summary>
@@ -393,7 +453,6 @@ namespace SeaBattleServer
             }
             finally
             {
-                handler.Shutdown(SocketShutdown.Both);
                 handler.Close();
             }
         }
@@ -415,7 +474,6 @@ namespace SeaBattleServer
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
-                handler?.Shutdown(SocketShutdown.Both);
                 handler?.Close();
             }
         }

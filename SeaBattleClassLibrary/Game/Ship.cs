@@ -172,9 +172,9 @@ namespace SeaBattleClassLibrary.Game
         {
             Location hitLocation = Location.Clone() as Location;
 
-            for (int x = 0; x < ShipWidth && hitLocation.X + x < Location.Size; x++)
+            for (int x = 0; x < ShipWidth && Location.X + x < Location.Size; x++)
             {
-                for (int y = 0; y < ShipHeight && hitLocation.Y + y < Location.Size; y++)
+                for (int y = 0; y < ShipHeight && Location.Y + y < Location.Size; y++)
                 {
                     hitLocation.X = Location.X + x;
                     hitLocation.Y = Location.Y + y;
