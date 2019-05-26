@@ -4,25 +4,45 @@ using System.Net.Sockets;
 
 namespace SeaBattleClassLibrary.Game
 {
+    /// <summary>
+    /// Представляет информацию об игроке.
+    /// </summary>
     [DebuggerDisplay("{IPEndPoint}, CanShot={CanShot}")]
     public class Player
     {
+        /// <summary>
+        /// Имя игрока.
+        /// </summary>
         public string Name { get; set; } = null;
 
+        /// <summary>
+        /// Подключенный сокет.
+        /// </summary>
         public Socket PlayerSocket { get; set; } = null;
         
-        // The port number for the remote device.  
-        private int port = 11000;
+        /// <summary>
+        /// Порт сервера.
+        /// </summary>
+        private const int port = 11000;
 
+        /// <summary>
+        /// Игровое поле игрока.
+        /// </summary>
         public GameField GameField { get; set; } = null;
 
+        /// <summary>
+        /// Remote endpoint.
+        /// </summary>
         public IPEndPoint IPEndPoint { get; set; } = null;
 
+        /// <summary>
+        /// Может ли стрелять.
+        /// </summary>
         public bool? CanShot { get; set; } = null;
 
         public Player()
         {
-            PlayerSocket = GetSocket();
+            PlayerSocket = null;
             GameField = new GameField();
         }
 
@@ -36,20 +56,6 @@ namespace SeaBattleClassLibrary.Game
         public Player(GameField gameField)
         {
             GameField = gameField;
-        }
-
-        private Socket GetSocket()
-        {
-            return null;
-            // Establish the remote endpoint for the socket.  
-            // The name of the   
-            // remote device is "host.contoso.com".  
-            IPHostEntry ipHostInfo = Dns.GetHostEntry("192.168.43.221");
-            IPAddress ipAddress = ipHostInfo.AddressList[0];
-            IPEndPoint remoteEP = new IPEndPoint(ipAddress, port);
-
-            // Create a TCP/IP socket.  
-            return new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
         }
     }
 }
