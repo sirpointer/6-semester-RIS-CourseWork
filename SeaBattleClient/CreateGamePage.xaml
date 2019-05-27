@@ -24,6 +24,5 @@
                 <Button Name="btnCancle" Width="200" Click="BtnCancle_Click">Отмена</Button>
             </StackPanel>
         </StackPanel>
-        
     </Grid>
 </Page>
