@@ -12,16 +12,16 @@
     <Grid>
             <ProgressRing Name="progressRing" Canvas.ZIndex="3" Width="300" Height="300"></ProgressRing>
             <StackPanel Canvas.ZIndex="2">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Grid Name="Player1Grid" Width="300" Height="300" Margin="30"></Grid>
-                <Grid Name="Player2Grid" Width="300" Height="300" Margin="30"></Grid>
+                <StackPanel Orientation="Horizontal" Canvas.ZIndex="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Grid Name="Player1Grid" Canvas.ZIndex="2" Width="300" Height="300" Margin="30"></Grid>
+                    <Grid Name="Player2Grid" Canvas.ZIndex="2" Width="300" Height="300" Margin="30"></Grid>
             </StackPanel>
             <TextBlock Name="tbGo" Visibility="Collapsed" FontSize="24">Ваш ход</TextBlock>
             <TextBlock Name="tbWait" Visibility="Collapsed" FontSize="24">Ожидайте хода противника</TextBlock>
         </StackPanel>
             <StackPanel>
-                <Button Name="btnStartNewGame" Canvas.ZIndex="5" Visibility="Collapsed" Click="BtnStartNewGame_Click">Начать новую игру</Button>
-                <TextBlock Name="tbGameResult" FontSize="50" Canvas.ZIndex="5" HorizontalAlignment="Center"  VerticalAlignment="Center"></TextBlock>
+                <Button Name="btnStartNewGame" Canvas.ZIndex="7" Visibility="Collapsed" Click="BtnStartNewGame_Click">Начать новую игру</Button>
+                <TextBlock Name="tbGameResult" FontSize="50" Canvas.ZIndex="7" HorizontalAlignment="Center"  VerticalAlignment="Center"></TextBlock>
             </StackPanel>
     </Grid>
     </Canvas>

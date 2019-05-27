@@ -12,7 +12,7 @@ namespace SeaBattleClient
         public ClientShip(int id, ShipClass shipClass = ShipClass.OneDeck, Orientation orientation = Orientation.Horizontal, Location location = null) 
             : base(id, shipClass, orientation, location)
         {
-            switch (shipClass)
+            /*switch (shipClass)
             {
             case ShipClass.OneDeck:
                 Source = orientation == Orientation.Horizontal ? "ms-appx:///Assets/Ships/1.jpg" : "ms-appx:///Assets/Ships/5.jpg";
@@ -26,9 +26,28 @@ namespace SeaBattleClient
             case ShipClass.FourDeck:
                 Source = orientation == Orientation.Horizontal ? "ms-appx:///Assets/Ships/4.jpg" : "ms-appx:///Assets/Ships/8.jpg";
                 break;
+            }*/
+        }
+
+        public string Source
+        {
+            get
+            {
+                switch (ShipClass)
+                {
+                case ShipClass.OneDeck:
+                    return Orientation == Orientation.Horizontal ? "ms-appx:///Assets/Ships/1.jpg" : "ms-appx:///Assets/Ships/5.jpg";
+                case ShipClass.TwoDeck:
+                    return Orientation == Orientation.Horizontal ? "ms-appx:///Assets/Ships/2.jpg" : "ms-appx:///Assets/Ships/6.jpg";
+                case ShipClass.ThreeDeck:
+                    return Orientation == Orientation.Horizontal ? "ms-appx:///Assets/Ships/3.jpg" : "ms-appx:///Assets/Ships/7.jpg";
+                case ShipClass.FourDeck:
+                    return Orientation == Orientation.Horizontal ? "ms-appx:///Assets/Ships/4.jpg" : "ms-appx:///Assets/Ships/8.jpg";
+                }
+
+                return string.Empty;
             }
         }
 
-        public string Source { get; }
     }
 }
