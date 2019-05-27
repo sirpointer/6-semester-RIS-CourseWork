@@ -19,7 +19,7 @@
             <TextBlock Name="tbGo" Visibility="Collapsed" FontSize="24">Ваш ход</TextBlock>
             <TextBlock Name="tbWait" Visibility="Collapsed" FontSize="24">Ожидайте хода противника</TextBlock>
         </StackPanel>
-            <StackPanel Background="Chartreuse" Canvas.ZIndex="7">
+            <StackPanel Name="panel" Canvas.ZIndex="1">
                 <TextBlock/>
                 <TextBlock Name="tbGameResult" FontSize="50" Canvas.ZIndex="7" HorizontalAlignment="Center"  VerticalAlignment="Center"></TextBlock>
                 <Button Name="btnStartNewGame" Background="WhiteSmoke" Canvas.ZIndex="7" HorizontalAlignment="Center"  VerticalAlignment="Center" Visibility="Collapsed" Click="BtnStartNewGame_Click">Начать новую игру</Button>

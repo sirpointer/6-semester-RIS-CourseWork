@@ -192,6 +192,8 @@ namespace SeaBattleClient
             {
                 await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
+                    Canvas.SetZIndex(panel, 7);
+                    panel.Background = new SolidColorBrush(Colors.White);
                     tbGameResult.Text = "Вы проиграли";
                     btnStartNewGame.Visibility = Visibility.Visible;
                 });
